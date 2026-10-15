@@ -5,6 +5,10 @@
 <meta http-equiv="Cache-Control" content="no-cache">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20100%20100%22%3E%20%20%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2248%22%20fill%3D%22%230f6b52%22/%3E%20%20%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2242%22%20fill%3D%22none%22%20stroke%3D%22%23d4a72c%22%20stroke-width%3D%221.6%22/%3E%20%20%3Cpath%20d%3D%22M50%2021c-2%200-3.5%201.5-3.5%203.5v1.4C38.5%2027.7%2033.5%2034.5%2033.5%2043v12.5l-5.5%207.5v3h44v-3l-5.5-7.5V43c0-8.5-5-15.3-13-17.1v-1.4C53.5%2022.5%2052%2021%2050%2021z%22%20fill%3D%22%23ffffff%22/%3E%20%20%3Ccircle%20cx%3D%2250%22%20cy%3D%2271.5%22%20r%3D%225%22%20fill%3D%22%23ffffff%22/%3E%20%20%3Cpath%20d%3D%22M24%2036q-6%2010%200%2020M18%2031q-9%2015%200%2030M76%2036q6%2010%200%2020M82%2031q9%2015%200%2030%22%20fill%3D%22none%22%20stroke%3D%22%23d4a72c%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22/%3E%20%20%3Cpolygon%20points%3D%2250.00%2C37.00%2047.86%2C39.84%2044.34%2C39.34%2044.84%2C42.86%2042.00%2C45.00%2044.84%2C47.14%2044.34%2C50.66%2047.86%2C50.16%2050.00%2C53.00%2052.14%2C50.16%2055.66%2C50.66%2055.16%2C47.14%2058.00%2C45.00%2055.16%2C42.86%2055.66%2C39.34%2052.14%2C39.84%22%20fill%3D%22%23d4a72c%22/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="إشعارات القادسية">
 <meta name="theme-color" content="#0f6b52">
 <title>إشعارات القادسية</title>
@@ -138,7 +142,7 @@ footer{text-align:center;color:var(--muted);font-size:.82rem}
     </details>
   </section>
 
-  <footer>تصميم وبرمجة: أ. عبدالله ال عواد · الإصدار ٥</footer>
+  <footer>تصميم وبرمجة: أ. عبدالله ال عواد · الإصدار ٦</footer>
 </div>
 <div class="toast" id="toast" hidden></div>
 
@@ -159,7 +163,7 @@ const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.
 let sent=store.get("q_sent",[]), links=store.get("q_links",{});
 
 Object.keys(TPL).forEach(k=>{const o=document.createElement("option");o.textContent=k;$("tpl").appendChild(o)});
-const APPV="5";
+const APPV="6";
 if(store.get("q_ver",null)!==APPV){try{localStorage.removeItem("q_msg")}catch(e){}store.set("q_ver",APPV);}
 $("msg").value=store.get("q_msg",TPL["وقت الخروج"]);
 if(!store.get("q_msg",null)){$("tpl").value="وقت الخروج";}
@@ -201,7 +205,7 @@ function full(){
     if($("when").checked) t+=(/[:：]$/.test(t)?"\n":"\n\n")+(E?"\uD83D\uDDD3\uFE0F ":"")+"اليوم: "+w.day+"\n"+(E?"\uD83D\uDCC5 ":"")+"التاريخ: "+w.date+"\n"+(E?"\u23F0 ":"")+"الوقت: "+w.time;
   }
   if(E) t=t.replace("*تنبيه هام*","\u26A0\uFE0F *تنبيه هام*");
-  if($("hdr").checked) t=(E?"\uD83D\uDCE2 ":"")+"*ابتدائية القادسية*\n\n"+t;
+  if($("hdr").checked) t=(E?"\uD83D\uDCE2 ":"")+"*إشعارات القادسية*\n\n"+t;
   if($("sig").checked && $("signame").value.trim()) t+="\n\n"+$("signame").value.trim();
   return ar(t);
 }
