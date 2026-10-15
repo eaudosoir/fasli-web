@@ -5,6 +5,8 @@
 https://eaudosoir.github.io/fasli-web/
 
 لا تحتوي هذه النسخة أي بيانات طلاب؛ كل البيانات تُحفظ على جوال المعلم فقط.
-تُبنى من مستودع fasli-app بالأمر: `python3 tools/build_web.py`
+تُبنى من مستودع fasli-app (فرع demo-web) بالأمر: `python3 tools/build_web.py`
+
+نسخة العرض ببيانات وهمية: https://eaudosoir.github.io/fasli-web/demo/
 
 تصميم وبرمجة: أ. عبدالله ال عواد

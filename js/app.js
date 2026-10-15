@@ -17,9 +17,10 @@ const App = {
     }
     this.renderNav();
     try { Look.apply(); setInterval(() => Look.apply(), 60000); } catch (e) { }
-    setTimeout(() => $('#splash')?.classList.add('hide'), 900);
-    setTimeout(() => $('#splash')?.remove(), 1500);
+    setTimeout(() => $('#splash')?.classList.add('hide'), 1600);
+    setTimeout(() => $('#splash')?.remove(), 2200);
     if (this.S.lockEnabled && await DB.getSetting('pinHash')) await this.lock();
+    try { await Cloud.offerRestore(); } catch (e) { console.warn(e); }
     const po = Native.call('getPendingOpen');
     let opened = false;
     if (po) { try { const o = JSON.parse(po); this.openFromNotification(o.classId, o.period); opened = true; } catch (e) { } }
@@ -181,7 +182,7 @@ const App = {
       const el = document.createElement('div');
       el.className = 'lockscreen';
       let pin = '';
-      el.innerHTML = `<div class="lock-inner"><img src="img/logo.svg" class="lock-logo" alt=""><h2><img class="wm" src="img/wm-white.png" alt="فصلي"></h2><p>أدخل الرمز السري</p>
+      el.innerHTML = `<div class="lock-inner"><h2><img class="lock-brand" src="img/brand-white.png" alt="فصلي"></h2><p>أدخل الرمز السري</p>
         <div class="pin-dots">${'<i></i>'.repeat(4)}</div><div class="pin-err"></div>
         <div class="pinpad">${[1, 2, 3, 4, 5, 6, 7, 8, 9, '', 0, '⌫'].map(k => `<button ${k === '' ? 'disabled class="ghost"' : ''} data-k="${k}">${k}</button>`).join('')}</div>
         ${this.bioReady() ? `<button class="bio-btn" data-bio>${ic('face')}<span>الفتح بالوجه أو البصمة</span></button>` : ''}</div>`;
@@ -213,7 +214,7 @@ const NAV = [
   { id: 'followup', label: 'المتابعة', icon: 'flag' },
   { id: 'reports', label: 'التقارير', icon: 'chart' }
 ];
-const NAV_ROOT = { platforms: 'home', ask: 'home', seats: 'session', qbank: 'home', attention: 'followup', weekly: 'home', ideas: 'home', quiz: 'session', stars: 'home', curriculum: 'home', covers: 'home', merge: 'home', portfolio: 'home', student: 'students', more: 'home', timetable: 'home', calendar: 'home', settings: 'home', madrasati: 'home', lists: 'home', backup: 'home' };
+const NAV_ROOT = { reset: 'home', photos: 'home', worksheet: 'home', remedial: 'followup', monthly: 'home', platforms: 'home', ask: 'home', seats: 'session', qbank: 'home', attention: 'followup', weekly: 'home', ideas: 'home', quiz: 'session', stars: 'home', curriculum: 'home', covers: 'home', merge: 'home', portfolio: 'home', student: 'students', more: 'home', timetable: 'home', calendar: 'home', settings: 'home', madrasati: 'home', lists: 'home', backup: 'home' };
 
 /* ===== الجدول الدراسي ===== */
 const Sched = {
@@ -326,7 +327,7 @@ Screens.home = async (v) => {
 
   v.innerHTML = `
   <header class="hero">
-    <div class="hero-top"><div class="brand"><img src="img/logo.svg" alt=""><img class="wm" src="img/wm-white.png" alt="فصلي"></div>
+    <div class="hero-top"><div class="brand"><img class="brand-wm" src="img/brand-white.png" alt="فصلي"></div>
       <div class="row"><button class="icon-btn light priv-btn ${S.privacy ? 'on' : ''}" data-priv aria-label="وضع الخصوصية">${ic(S.privacy ? 'lock' : 'eye')}</button><button class="icon-btn light" data-go="ask" aria-label="اسأل فصلي">${ic('search')}</button><button class="icon-btn light" data-go="calendar" aria-label="التقويم">${ic('cal')}</button><button class="icon-btn light" data-go="more" aria-label="المزيد">${ic('grid')}</button></div></div>
     <div class="hero-greet"><h1>${greet}، ${esc(teacherFirst ? 'أ. ' + teacherFirst : '')}</h1>
       <p>${dayName(now)} · ${hijri(now)} · ${greg(now)}</p></div>
@@ -346,6 +347,7 @@ Screens.home = async (v) => {
         ${sc('session', 'checkSq', 'الحضور', 'g1')}${sc('students', 'users', 'الطلاب', 'g2')}${sc('followup', 'flag', 'المتابعة', 'g3')}${sc('reports', 'chart', 'التقارير', 'g4')}
         ${sc('stars', 'trophy', 'نجوم الأسبوع', 'g6')}${sc('curriculum', 'route', 'توزيع المنهج', 'g5')}${sc('portfolio', 'folder', 'شواهد الأداء', 'g7')}${sc('timetable', 'grid', 'جدولي', 'g8')}
         ${sc('weekly', 'send', 'رسالة الأسبوع', 'g9')}${sc('attention', 'pulse', 'يحتاجون متابعة', 'g10')}${sc('qbank', 'bank', 'بنك الأسئلة', 'g11')}${sc('platforms', 'sync', 'المزامنة', 'g12')}
+        ${sc('monthly', 'cal', 'التقرير الشهري', 'g3')}${sc('remedial', 'aid', 'الخطة العلاجية', 'g10')}${sc('worksheet', 'sheet', 'ورقة عمل', 'g5')}${sc('photos', 'camera', 'صور الشواهد', 'g7')}
       </div></section>
     <p class="foot-sign">تصميم وبرمجة: أ. عبدالله ال عواد</p>
   </div>
@@ -380,6 +382,7 @@ function todayCenter({ FD, pending, care, lessons, today, pts }) {
   if (care.length) L.push(['pulse', `${care.length} ${care.length === 1 ? 'طالب يحتاج' : care.length === 2 ? 'طالبان يحتاجان' : 'طلاب يحتاجون'} متابعة هذا الأسبوع`, care.slice(0, 3).map(x => nm(x.sid)).join('، ') + (care.length > 3 ? '...' : ''), 'attention', 'warn']);
   if (old.length) L.push(['history', `${old.length} حالات مفتوحة من أيام سابقة`, `${fromY ? `منها ${fromY} من أمس · ` : ''}${follow ? `${follow} تحت المتابعة` : 'لم يُتخذ فيها إجراء'}`, 'followup|hw', 'warn']);
   if (topAbs.length) L.push(['x', 'الأكثر غيابًا (30 يومًا)', topAbs.map(([s, n]) => `${nm(s)} (${n})`).join('، '), 'ask|الأكثر غيابا هذا الشهر', '']);
+  if (App.students.length && Cloud.shareDue()) L.push(['cloud', 'ارفع نسخة الأسبوع إلى Google Drive', App.S.lastCloudShare ? `آخر رفع: ${shortDate(App.S.lastCloudShare.slice(0, 10))}` : 'احمِ بياناتك من ضياع الجهاز — ضغطة واحدة', 'backup', '']);
   if (!L.length) return '';
   return `<section class="card today-c"><div class="card-h"><h3>${ic('sparkle')} مركز اليوم</h3><button class="btn xs soft" data-go="ask">${ic('search')} اسأل فصلي</button></div>
     ${L.map(([i, t, s, go, c]) => `<button class="tc-row ${c}" data-tc="${go}"><span>${ic(i)}</span><div><b>${t}</b><small>${s}</small></div>${ic('chev')}</button>`).join('')}</section>`;
@@ -402,6 +405,10 @@ Screens.more = async (v) => {
     ${menuItem('platforms', 'sync', 'المزامنة مع مدرستي ونور', 'سحب الطلاب والواجبات والدرجات وتعبئة الغياب')}
     ${menuItem('ask', 'search', 'اسأل فصلي', 'بحث ذكي: «الهاربين هذا الأسبوع»، «أكثر طلاب السادس تأخرًا»')}
     ${menuItem('weekly', 'send', 'رسالة الأسبوع لأولياء الأمور', 'ملخص أداء كل طالب في رسالة واتساب جاهزة')}
+    ${menuItem('monthly', 'cal', 'التقرير الشهري', 'تقرير مصوّر أنيق لكل طالب يُرسل لولي الأمر')}
+    ${menuItem('remedial', 'aid', 'الخطة العلاجية', 'رصد المتعثرين وخطط دعم فردية بنتائجها')}
+    ${menuItem('worksheet', 'sheet', 'ورقة عمل واختبار قصير', 'من بنك الأسئلة بنماذج مختلفة لكل فصل ونموذج إجابة')}
+    ${menuItem('photos', 'camera', 'صور الشواهد', 'صوّر أنشطتك فتُضاف لملف الإنجاز تلقائيًا')}
     ${menuItem('attention', 'pulse', 'يحتاجون متابعة', 'تنبيه مبكر بمن بدأ يتراجع هذا الأسبوع')}
     ${menuItem('qbank', 'bank', 'بنك الأسئلة', 'أسئلة كل درس للمسابقة والعرض على الشاشة')}
     ${menuItem('stars', 'trophy', 'نجوم الأسبوع والشهادات', 'أفضل 3 في كل فصل وشهادات تميّز جاهزة')}
@@ -414,8 +421,9 @@ Screens.more = async (v) => {
     ${menuItem('calendar', 'cal', 'التقويم', 'هجري وميلادي مع سجل كل يوم')}
     ${menuItem('lists', 'list', 'القوائم', 'السلوك الإيجابي والسلبي وأنواع التقصير')}
     ${menuItem('backup', 'shield', 'النسخ الاحتياطي', 'حفظ واستعادة بياناتك')}
+    ${menuItem('reset', 'trash', 'تصفير البيانات', 'مسح كامل أو جزئي: سجلات، فصول، فترة — بنسخة احتياطية تلقائية')}
     ${menuItem('settings', 'settings', 'الإعدادات', 'بياناتك، القفل، التنبيهات')}
-  </div><div class="about"><img src="img/logo.svg" alt=""><img class="wm" src="img/wm-navy.png" alt="فصلي"><small>إدارة صفك بسهولة · الإصدار ${Native.call('appVersion') || '1.0'}</small><small>تصميم وبرمجة: أ. عبدالله ال عواد</small></div></div>`;
+  </div><div class="about"><img class="about-brand" src="img/brand-navy.png" alt="فصلي"><small>إدارة صفك بسهولة · الإصدار ${Native.call('appVersion') || '1.0'}</small><small>تصميم وبرمجة: أ. عبدالله ال عواد</small></div></div>`;
   bindBack(v); bindGo(v);
 };
 const menuItem = (go, icon, t, s) => `<button class="menu-item" data-go="${go}"><span class="mi-ic">${ic(icon)}</span><span class="mi-tx"><b>${t}</b><small>${s}</small></span>${ic('chev', 'mi-ch')}</button>`;

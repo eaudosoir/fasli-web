@@ -382,7 +382,7 @@ function todayCenter({ FD, pending, care, lessons, today, pts }) {
   if (care.length) L.push(['pulse', `${care.length} ${care.length === 1 ? 'طالب يحتاج' : care.length === 2 ? 'طالبان يحتاجان' : 'طلاب يحتاجون'} متابعة هذا الأسبوع`, care.slice(0, 3).map(x => nm(x.sid)).join('، ') + (care.length > 3 ? '...' : ''), 'attention', 'warn']);
   if (old.length) L.push(['history', `${old.length} حالات مفتوحة من أيام سابقة`, `${fromY ? `منها ${fromY} من أمس · ` : ''}${follow ? `${follow} تحت المتابعة` : 'لم يُتخذ فيها إجراء'}`, 'followup|hw', 'warn']);
   if (topAbs.length) L.push(['x', 'الأكثر غيابًا (30 يومًا)', topAbs.map(([s, n]) => `${nm(s)} (${n})`).join('، '), 'ask|الأكثر غيابا هذا الشهر', '']);
-  if (Native.has() && App.students.length && Cloud.shareDue()) L.push(['cloud', 'ارفع نسخة الأسبوع إلى Google Drive', App.S.lastCloudShare ? `آخر رفع: ${shortDate(App.S.lastCloudShare.slice(0, 10))}` : 'احمِ بياناتك من ضياع الجهاز — ضغطة واحدة', 'backup', '']);
+  if (App.students.length && Cloud.shareDue()) L.push(['cloud', 'ارفع نسخة الأسبوع إلى Google Drive', App.S.lastCloudShare ? `آخر رفع: ${shortDate(App.S.lastCloudShare.slice(0, 10))}` : 'احمِ بياناتك من ضياع الجهاز — ضغطة واحدة', 'backup', '']);
   if (!L.length) return '';
   return `<section class="card today-c"><div class="card-h"><h3>${ic('sparkle')} مركز اليوم</h3><button class="btn xs soft" data-go="ask">${ic('search')} اسأل فصلي</button></div>
     ${L.map(([i, t, s, go, c]) => `<button class="tc-row ${c}" data-tc="${go}"><span>${ic(i)}</span><div><b>${t}</b><small>${s}</small></div>${ic('chev')}</button>`).join('')}</section>`;

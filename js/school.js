@@ -73,6 +73,7 @@ const PERF = [
   ['tech', 'توظيف تقنيات ووسائل التعلم المناسبة', 10], ['env', 'تهيئة البيئة التعليمية', 5], ['class', 'الإدارة الصفية', 5],
   ['analysis', 'تحليل نتائج المتعلمين وتشخيص مستوياتهم', 10], ['assess', 'تنوع أساليب التقويم', 10]
 ];
+const studAr = n => n === 1 ? 'طالب واحد' : n === 2 ? 'طالبان' : n <= 10 ? `${n} طلاب` : `${n} طالبًا`;
 async function perfEvidence(from, to) {
   const D = await Follow.load();
   const inR = x => x.date >= from && x.date <= to;
@@ -82,18 +83,20 @@ async function perfEvidence(from, to) {
   const cnt = k => att.filter(a => a.status === k).length;
   const doneWeeks = Object.values(App.S.lessonDone || {}).reduce((a, o) => a + Object.values(o).filter(d => d >= from && d <= to).length, 0);
   const pct = att.length ? Math.round((cnt('present') + cnt('late')) / att.length * 100) : 0;
+  const rem = (await DB.all('remedial')).filter(r => r.date <= to && (r.endDate || r.date) >= from), remDone = rem.filter(r => r.status === 'done'), remUp = remDone.filter(r => r.result !== 'لم يتحسن بعد');
+  const mSent = Object.entries(App.S.monthlySent || {}).filter(([k]) => k >= from.slice(0, 8) + '01' && k <= to).reduce((a, [, v]) => a + v.length, 0);
   const e = {
     duties: [`${ses.filter(s => s.complete).length} حصة اعتُمد حضورها`, `${ses.filter(s => s.cover).length} حصة انتظار مغطاة`, `${(App.S.duties || []).length} مناوبة/إشراف أسبوعي`],
     community: [`${u('export')} تقرير مُصدّر ومشارك مع الإدارة والزملاء`, 'أضف هنا: مجتمعات التعلم المهنية، الدورات، الزيارات التبادلية'],
-    parents: [`${ct.length} تواصل مع أولياء الأمور والإدارة`, `${ct.filter(c => c.channel === 'واتساب').length} رسالة واتساب`, `${ct.filter(c => /إشادة|شهادة/.test(c.reason)).length} إشادة وشهادة تميّز`],
+    parents: [`${ct.length} تواصل مع أولياء الأمور والإدارة`, ...(mSent ? [`${mSent} تقرير شهري مُرسل لأولياء الأمور`] : []), `${ct.filter(c => c.channel === 'واتساب').length} رسالة واتساب`, `${ct.filter(c => /إشادة|شهادة/.test(c.reason)).length} إشادة وشهادة تميّز`],
     strategies: [`${u('quiz')} مسابقة حصة`, `${u('groups')} تعلّم تعاوني (مجموعات)`, `${u('wheel')} عجلة الأسماء`, `${u('timer')} أنشطة موقوتة`],
-    results: [`${pts.reduce((a, b) => a + (b.value || 1), 0)} نقطة مشاركة وتحفيز`, `${u('cert')} شهادة تميّز`, `${hw.filter(h => h.resolved).length} حالة واجبات عولجت من ${hw.length}`],
+    results: [...(rem.length ? [`${rem.length} خطة علاجية فردية${remDone.length ? ` — أُنجز ${remDone.length} وتحسّن ${studAr(remUp.length)}` : ''}`] : []), `${pts.reduce((a, b) => a + (b.value || 1), 0)} نقطة مشاركة وتحفيز`, `${u('cert')} شهادة تميّز`, `${hw.filter(h => h.resolved).length} حالة واجبات عولجت من ${hw.length}`],
     plan: [`${doneWeeks} درس أسبوعي أُنجز حسب توزيع المنهج`, ...App.classes.filter(c => App.classStudents(c.id).length).map(c => `${c.name}: ${Curr.status(c.id).label}`).slice(0, 9)],
     tech: [`تطبيق «فصلي» لإدارة الصف والحضور الرقمي`, `${imports.length} تقرير مستورد من منصة مدرستي`, `تقارير PDF و Excel إلكترونية`],
     env: [`${pts.filter(p => p.type === 'positive').length} تعزيز لسلوك إيجابي`, `نجوم الأسبوع وأوسمة الطلاب`],
     class: [`نسبة الحضور ${pct}% في ${att.length} سجل`, `${notes.length} ملاحظة سلوكية/تعليمية، عولج منها ${notes.filter(n => n.resolved).length}`, `غياب ${cnt('absent')} · تأخر ${cnt('late')} · هروب ${cnt('escaped')}`],
-    analysis: [`تقارير متابعة: الأكثر غيابًا، المقصرون، الأكثر مشاركة`, `${(await Follow.needsContact(D)).length} حالة رُصدت تحتاج تواصلًا`],
-    assess: [`${gr.length} درجة اختبار مستوردة`, `${pts.filter(p => p.quiz).length} إجابة في مسابقات الحصة (تقويم تكويني)`, `${hw.length} متابعة واجب`]
+    analysis: [...(rem.length ? [`${studAr(new Set(rem.map(r => r.studentId)).size)}: شُخّصت مستوياتهم ووُضعت لهم خطط علاجية`] : []), `تقارير متابعة: الأكثر غيابًا، المقصرون، الأكثر مشاركة`, `${(await Follow.needsContact(D)).length} حالة رُصدت تحتاج تواصلًا`],
+    assess: [...(u('worksheet') ? [`${u('worksheet')} ورقة عمل واختبار قصير مطبوع بنماذج متعددة`] : []), `${gr.length} درجة اختبار مستوردة`, `${pts.filter(p => p.quiz).length} إجابة في مسابقات الحصة (تقويم تكويني)`, `${hw.length} متابعة واجب`]
   };
   return e;
 }
@@ -101,14 +104,16 @@ Screens.portfolio = async (v, p) => {
   const range = p.range || 'term';
   const [from, to] = range === 'month' ? periodRange('month') : range === 'week' ? periodRange('week') : [CURR_WEEKS[0][1], ymd()];
   const ev = await perfEvidence(from, to);
+  const photos = await Photos.inRange(from, to);
   const manual = App.S.perfNotes || {};
   v.innerHTML = topbar('شواهد الأداء الوظيفي') + `<div class="page">
     <div class="stars-hero navy">${ic('folder')}<div><b>شواهد الأداء الوظيفي 1448هـ</b><small>تُجمع تلقائيًا من عملك في فصلي — جاهزة لملف الإنجاز الرقمي</small></div></div>
     <div class="seg small">${[['week', 'أسبوعي'], ['month', 'شهري'], ['term', 'الفصل الدراسي']].map(([k, l]) => `<button data-r="${k}" class="${range === k ? 'on' : ''}">${l}</button>`).join('')}</div>
-    <div class="report print-area"><div class="rep-head"><img src="img/logo.svg" alt=""><div><h2>شواهد الأداء الوظيفي</h2><p>${esc(App.S.teacherName)} · ${esc(App.S.subject)} · ${esc(App.S.school)} · ${shortDate(from)} — ${shortDate(to)}</p></div></div>
+    <div class="report print-area"><div class="rep-head"><img src="img/logo.png" alt=""><div><h2>شواهد الأداء الوظيفي</h2><p>${esc(App.S.teacherName)} · ${esc(App.S.subject)} · ${esc(App.S.school)} · ${shortDate(from)} — ${shortDate(to)}</p></div></div>
     ${PERF.map(([k, t, w], i) => `<section class="perf"><div class="perf-h"><span class="perf-n">${i + 1}</span><b>${t}</b><small>${w}%</small></div>
       <ul>${ev[k].map(x => `<li>${esc(x)}</li>`).join('')}${(manual[k] || []).map((x, j) => `<li class="man">${esc(x)} <button class="lnk no-print" data-rm="${k}|${j}">حذف</button></li>`).join('')}</ul>
-      <button class="lnk no-print" data-add="${k}">${ic('plus')} إضافة شاهد</button></section>`).join('')}
+      ${photos.some(x => x.perf === k) ? `<div class="perf-ph">${photos.filter(x => x.perf === k).map(x => `<figure data-ph="${x.id}"><img src="${x.data}" alt=""><figcaption>${esc(x.caption || '')}</figcaption></figure>`).join('')}</div>` : ''}
+      <div class="no-print row gap"><button class="lnk" data-add="${k}">${ic('plus')} إضافة شاهد</button><button class="lnk" data-addph="${k}">${ic('camera')} إضافة صورة</button></div></section>`).join('')}
     <div class="rep-sign"><span>المعلم: ${esc(App.S.teacherName)}</span><span>التوقيع: ..................</span><span>${hijri(new Date())}</span></div></div>
     <div class="rep-actions no-print"><button class="btn primary grow" data-print>${ic('print')} طباعة / PDF</button><button class="btn soft grow" data-xlsx>${ic('download')} Excel</button></div></div>`;
   bindBack(v);
@@ -118,6 +123,8 @@ Screens.portfolio = async (v, p) => {
     if (t) { await App.set('perfNotes', { ...manual, [b.dataset.add]: [...(manual[b.dataset.add] || []), t] }); App.render(); }
   });
   $$('[data-rm]', v).forEach(b => b.onclick = async () => { const [k, j] = b.dataset.rm.split('|'); const a = [...(manual[k] || [])]; a.splice(+j, 1); await App.set('perfNotes', { ...manual, [k]: a }); App.render(); });
+  $$('[data-addph]', v).forEach(b => b.onclick = async () => { if (await photoSheet({ perf: b.dataset.addph })) App.render(); });
+  $$('[data-ph]', v).forEach(f => f.onclick = () => photoViewer(photos.find(x => x.id === f.dataset.ph), () => App.render()));
   v.querySelector('[data-print]').onclick = () => Native.print('شواهد الأداء الوظيفي');
   v.querySelector('[data-xlsx]').onclick = async () => {
     const rows = []; PERF.forEach(([k, t, w], i) => [...ev[k], ...(manual[k] || [])].forEach((x, j) => rows.push([j ? '' : i + 1, j ? '' : t, j ? '' : w + '%', x])));

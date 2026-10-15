@@ -97,7 +97,7 @@ async function renderReport(out, q) {
   }
   const rangeTx = q.from === q.to ? `${shortDate(q.from)} (${hijri(parseYmd(q.from))})` : `من ${shortDate(q.from)} إلى ${shortDate(q.to)}`;
   out.innerHTML = `<div class="report print-area">
-    <div class="rep-head"><img src="img/logo.svg" alt=""><div><h2>${title}</h2><p>${esc(App.S.school)} · ${esc(cname)} · ${rangeTx}</p></div></div>
+    <div class="rep-head"><img src="img/logo.png" alt=""><div><h2>${title}</h2><p>${esc(App.S.school)} · ${esc(cname)} · ${rangeTx}</p></div></div>
     ${extra}${tiles}
     ${rows.length ? `<div class="table-wrap"><table class="tbl"><thead><tr>${header.map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>` : '<div class="empty sm">لا توجد بيانات في هذه الفترة</div>'}
     <div class="rep-sign"><span>المعلم: ${esc(App.S.teacherName)}</span><span>التوقيع: ..................</span><span>${hijri(new Date())}</span></div>
@@ -341,7 +341,7 @@ Screens.settings = async (v) => {
   const hasPin = !!(await DB.getSetting('pinHash'));
   const f = (k, l, extra = '') => `<label class="fld"><span>${l}</span><input data-k="${k}" value="${esc(S[k] || '')}" ${extra}></label>`;
   v.innerHTML = topbar('الإعدادات') + `<div class="page settings">
-    <div class="id-card"><img src="img/logo.svg" alt=""><div><b>${esc(S.teacherName)}</b><small>${esc(S.subject)} · ${esc(S.school)}</small></div></div>
+    <div class="id-card"><img src="img/logo.png" alt=""><div><b>${esc(S.teacherName)}</b><small>${esc(S.subject)} · ${esc(S.school)}</small></div></div>
     <section class="card"><div class="card-h"><h3>${ic('users')} بيانات المعلم</h3></div>
       ${f('teacherName', 'الاسم')}${f('subject', 'المادة')}${f('school', 'المدرسة')}${f('teacherPhone', 'جوالك', 'dir="ltr" inputmode="tel"')}</section>
     <section class="card"><div class="card-h"><h3>${ic('school')} جهات التواصل في المدرسة</h3></div>
@@ -418,12 +418,14 @@ Screens.backup = async (v) => {
   const counts = {};
   for (const s of ['students', 'attendance', 'homework', 'points', 'notes', 'contacts']) counts[s] = (await DB.all(s)).length;
   v.innerHTML = topbar('النسخ الاحتياطي') + `<div class="page">
+    ${cloudCardHtml()}
     <div class="info-card">${ic('shield')}<div><b>بياناتك محفوظة على جهازك</b><p>في قاعدة بيانات محلية بإصدارات وترحيل آمن عند تحديث التطبيق، فلا تختفي سجلاتك. احفظ نسخة احتياطية دوريًا (في Google Drive أو واتساب) لتستعيدها عند تغيير الجوال.</p></div></div>
     <div class="rep-tiles"><div><b>${counts.students}</b><small>طالب</small></div><div><b>${counts.attendance}</b><small>سجل حضور</small></div><div><b>${counts.homework}</b><small>واجبات</small></div><div><b>${counts.points}</b><small>نقاط</small></div><div><b>${counts.notes}</b><small>ملاحظات</small></div><div><b>${counts.contacts}</b><small>تواصل</small></div></div>
     <p class="muted small center">${last ? `آخر نسخة: ${shortDate(last.slice(0, 10))}` : 'لم تحفظ أي نسخة بعد'}</p>
     <div class="big-actions"><button class="big-act" data-save>${ic('download')}<b>حفظ نسخة احتياطية</b><small>ملف واحد بكل بياناتك (بدون الرمز السري)</small></button>
       <button class="big-act" data-share>${ic('share')}<b>مشاركة النسخة</b><small>إلى Drive أو واتساب أو البريد</small></button>
-      <button class="big-act warn" data-restore>${ic('upload')}<b>استعادة من نسخة</b><small>يستبدل البيانات الحالية</small></button></div>
+      <button class="big-act warn" data-restore>${ic('upload')}<b>استعادة من نسخة</b><small>يستبدل البيانات الحالية</small></button>
+      <button class="big-act warn" data-go="reset">${ic('trash')}<b>تصفير البيانات</b><small>مسح كامل أو جزئي</small></button></div>
     <section class="card"><div class="card-h"><h3>${ic('lock')} تشفير النسخ الاحتياطية</h3><span class="pill ${Crypt.pass() ? 'ok' : ''}">${Crypt.pass() ? 'مفعّل' : 'غير مفعّل'}</span></div>
       <p class="muted small">عند التفعيل تُشفَّر كل نسخة (اليدوية والتلقائية) بكلمة مرور تختارها، فلا يستطيع أحد فتح بيانات الطلاب بدونها. احفظ كلمة المرور في مكان آمن — بدونها لا يمكن استعادة النسخة على جهاز جديد.</p>
       <div class="row gap"><button class="btn soft grow" data-setpass>${ic('lock')} ${Crypt.pass() ? 'تغيير كلمة المرور' : 'تفعيل التشفير'}</button>${Crypt.pass() ? `<button class="btn ghost" data-delpass>إيقاف</button>` : ''}</div></section>
@@ -433,6 +435,7 @@ Screens.backup = async (v) => {
       <p class="small">${App.S.lastAutoBackup ? `${ic('check')} آخر نسخة تلقائية: ${shortDate(App.S.lastAutoBackup)}` : 'لم تُحفظ نسخة تلقائية بعد'}</p>
       ${Native.has() ? `<button class="btn soft block" data-auto-now>${ic('download')} نسخة تلقائية الآن</button>` : '<p class="muted small">يعمل النسخ التلقائي داخل تطبيق الأندرويد.</p>'}</section></div>`;
   bindBack(v);
+  bindCloudCard(v); bindGo(v);
   const make = async () => { const b = await backupPayload(); await App.set('lastBackup', new Date().toISOString()); return new Blob([JSON.stringify(b)], { type: 'application/json' }); };
   const fn = () => `فصلي-نسخة-احتياطية-${ymd()}.json`;
   v.querySelector('[data-save]').onclick = async () => { Native.saveFile(fn(), await make(), 'application/json'); setTimeout(() => App.render(), 600); };

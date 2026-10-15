@@ -145,12 +145,14 @@ Screens.qbank = async (v, p) => {
     <section class="card"><div class="card-h"><h3>${ic('plus')} أضف سؤالًا من عندك</h3></div>
       <label class="fld"><span>السؤال</span><div class="voice-fld"><input name="q" placeholder="اكتب السؤال">${micBtn('[name=q]')}</div></label>
       <label class="fld"><span>الإجابة</span><div class="voice-fld"><input name="a" placeholder="الإجابة الصحيحة">${micBtn('[name=a]')}</div></label>
-      <button class="btn gold block" data-addq>${ic('plus')} إضافة</button></section></div>`;
+      <button class="btn gold block" data-addq>${ic('plus')} إضافة</button></section>
+    ${items.length ? `<button class="btn primary block" data-ws>${ic('sheet')} ورقة عمل أو اختبار قصير من هذا الدرس</button>` : ''}</div>`;
   bindBack(v); bindMic(v);
   const setP = x => { App.stack[App.stack.length - 1].params = { ...p, ...x }; App.render(); };
   $$('[data-g]', v).forEach(b => b.onclick = () => setP({ grade: +b.dataset.g, week: Curr.weekOf().n || 1 }));
   v.querySelector('[data-w]').onchange = e => setP({ week: +e.target.value, grade });
   $$('[data-delq]', v).forEach(b => b.onclick = async () => { await QB.remove(grade, week, b.dataset.delq); setP({}); });
+  v.querySelector('[data-ws]')?.addEventListener('click', () => App.go('worksheet', { grade, weeks: [week] }));
   v.querySelector('[data-addq]').onclick = async () => {
     const q = v.querySelector('[name=q]').value.trim(), a = v.querySelector('[name=a]').value.trim();
     if (!q || !a) return toast('اكتب السؤال والإجابة', 'bad');
@@ -177,7 +179,7 @@ async function presentMode(ctx) {
   const les = Curr.lesson(classId, date);
   Native.call('setImmersive', true);
   const el = overlay(`<div class="pm-wrap">
-    <div class="pm-head"><img src="img/logo.svg" alt=""><div><h1>${esc(App.className(classId))}</h1><p>${esc(App.S.subject || '')}${les?.title ? ' · ' + esc(les.title) : ''}</p></div>
+    <div class="pm-head"><img src="img/logo.png" alt=""><div><h1>${esc(App.className(classId))}</h1><p>${esc(App.S.subject || '')}${les?.title ? ' · ' + esc(les.title) : ''}</p></div>
       <div class="pm-clock"><b data-countdown>--:--</b><small>متبقٍ من الحصة</small></div></div>
     <div class="pm-stars"><h3>${ic('star')} نجوم الحصة</h3><div class="pm-st-list"></div></div>
     <div class="pm-tools">

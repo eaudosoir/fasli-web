@@ -240,7 +240,8 @@ Screens.student = async (v, p) => {
     <div class="quick-row">
       <button data-new="pt">${ic('star')}<span>مشاركة</span></button><button data-new="pos">${ic('sparkle')}<span>إيجابي</span></button>
       <button data-new="hw">${ic('book')}<span>واجب</span></button><button data-new="note">${ic('note')}<span>ملاحظة</span></button><button data-new="contact">${ic('phone')}<span>تواصل</span></button>
-      <button data-new="cert">${ic('medal')}<span>شهادة</span></button><button data-new="report">${ic('print')}<span>تقرير</span></button></div>
+      <button data-new="cert">${ic('medal')}<span>شهادة</span></button><button data-new="report">${ic('print')}<span>تقرير</span></button>
+      <button data-new="monthly">${ic('cal')}<span>شهري</span></button><button data-new="remedy">${ic('aid')}<span>علاجية</span></button><button data-new="photo">${ic('camera')}<span>صورة</span></button></div>
     <div class="tabs">${tabs.map(([k, l]) => `<button class="${tab === k ? 'on' : ''}" data-tab="${k}">${l}</button>`).join('')}</div>
     <div class="tab-body">${body}</div>
   </div>`;
@@ -259,6 +260,9 @@ Screens.student = async (v, p) => {
     if (k === 'contact') ok = await contactSheet(s.id, { reason: nc?.reasons[0]?.reason || '' });
     if (k === 'msg') ok = await messageSheet(s.id, {});
     if (k === 'cert') return certificateSheet(s.id, 1);
+    if (k === 'monthly') return monthlySheet(s.id, 0);
+    if (k === 'remedy') { const ex = (await DB.byIndex('remedial', 'studentId', s.id)).find(r => r.status === 'open'); if (ex) return App.go('remedial', { tab: 'open' }); const c = (await Remedy.candidates()).find(x => x.sid === s.id); if (await remedySheet(s.id, { reasons: c?.reasons || [] })) App.go('remedial', { tab: 'open' }); return; }
+    if (k === 'photo') return photoSheet({ classId: s.classId, studentId: s.id, perf: 'results', caption: s.name });
     if (k === 'report') return App.go('reports', { type: 'student', studentId: s.id, classId: s.classId, range: 'term', run: true });
     if (ok) re();
   });

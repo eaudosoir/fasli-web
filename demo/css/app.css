@@ -993,3 +993,5 @@ body.demo .topbar { top: calc(env(safe-area-inset-top, 0px) + 28px); padding-top
 body.demo .hero { padding-top: 14px; }
 body.demo .tabs.sticky { top: calc(env(safe-area-inset-top, 0px) + 92px); }
 body.demo .assistant-banner { top: calc(38px + env(safe-area-inset-top, 0px)); }
+.pulse-hint { animation: pulseHint 1.2s ease-in-out 3; box-shadow: 0 0 0 3px var(--gold); }
+@keyframes pulseHint { 50% { transform: scale(1.03); } }

@@ -194,12 +194,13 @@ async function groupsTool(ctx) {
 
 /* شريط أدوات الحصة */
 function toolsBar() {
-  return `<div class="tools-bar five">
+  return `<div class="tools-bar six">
     <button data-tool="present" class="hl">${ic('screen')}<span>العرض</span></button>
     <button data-tool="quiz">${ic('help')}<span>المسابقة</span></button>
     <button data-tool="wheel">${ic('wheel')}<span>العجلة</span></button>
     <button data-tool="timer">${ic('timer')}<span>المؤقت</span></button>
-    <button data-tool="groups">${ic('users')}<span>المجموعات</span></button></div>`;
+    <button data-tool="groups">${ic('users')}<span>المجموعات</span></button>
+    <button data-tool="photo">${ic('camera')}<span>صورة</span></button></div>`;
 }
 function bindTools(v, ctx) {
   $$('[data-tool]', v).forEach(b => b.onclick = () => {
@@ -209,5 +210,6 @@ function bindTools(v, ctx) {
     if (t === 'wheel') wheelTool(ctx);
     if (t === 'timer') timerTool();
     if (t === 'groups') groupsTool(ctx);
+    if (t === 'photo') photoSheet({ classId: ctx.classId, date: ctx.date, perf: ctx.cover ? 'duties' : 'strategies' });
   });
 }

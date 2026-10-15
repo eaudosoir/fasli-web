@@ -123,6 +123,7 @@ const AutoBackup = {
       const blob = new Blob([JSON.stringify(b)], { type: 'application/json' });
       const name = `فصلي-تلقائي-${dayName(new Date())}.json`;
       const ok = Native.call('saveBackup', name, await blobToB64(blob));
+      try { await Cloud.snap(true); } catch (e) { }
       if (ok === false) return false;
       await App.set('lastAutoBackup', ymd());
       return true;

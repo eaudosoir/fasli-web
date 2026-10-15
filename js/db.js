@@ -2,10 +2,12 @@
 'use strict';
 
 const DB_NAME = 'fasli';
-const DB_VERSION = 1; // ارفع الرقم وأضف خطوة في migrate() عند أي تغيير على البنية
+const DB_VERSION = 2; // ارفع الرقم وأضف خطوة في migrate() عند أي تغيير على البنية
 
 const STORES = ['settings', 'classes', 'students', 'timetable', 'sessions', 'attendance',
-  'homework', 'points', 'notes', 'contacts', 'grades', 'imports'];
+  'homework', 'points', 'notes', 'contacts', 'grades', 'imports', 'remedial'];
+/* الصور تُحفظ في مخزن مستقل ولا تدخل ملف النسخة الاحتياطية (حجمها كبير) — لها تصدير خاص */
+const MEDIA_STORES = ['photos'];
 
 function migrate(db, oldVersion, tx) {
   // كل خطوة تنفذ مرة واحدة فقط، ولا تحذف أي بيانات سابقة
@@ -25,8 +27,13 @@ function migrate(db, oldVersion, tx) {
     }
     db.createObjectStore('imports', { keyPath: 'id' });
   }
-  // مثال لإصدار قادم:
-  // if (oldVersion < 2) { tx.objectStore('students').createIndex('name','name'); }
+  // الإصدار 2: صور الشواهد + الخطط العلاجية (إضافة فقط، لا يُمس أي مخزن سابق)
+  if (oldVersion < 2) {
+    const ph = db.createObjectStore('photos', { keyPath: 'id' });
+    ph.createIndex('date', 'date'); ph.createIndex('perf', 'perf');
+    const rm = db.createObjectStore('remedial', { keyPath: 'id' });
+    rm.createIndex('studentId', 'studentId'); rm.createIndex('date', 'date');
+  }
 }
 
 const DB = {
