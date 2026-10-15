@@ -195,7 +195,7 @@ function full(){
   if(w){
     $("day").value=w.day;$("hijri").textContent=ar(w.date);
     t=t.replaceAll("{اليوم}",w.day).replaceAll("{التاريخ}",w.date).replaceAll("{الوقت}",w.time);
-    if($("when").checked) t+="\n\n"+(E?"\uD83D\uDDD3\uFE0F ":"")+"اليوم: "+w.day+"\n"+(E?"\uD83D\uDCC5 ":"")+"التاريخ: "+w.date+"\n"+(E?"\u23F0 ":"")+"الوقت: "+w.time;
+    if($("when").checked) t+=(/[:：]$/.test(t)?"\n":"\n\n")+(E?"\uD83D\uDDD3\uFE0F ":"")+"اليوم: "+w.day+"\n"+(E?"\uD83D\uDCC5 ":"")+"التاريخ: "+w.date+"\n"+(E?"\u23F0 ":"")+"الوقت: "+w.time;
   }
   if(E) t=t.replace("*تنبيه هام*","\u26A0\uFE0F *تنبيه هام*");
   if($("hdr").checked) t=(E?"\uD83D\uDCE2 ":"")+"*ابتدائية القادسية*\n\n"+t;
