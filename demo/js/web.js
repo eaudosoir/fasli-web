@@ -6,6 +6,12 @@ const _cloudCardNative = cloudCardHtml;
 cloudCardHtml = function () {
   if (Native.has()) return _cloudCardNative();
   const sh = App.S.lastCloudShare;
+  if (typeof Sync !== 'undefined' && Sync.on()) {
+    const st = Sync.status();
+    return `<section class="card cloud-card"><div class="card-h"><h3>${ic('cloud')} حماية بياناتك</h3><span class="pill ${st.err ? 'bad' : 'ok'}">${st.err ? 'متوقفة' : 'متزامنة'}</span></div>
+      <div class="cloud-row"><span>${ic('sync')}</span><div><b>محفوظة في حسابك وعلى كل أجهزتك</b><small dir="ltr" style="text-align:start">${esc(st.email)}</small></div></div>
+      <div class="row gap"><button class="btn soft grow" data-go="sync">${ic('settings')} المزامنة</button><button class="btn gold grow" data-drive>${ic('download')} نسخة إضافية</button></div></section>`;
+  }
   return `<section class="card cloud-card"><div class="card-h"><h3>${ic('cloud')} حماية بياناتك</h3><span class="pill ${sh && !Cloud.shareDue() ? 'ok' : 'bad'}">${sh && !Cloud.shareDue() ? 'محمية هذا الأسبوع' : 'تحتاج نسخة'}</span></div>
     <div class="cloud-row"><span>${ic('shield')}</span><div><b>البيانات محفوظة في هذا الجهاز فقط</b><small>لا تُرفع لأي خادم. لو حُذف المتصفح أو تغيّر الجهاز تضيع إن لم تحفظ نسخة.</small></div></div>
     <div class="cloud-row"><span>${ic('upload')}</span><div><b>نسخة أسبوعية إلى Google Drive أو «الملفات»</b><small>${sh ? `آخر نسخة: ${shortDate(sh.slice(0, 10))}` : 'لم تحفظ نسخة بعد'} — ومنها تنقل بياناتك إلى التطبيق الرسمي لاحقًا</small></div></div>
@@ -21,6 +27,7 @@ async function webWelcome() {
   const r = await sheet(`<div class="center"><img src="img/brand-navy.png" alt="فصلي" style="height:46px;margin:2px auto 8px;display:block"></div>
     <p class="center"><b>أهلًا بك في نسخة الويب من فصلي</b><br><span class="muted small">كل الشاشات والأدوات تعمل هنا، وبياناتك تُحفظ في جهازك فقط.</span></p>
     <div class="choice-list">
+      ${typeof Sync !== 'undefined' && Sync.configured() ? `<button class="choice" data-v="sync"><span class="choice-ic">${ic('cloud')}</span><span><b>عندي حساب فصلي</b><small>سجّل دخولك فتنزل بياناتك من أجهزتك الأخرى</small></span></button>` : ''}
       <button class="choice" data-v="restore"><span class="choice-ic">${ic('upload')}</span><span><b>عندي نسخة احتياطية من فصلي</b><small>من تطبيق الأندرويد أو جهاز آخر: النسخ الاحتياطي ← مشاركة النسخة</small></span></button>
       <button class="choice" data-v="noor"><span class="choice-ic">${ic('users')}</span><span><b>أبدأ بملف طلاب نور</b><small>ملف Excel من نور بأسماء الطلاب وجوالات أولياء الأمور</small></span></button>
       <button class="choice" data-v="later"><span class="choice-ic">${ic('chev')}</span><span><b>لاحقًا</b><small>أستكشف التطبيق أولًا</small></span></button>
@@ -29,6 +36,7 @@ async function webWelcome() {
       if (b.dataset.v === 'noor') importStudents().then(() => App.render()).catch(e => toast(esc(e.message), 'bad'));
       close(b.dataset.v);
     }) });
+  if (r === 'sync') { App.stack = []; App.go('sync'); return; }
   if (r === 'restore') {
     App.stack = []; App.go('backup');
     setTimeout(() => { const x = $('#view [data-restore]'); if (x) { x.scrollIntoView({ block: 'center' }); x.classList.add('pulse-hint'); } toast('اضغط «استعادة من نسخة» واختر ملف النسخة', 'ok'); }, 300);

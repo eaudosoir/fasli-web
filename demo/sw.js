@@ -4,7 +4,7 @@ const CORE = [
   './', 'index.html', 'manifest.webmanifest', 'css/app.css',
   'img/brand-white.png', 'img/brand-navy.png', 'img/logo.png', 'img/icon-192.png', 'img/icon-512.png', 'img/icon-512-solid.png', 'img/apple-touch-icon.png',
   'js/jszip.min.js', 'js/db.js', 'js/data.js', 'js/util.js', 'js/curriculum.js', 'js/app.js', 'js/session.js', 'js/screens.js', 'js/screens2.js',
-  'js/tools.js', 'js/motivate.js', 'js/school.js', 'js/questions.js', 'js/class.js', 'js/care.js', 'js/smart.js', 'js/platform.js', 'js/plus.js', 'js/reset.js', 'js/demo.js', 'js/pwa.js', 'js/web.js'
+  'js/tools.js', 'js/motivate.js', 'js/school.js', 'js/questions.js', 'js/class.js', 'js/care.js', 'js/smart.js', 'js/platform.js', 'js/plus.js', 'js/reset.js', 'js/demo.js', 'js/pwa.js'
 ];
 
 self.addEventListener('install', e => {
