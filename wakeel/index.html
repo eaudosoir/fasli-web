@@ -142,7 +142,7 @@ footer{text-align:center;color:var(--muted);font-size:.82rem}
     </details>
   </section>
 
-  <footer>تصميم وبرمجة: أ. عبدالله ال عواد · الإصدار ٦</footer>
+  <footer>تصميم وبرمجة: أ. عبدالله ال عواد · الإصدار ٧</footer>
 </div>
 <div class="toast" id="toast" hidden></div>
 
@@ -163,11 +163,11 @@ const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.
 let sent=store.get("q_sent",[]), links=store.get("q_links",{});
 
 Object.keys(TPL).forEach(k=>{const o=document.createElement("option");o.textContent=k;$("tpl").appendChild(o)});
-const APPV="6";
-if(store.get("q_ver",null)!==APPV){try{localStorage.removeItem("q_msg")}catch(e){}store.set("q_ver",APPV);}
+const APPV="7";
+if(store.get("q_ver",null)!==APPV){try{localStorage.removeItem("q_msg");localStorage.removeItem("q_sig")}catch(e){}store.set("q_ver",APPV);}
 $("msg").value=store.get("q_msg",TPL["وقت الخروج"]);
 if(!store.get("q_msg",null)){$("tpl").value="وقت الخروج";}
-$("signame").value=store.get("q_sig","وكيل شؤون الطلاب: أ. عمر الأسمري");
+$("signame").value=store.get("q_sig","ابتدائية القادسية");
 
 const DAYS=["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
 function pad(n){return String(n).padStart(2,"0")}
