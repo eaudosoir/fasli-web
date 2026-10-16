@@ -298,7 +298,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem}
     </details>
   </section>
 
-  <footer>تصميم وبرمجة: أ. عبدالله ال عواد · الإصدار ١٧</footer>
+  <footer>تصميم وبرمجة: أ. عبدالله ال عواد · الإصدار ١٨</footer>
 </div>
 <div class="scrim" id="installSheet" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="insT">
@@ -314,6 +314,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem}
       <li>اختر «إضافة إلى الشاشة الرئيسية»</li>
       <li>اضغط «إضافة» أعلى الشاشة</li>
     </ol>
+    <p class="hint" id="insOr" hidden>إذا لم تظهر نافذة التثبيت بعد الضغط، ثبّته يدويًا:</p>
     <ol class="ios" id="insAnd" hidden>
       <li>اضغط زر القائمة <span class="sh" style="color:var(--ink)">⋮</span> أعلى متصفح كروم</li>
       <li>اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية»</li>
@@ -642,9 +643,10 @@ function showSheet(){
   if(!canAsk())return;
   const manual=!deferred;
   $("insIos").hidden=!(manual&&isIOS);
-  $("insAnd").hidden=!(manual&&isAndroid);
-  $("insSam").hidden=!(manual&&isAndroid);
-  $("insPerks").hidden=manual&&(isIOS||isAndroid);
+  $("insAnd").hidden=!isAndroid;
+  $("insSam").hidden=!isAndroid;
+  $("insOr").hidden=!(isAndroid&&deferred);
+  $("insPerks").hidden=isAndroid||(manual&&isIOS);
   $("insGo").textContent=manual?"فهمت":"تثبيت الآن";
   $("installSheet").hidden=false;
 }
