@@ -185,7 +185,7 @@ footer{text-align:center;color:var(--muted);font-size:.82rem}
       </div>
       <div>
         <label for="whenLbl">يُكتب في الرسالة باسم</label>
-        <select id="whenLbl"><option>موعد التسليم</option><option>موعد الاختبار</option><option>الموعد</option></select>
+        <select id="whenLbl"><option>موعد التسليم</option><option>موعد الاختبار</option><option>الموعد</option><option>اليوم الدراسي</option></select>
       </div>
       <button class="btn next" type="button" data-next="whenSec">التالي: المعاينة والإرسال</button>
     </div>
@@ -240,7 +240,7 @@ footer{text-align:center;color:var(--muted);font-size:.82rem}
     </details>
   </section>
 
-  <footer>تصميم وبرمجة: أ. عبدالله ال عواد · الإصدار ١٢</footer>
+  <footer>تصميم وبرمجة: أ. عبدالله ال عواد · الإصدار ١٣</footer>
 </div>
 <div class="toast" id="toast" hidden></div>
 
@@ -264,6 +264,7 @@ const TPL={
   "أدوات مطلوبة":"نأمل إحضار الأدوات التالية: ",
   "مشروع / بحث":"تسليم مشروع / بحث بعنوان: ",
   "واجب منصة مدرستي":"حل الواجب المنشور في منصة مدرستي لدرس: ",
+  "تقرير يوم دراسي":"",
   "مهمة عامة":""
 };
 const GEN=t=>t==="مهمة عامة"||t==="تنبيه عام";
@@ -357,10 +358,11 @@ function full(){
   const E=$("emo").checked,e=s=>E?s+" ":"";
   const body=bodyOf();if(!body||!$("tpl").value)return "";
   const w=whenInfo(),t0=$("teacher").value||"",type=$("tpl").value;
-  const head=prio==2?e("🔴")+"*تنبيه عاجل*":prio==1?e("🟠")+"*تنبيه مهم*":e("📚")+"*"+(GEN(type)?"تنبيه من معلم المادة":type)+"*";
+  const head=prio==2?e("🔴")+"*تنبيه عاجل*":prio==1?e("🟠")+"*تنبيه مهم*":(type==="تقرير يوم دراسي"?e("📋"):e("📚"))+"*"+(GEN(type)?"تنبيه من معلم المادة":type)+"*";
   let t=head+(prio&&!GEN(type)?" — "+type:"")+"\n\n";
   t+=body+"\n";
-  if(w&&!GEN(type)) t+="\n"+e("⏰")+"*"+$("whenLbl").value+":*\n"+"اليوم: "+w.day+"\nالتاريخ: "+w.date+"\nالوقت: "+w.time+"\n";
+  const REP=type==="تقرير يوم دراسي";
+  if(w&&!GEN(type)) t+="\n"+e(REP?"🗓️":"⏰")+"*"+$("whenLbl").value+":*\n"+"اليوم: "+w.day+"\nالتاريخ: "+w.date+(REP?"":"\nالوقت: "+w.time)+"\n";
   t+="\nشاكرين تعاونكم "+(E?"🌹":"")+"\n";
   if(t0) t+="\n"+(sub(t0)?(/^(مدير|وكيل|المرشد|رائد)/.test(sub(t0))?sub(t0):"معلم "+sub(t0))+": ":"المعلم: ")+nm(t0);
   if(cfg.s.trim()) t+="\n"+cfg.s.trim();
@@ -504,7 +506,7 @@ Object.keys(TPL).forEach(k=>{const o=document.createElement("option");o.textCont
 {const o=document.createElement("option");o.value="";o.disabled=true;o.textContent="اختر نوع المهمة…";$("tpl").prepend(o)}
 $("tpl").value="";
 $("msg").value=store.get("p_msg","").trim()?store.get("p_msg",""):GREET;
-$("tpl").onchange=()=>{render();if(!bodyOf())setTimeout(()=>{$("msg").focus()},50)};
+$("tpl").onchange=()=>{if($("tpl").value==="تقرير يوم دراسي"){$("whenLbl").value="اليوم الدراسي"}else if($("whenLbl").value==="اليوم الدراسي"){$("whenLbl").value="موعد التسليم"}render();if(!bodyOf())setTimeout(()=>{$("msg").focus()},50)};
 $("msg").addEventListener("focus",()=>{const m=$("msg");if(m.value===GREET)setTimeout(()=>m.setSelectionRange(m.value.length,m.value.length),0)});
 document.querySelectorAll("#prio button").forEach(b=>b.onclick=()=>setPrio(+b.dataset.p));
 ["msg"].forEach(i=>$(i).addEventListener("input",render));
