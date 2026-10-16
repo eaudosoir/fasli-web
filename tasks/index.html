@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="مهام القادسية">
+<meta name="theme-color" content="#14284b">
+<title>مهام القادسية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;600;700&display=swap">
+<style>
+:root{
+  --bg:#f2f4f8; --surface:#ffffff; --ink:#14223b; --muted:#5b6880; --line:#d8deea;
+  --accent:#14284b; --accent-ink:#ffffff; --gold:#b8901f; --soft:#e7ecf5; --wa:#1fa855;
+  --done:#e8f5ee; --done-ink:#16794a; --warn:#8a5a00; --warn-bg:#fff4d6; --red:#c0392b;
+  --f:"Noto Naskh Arabic","Traditional Arabic","Arial",serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d1424; --surface:#151f34; --ink:#e6ecf7; --muted:#9daac2; --line:#27344f;
+  --accent:#8fb0ea; --accent-ink:#0d1424; --gold:#e3bf52; --soft:#1d2a45; --wa:#2fc56a;
+  --done:#163527; --done-ink:#7fdcab; --warn:#f2c86b; --warn-bg:#33290f; --red:#ff8a7a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1424; --surface:#151f34; --ink:#e6ecf7; --muted:#9daac2; --line:#27344f;
+  --accent:#8fb0ea; --accent-ink:#0d1424; --gold:#e3bf52; --soft:#1d2a45; --wa:#2fc56a;
+  --done:#163527; --done-ink:#7fdcab; --warn:#f2c86b; --warn-bg:#33290f; --red:#ff8a7a; color-scheme:dark}
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f);font-weight:600;direction:rtl;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+[hidden]{display:none!important}
+.wrap{max-width:640px;margin:0 auto;display:grid;gap:16px}
+header{display:flex;align-items:center;gap:12px}
+.logo{width:60px;height:60px;flex:none}
+h1{margin:0;font-size:1.45rem;font-weight:700;line-height:1.3}
+.sub{margin:0;color:var(--muted);font-size:.9rem}
+section{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:12px;min-width:0}
+h2{margin:0;font-size:1.08rem;font-weight:700;display:flex;align-items:center;gap:8px}
+h2 .n{background:var(--soft);color:var(--accent);border-radius:8px;padding:0 9px;font-size:.95rem}
+h2 .end{margin-inline-start:auto;font-size:.85rem;color:var(--muted);font-weight:600}
+label{font-size:.9rem;color:var(--muted)}
+select,textarea,input[type=text],input[type=date]{width:100%;font:inherit;font-weight:600;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+textarea{min-height:120px;resize:vertical;line-height:1.8}
+select:focus,textarea:focus,input:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chk{display:flex;align-items:center;gap:6px;font-size:.92rem;color:var(--ink)}
+input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);flex:none}
+button,.btn{font:inherit;font-weight:700;border:0;border-radius:10px;padding:11px 16px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.primary{background:var(--wa);color:#fff;font-size:1.05rem;width:100%;padding:14px}
+.primary[aria-disabled=true]{opacity:.45;pointer-events:none}
+.ghost{background:var(--soft);color:var(--accent)}
+.small{padding:6px 12px;font-size:.88rem}
+.groups{display:grid;gap:6px}
+.g{display:flex;align-items:center;gap:10px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer}
+.g.on{border-color:var(--accent);background:var(--soft)}
+.g span{flex:1;min-width:0}
+.g small{color:var(--muted);font-size:.78rem}
+.when{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:8px}
+.when>div{min-width:0}
+@media (max-width:420px){.when{grid-template-columns:1fr 1fr}.when>div:first-child{grid-column:1/-1}}
+.hint{font-size:.85rem;color:var(--muted)}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.seg button{background:var(--bg);border:1px solid var(--line);color:var(--ink);padding:9px 4px}
+.seg button[aria-pressed=true]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.seg button.u[aria-pressed=true]{background:var(--red);border-color:var(--red);color:#fff}
+.preview{background:var(--done);border-radius:10px;padding:12px 14px;white-space:pre-wrap;font-size:.95rem;overflow-wrap:anywhere}
+.note{background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:10px 12px;font-size:.88rem;margin:0}
+.bar{height:10px;background:var(--line);border-radius:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--wa);width:0;transition:width .3s}
+.chips{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.chip{background:var(--bg);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:10px 6px;font-size:.95rem}
+.chip.sent{background:var(--done);border-color:var(--done-ink);color:var(--done-ink)}
+.chip.sent::after{content:" ✓"}
+details{border-top:1px dashed var(--line);padding-top:10px}
+summary{cursor:pointer;color:var(--accent);font-weight:700}
+.log{display:grid;gap:8px}
+.log .it{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:4px;font-size:.9rem}
+.log .it b{font-size:.95rem}
+.log .meta{color:var(--muted);font-size:.8rem}
+.ltr{direction:ltr;text-align:left}
+.toast{position:fixed;bottom:calc(18px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 18px;border-radius:20px;font-size:.92rem;z-index:5}
+footer{text-align:center;color:var(--muted);font-size:.82rem}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <svg class="logo" role="img" aria-label="شعار مهام القادسية" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="48" fill="#14284b"/><circle cx="50" cy="50" r="42" fill="none" stroke="#c9a227" stroke-width="1.6"/>
+      <rect x="30" y="26" width="40" height="50" rx="5" fill="#fff"/><rect x="40" y="21" width="20" height="10" rx="3" fill="#c9a227"/>
+      <path d="M37 43l4 4 7-8M37 58l4 4 7-8" fill="none" stroke="#14284b" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M53 44h10M53 59h10" stroke="#c9a227" stroke-width="3.2" stroke-linecap="round"/>
+    </svg>
+    <div>
+      <h1>مهام القادسية</h1>
+      <p class="sub">إرسال المهام لقروبات المدرسة دفعة واحدة<br>ابتدائية القادسية · تعليم عسير</p>
+    </div>
+  </header>
+
+  <section>
+    <h2><span class="n">١</span> المعلم المكلَّف</h2>
+    <select id="teacher"></select>
+    <p class="hint" id="noTeachers" hidden>أضف أسماء المعلمين من «الإعدادات» أسفل الصفحة.</p>
+  </section>
+
+  <section>
+    <h2><span class="n">٢</span> القروبات <span class="end" id="gcount"></span></h2>
+    <div class="row">
+      <button class="ghost small" id="all" type="button">تحديد الكل</button>
+      <button class="ghost small" id="none" type="button">إلغاء التحديد</button>
+    </div>
+    <div class="groups" id="groups"></div>
+  </section>
+
+  <section>
+    <h2><span class="n">٣</span> التاريخ والوقت</h2>
+    <div class="when">
+      <div><label for="dt">التاريخ</label><input type="date" id="dt"></div>
+      <div><label for="day">اليوم</label><input type="text" id="day" readonly></div>
+      <div><label for="tm">الوقت</label><select id="tm"></select></div>
+    </div>
+    <div class="hint" id="hijri"></div>
+    <div>
+      <label for="whenLbl">يُكتب في الرسالة باسم</label>
+      <select id="whenLbl"><option>موعد التنفيذ</option><option>آخر موعد للتسليم</option><option>موعد الاجتماع</option><option>الموعد</option></select>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">٤</span> المهمة</h2>
+    <div>
+      <label for="tpl">نوع المهمة</label>
+      <select id="tpl"></select>
+    </div>
+    <div>
+      <label for="msg">نص المهمة</label>
+      <textarea id="msg" placeholder="اكتب المهمة المطلوبة…"></textarea>
+    </div>
+    <div>
+      <label>الأهمية</label>
+      <div class="seg" id="prio">
+        <button type="button" data-p="0" aria-pressed="true">عادية</button>
+        <button type="button" data-p="1" aria-pressed="false">مهمة</button>
+        <button type="button" data-p="2" class="u" aria-pressed="false">عاجلة</button>
+      </div>
+    </div>
+    <div class="row">
+      <label class="chk"><input type="checkbox" id="ack" checked> طلب تأكيد الاستلام</label>
+      <label class="chk"><input type="checkbox" id="emo" checked> الرموز التعبيرية</label>
+    </div>
+    <div class="preview" id="pv"></div>
+  </section>
+
+  <section>
+    <h2><span class="n">٥</span> الإرسال</h2>
+    <a class="btn primary" id="share" href="#" target="_blank" rel="noopener">إرسال عبر واتساب</a>
+    <p class="note">واتساب لا يسمح لأي موقع بالإرسال الآلي للقروبات. بعد الضغط تفتح قائمة المحادثات: حدّد القروبات (حتى ٥ في كل مرة) ثم أرسل. أو اضغط اسم القروب بالأسفل لنسخ المهمة وفتحه مباشرة إن أضفت رابطه.</p>
+    <div class="hint" id="cnt"></div>
+    <div class="bar"><i id="bar"></i></div>
+    <div class="chips" id="chips"></div>
+    <div class="row">
+      <button class="ghost" id="copy" type="button">نسخ المهمة</button>
+      <button class="ghost" id="done" type="button">حفظ في السجل ومهمة جديدة</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>سجل المهام <span class="end" id="logn"></span></h2>
+    <div class="log" id="log"></div>
+  </section>
+
+  <section>
+    <details id="setup">
+      <summary>الإعدادات (المعلمون والقروبات)</summary>
+      <div style="display:grid;gap:12px;margin-top:10px">
+        <div>
+          <label for="tList">أسماء المعلمين — اسم في كل سطر</label>
+          <textarea id="tList"></textarea>
+        </div>
+        <div>
+          <label for="gList">القروبات — قروب في كل سطر، ويمكن إضافة رابط الدعوة بعد علامة |</label>
+          <textarea id="gList" placeholder="قروب المعلمين | https://chat.whatsapp.com/..."></textarea>
+        </div>
+        <div>
+          <label for="sender">التوقيع أسفل الرسالة</label>
+          <input type="text" id="sender">
+        </div>
+        <button class="ghost" id="save" type="button">حفظ الإعدادات</button>
+        <button class="ghost" id="shareCfg" type="button">نسخ رابط جاهز بالأسماء للزملاء</button>
+        <p class="hint">تُحفظ الإعدادات على هذا الجهاز فقط. «الرابط الجاهز» يفتح الصفحة عند زملائك بنفس الأسماء والقروبات دون إدخالها من جديد.</p>
+      </div>
+    </details>
+  </section>
+
+  <footer>تصميم وبرمجة: أ. عبدالله ال عواد · الإصدار ١</footer>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const ar=x=>String(x).replace(/[0-9]/g,d=>"٠١٢٣٤٥٦٧٨٩"[d]);
+const pad=n=>String(n).padStart(2,"0");
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const DAYS=["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
+const ALL="جميع المعلمين";
+
+const DEF={
+  t:["أ. عبدالله ال عواد"],
+  g:[["قروب المعلمين",""],["قروب الإدارة والوكلاء",""],["لجنة التحصيل الدراسي",""],["لجنة النشاط",""],["لجنة التوجيه والإرشاد",""],["قروب المناوبة والإشراف",""]],
+  s:"إدارة ابتدائية القادسية"
+};
+const TPL={
+  "مهمة عامة":"",
+  "حصة انتظار":"تغطية حصة انتظار بدلًا من الزميل/ة: \nالفصل: \nالحصة: ",
+  "مناوبة / إشراف":"المناوبة والإشراف في: ",
+  "تسليم كشوف أو تقارير":"نأمل تسليم: \nإلى: ",
+  "رصد الدرجات":"نأمل استكمال رصد درجات:  في نظام نور.",
+  "اجتماع":"حضور اجتماع: \nالمكان: ",
+  "تحديث منصة مدرستي":"نأمل تحديث المحتوى والواجبات في منصة مدرستي لمادة: ",
+  "تكليف بلجنة":"تم تكليفكم بالعمل في لجنة: "
+};
+
+/* ---------- config ---------- */
+let cfg=store.get("m_cfg",null)||DEF;
+(function importFromHash(){
+  const m=location.hash.match(/^#c=(.+)$/);if(!m)return;
+  try{
+    const c=JSON.parse(decodeURIComponent(escape(atob(m[1].replace(/-/g,"+").replace(/_/g,"/")))));
+    if(Array.isArray(c.t)&&Array.isArray(c.g)){cfg={t:c.t,g:c.g,s:c.s||DEF.s};store.set("m_cfg",cfg);setTimeout(()=>toast("تم تحميل أسماء المعلمين والقروبات"),300)}
+  }catch(e){}
+  history.replaceState(null,"",location.pathname);
+})();
+
+let picked=store.get("m_picked",[]), sent=store.get("m_sent",[]), prio=store.get("m_prio",0), log=store.get("m_log",[]);
+
+function fillTeachers(){
+  const s=$("teacher"),cur=store.get("m_teacher",ALL);s.innerHTML="";
+  [ALL,...cfg.t].forEach(n=>{const o=document.createElement("option");o.textContent=n;s.appendChild(o)});
+  s.value=[ALL,...cfg.t].includes(cur)?cur:ALL;
+  $("noTeachers").hidden=cfg.t.length>1;
+}
+function fillGroups(){
+  const box=$("groups");box.innerHTML="";
+  picked=picked.filter(n=>cfg.g.some(g=>g[0]===n));
+  cfg.g.forEach(([name,link],i)=>{
+    const l=document.createElement("label");l.className="g"+(picked.includes(name)?" on":"");
+    l.innerHTML='<input type="checkbox" id="gc'+i+'"'+(picked.includes(name)?" checked":"")+'><span>'+esc(name)+(link?' <small>· رابط مباشر</small>':'')+'</span>';
+    l.querySelector("input").onchange=e=>{
+      picked=e.target.checked?[...picked,name]:picked.filter(x=>x!==name);
+      store.set("m_picked",picked);fillGroups();renderSend();
+    };
+    box.appendChild(l);
+  });
+  $("gcount").textContent=ar(picked.length)+" من "+ar(cfg.g.length);
+}
+function fillSetup(){
+  $("tList").value=cfg.t.join("\n");
+  $("gList").value=cfg.g.map(([n,l])=>l?n+" | "+l:n).join("\n");
+  $("sender").value=cfg.s;
+}
+
+/* ---------- date & time ---------- */
+(function initWhen(){
+  const now=new Date();
+  $("dt").value=now.getFullYear()+"-"+pad(now.getMonth()+1)+"-"+pad(now.getDate());
+  for(let m=6*60;m<=22*60;m+=5){
+    const h=Math.floor(m/60),mi=m%60,o=document.createElement("option");
+    o.value=pad(h)+":"+pad(mi);o.textContent=ar((h%12||12)+":"+pad(mi))+" "+(h<12?"صباحًا":"مساءً");
+    $("tm").appendChild(o);
+  }
+  $("tm").value=store.get("m_tm","07:00");
+  $("whenLbl").value=store.get("m_wl","موعد التنفيذ");
+})();
+function whenInfo(){
+  const v=$("dt").value;if(!v)return null;
+  const [y,mo,d]=v.split("-").map(Number),date=new Date(y,mo-1,d,12),S="‏/‏";
+  let hj="";
+  try{const P={};new Intl.DateTimeFormat("ar-SA-u-ca-islamic-umalqura-nu-latn",{day:"numeric",month:"numeric",year:"numeric"}).formatToParts(date).forEach(x=>P[x.type]=x.value);
+    hj="‏"+P.day+S+P.month+S+P.year.replace(/\D/g,"")+"هـ"}catch(e){}
+  const g="‏"+d+S+mo+S+y+"م",t=$("tm").options[$("tm").selectedIndex];
+  return {day:DAYS[date.getDay()],hj,g,date:hj?hj+" الموافق "+g:g,time:t?t.textContent:""};
+}
+
+/* ---------- message ---------- */
+function full(){
+  const E=$("emo").checked,e=s=>E?s+" ":"";
+  const body=$("msg").value.trim();if(!body)return "";
+  const w=whenInfo(),who=$("teacher").value,type=$("tpl").value;
+  const head=prio==2?e("🔴")+"*مهمة عاجلة*":prio==1?e("🟠")+"*مهمة مهمة*":e("📌")+"*مهمة جديدة*";
+  let t=head+(type!=="مهمة عامة"?" — "+type:"")+"\n\n";
+  t+=(who===ALL?e("👥")+"إلى: جميع المعلمين":e("👤")+"المكلَّف: "+who)+"\n\n";
+  t+=e("📝")+"*المهمة:*\n"+body+"\n";
+  if(w) t+="\n"+e("⏰")+"*"+$("whenLbl").value+":*\n"+"اليوم: "+w.day+"\nالتاريخ: "+w.date+"\nالوقت: "+w.time+"\n";
+  if($("ack").checked) t+="\n"+e("✅")+"نأمل الرد بكلمة «تم» عند الاستلام.\n";
+  if(cfg.s.trim()) t+="\n"+cfg.s.trim();
+  return ar(t.trim());
+}
+function render(){
+  const w=whenInfo();
+  if(w){$("day").value=w.day;$("hijri").textContent=ar(w.hj?w.hj+" — "+w.g:w.g)}
+  const t=full();
+  $("pv").textContent=t||"اكتب المهمة لتظهر المعاينة هنا…";
+  $("share").href=t?"https://wa.me/?text="+encodeURIComponent(t):"#";
+  $("share").setAttribute("aria-disabled",t?"false":"true");
+  store.set("m_msg",$("msg").value);store.set("m_teacher",$("teacher").value);store.set("m_tm",$("tm").value);store.set("m_wl",$("whenLbl").value);
+}
+function renderSend(){
+  const c=$("chips");c.innerHTML="";
+  sent=sent.filter(n=>picked.includes(n));
+  picked.forEach(name=>{
+    const link=(cfg.g.find(g=>g[0]===name)||[])[1]||"",b=document.createElement("button");
+    b.type="button";b.className="chip"+(sent.includes(name)?" sent":"");b.textContent=name;
+    b.onclick=async()=>{
+      if(!sent.includes(name)){ if(!full()){toast("اكتب المهمة أولًا");return} await copy(); if(link) window.open(link,"_blank"); }
+      sent=sent.includes(name)?sent.filter(x=>x!==name):[...sent,name];store.set("m_sent",sent);renderSend();
+    };
+    c.appendChild(b);
+  });
+  const n=picked.length;
+  $("cnt").textContent=n?"أُرسلت إلى "+ar(sent.length)+" من "+ar(n)+" قروبات — اضغط القروب بعد الإرسال لتعليمه":"حدّد القروبات من الخطوة ٢";
+  $("bar").style.width=(n?sent.length/n*100:0)+"%";
+  if(n&&sent.length===n) toast("وصلت المهمة لجميع القروبات المحددة");
+}
+function renderLog(){
+  const L=$("log");L.innerHTML="";
+  $("logn").textContent=log.length?ar(log.length):"";
+  if(!log.length){L.innerHTML='<p class="hint">تظهر هنا المهام المرسلة لإعادة استخدامها.</p>';return}
+  log.forEach((it,i)=>{
+    const d=document.createElement("div");d.className="it";
+    d.innerHTML="<b>"+esc(it.type)+" · "+esc(it.who)+"</b><div>"+esc(it.body.length>90?it.body.slice(0,90)+"…":it.body)+"</div><div class='meta'>"+esc(ar(it.when))+" · "+esc(ar(it.groups.length))+" قروبات</div>";
+    const r=document.createElement("div");r.className="row";
+    const u=document.createElement("button");u.type="button";u.className="ghost small";u.textContent="استخدام مرة أخرى";
+    u.onclick=()=>{$("tpl").value=it.type;$("msg").value=it.body;if([ALL,...cfg.t].includes(it.who))$("teacher").value=it.who;picked=it.groups.filter(n=>cfg.g.some(g=>g[0]===n));store.set("m_picked",picked);setPrio(it.prio||0);fillGroups();renderSend();render();scrollTo({top:0,behavior:"smooth"});toast("تم تحميل المهمة")};
+    const x=document.createElement("button");x.type="button";x.className="ghost small";x.textContent="حذف";
+    x.onclick=()=>{log.splice(i,1);store.set("m_log",log);renderLog()};
+    r.append(u,x);d.appendChild(r);L.appendChild(d);
+  });
+}
+function toast(s){const e=$("toast");e.textContent=s;e.hidden=false;clearTimeout(e._t);e._t=setTimeout(()=>e.hidden=true,2400)}
+async function copy(){
+  const t=full();if(!t){toast("اكتب المهمة أولًا");return false}
+  try{await navigator.clipboard.writeText(t);toast("تم نسخ المهمة");return true}
+  catch(e){toast("لم يتم النسخ — انسخ من المعاينة");return false}
+}
+function setPrio(p){prio=p;store.set("m_prio",p);document.querySelectorAll("#prio button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.p==p)));render()}
+
+/* ---------- wiring ---------- */
+Object.keys(TPL).forEach(k=>{const o=document.createElement("option");o.textContent=k;$("tpl").appendChild(o)});
+$("tpl").value=store.get("m_tpl","مهمة عامة");
+$("msg").value=store.get("m_msg","");
+$("tpl").onchange=()=>{store.set("m_tpl",$("tpl").value);const t=TPL[$("tpl").value];if(t||!$("msg").value.trim())$("msg").value=t;render();$("msg").focus()};
+document.querySelectorAll("#prio button").forEach(b=>b.onclick=()=>setPrio(+b.dataset.p));
+["msg"].forEach(i=>$(i).addEventListener("input",render));
+["teacher","dt","tm","whenLbl","ack","emo"].forEach(i=>$(i).addEventListener("change",render));
+$("all").onclick=()=>{picked=cfg.g.map(g=>g[0]);store.set("m_picked",picked);fillGroups();renderSend()};
+$("none").onclick=()=>{picked=[];store.set("m_picked",picked);fillGroups();renderSend()};
+$("copy").onclick=copy;
+$("share").addEventListener("click",e=>{if(!full()){e.preventDefault();toast("اكتب المهمة أولًا")}});
+$("done").onclick=()=>{
+  const body=$("msg").value.trim();if(!body){toast("لا توجد مهمة لحفظها");return}
+  const w=whenInfo();
+  log.unshift({type:$("tpl").value,who:$("teacher").value,body,prio,groups:picked.slice(),when:w?w.day+" "+w.hj+" "+w.time:""});
+  log=log.slice(0,20);store.set("m_log",log);
+  sent=[];store.set("m_sent",sent);$("msg").value="";$("tpl").value="مهمة عامة";store.set("m_tpl","مهمة عامة");setPrio(0);
+  renderSend();renderLog();render();toast("حُفظت في السجل — جاهز لمهمة جديدة");
+};
+$("save").onclick=()=>{
+  const t=$("tList").value.split("\n").map(s=>s.trim()).filter(Boolean);
+  const g=$("gList").value.split("\n").map(s=>s.trim()).filter(Boolean).map(s=>{const i=s.indexOf("|");return i<0?[s,""]:[s.slice(0,i).trim(),s.slice(i+1).trim()]}).filter(x=>x[0]);
+  if(!g.length){toast("أضف قروبًا واحدًا على الأقل");return}
+  cfg={t,g,s:$("sender").value.trim()};store.set("m_cfg",cfg);
+  fillTeachers();fillGroups();renderSend();render();toast("تم حفظ الإعدادات");
+};
+$("shareCfg").onclick=async()=>{
+  const b=btoa(unescape(encodeURIComponent(JSON.stringify(cfg)))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+  const url=location.origin+location.pathname+"#c="+b;
+  try{await navigator.clipboard.writeText(url);toast("تم نسخ الرابط الجاهز")}catch(e){prompt("انسخ الرابط:",url)}
+};
+
+fillTeachers();fillGroups();fillSetup();setPrio(prio);renderSend();renderLog();render();
+</script>
+</body>
+</html>
