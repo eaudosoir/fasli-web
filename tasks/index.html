@@ -60,9 +60,9 @@ button,.btn{font:inherit;font-weight:700;border:0;border-radius:10px;padding:11p
 .g.on{border-color:var(--accent);background:var(--soft)}
 .g span{flex:1;min-width:0;white-space:nowrap}.gg .g{padding:10px 8px;gap:6px}
 .g small{color:var(--muted);font-size:.78rem}
-.when{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:8px}
+.when{display:grid;grid-template-columns:1.6fr 1fr;gap:8px}
 .when>div{min-width:0}
-@media (max-width:420px){.when{grid-template-columns:1fr 1fr}.when>div:first-child{grid-column:1/-1}}
+@media (max-width:420px){.when{grid-template-columns:1fr}}
 .hint{font-size:.85rem;color:var(--muted)}
 .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .seg button{background:var(--bg);border:1px solid var(--line);color:var(--ink);padding:9px 4px}
@@ -130,11 +130,9 @@ footer{text-align:center;color:var(--muted);font-size:.82rem}
   <section>
     <h2><span class="n">٣</span> التاريخ والوقت</h2>
     <div class="when">
-      <div><label for="dt">التاريخ</label><input type="date" id="dt"></div>
-      <div><label for="day">اليوم</label><input type="text" id="day" readonly></div>
+      <div><label for="dt">اليوم والتاريخ (هجري)</label><select id="dt"></select></div>
       <div><label for="tm">الوقت</label><select id="tm"></select></div>
     </div>
-    <div class="hint" id="hijri"></div>
     <div>
       <label for="whenLbl">يُكتب في الرسالة باسم</label>
       <select id="whenLbl"><option>موعد التسليم</option><option>موعد الاختبار</option><option>الموعد</option></select>
@@ -214,7 +212,7 @@ footer{text-align:center;color:var(--muted);font-size:.82rem}
     </details>
   </section>
 
-  <footer>تصميم وبرمجة: أ. عبدالله ال عواد · الإصدار ٢</footer>
+  <footer>تصميم وبرمجة: أ. عبدالله ال عواد · الإصدار ٣</footer>
 </div>
 <div class="toast" id="toast" hidden></div>
 
@@ -291,9 +289,22 @@ function fillSetup(){
 }
 
 /* ---------- date & time ---------- */
+function hijriParts(date){
+  const P={};
+  new Intl.DateTimeFormat("ar-SA-u-ca-islamic-umalqura-nu-latn",{day:"numeric",month:"numeric",year:"numeric"}).formatToParts(date).forEach(x=>P[x.type]=x.value);
+  const M={};
+  new Intl.DateTimeFormat("ar-SA-u-ca-islamic-umalqura-nu-latn",{month:"long"}).formatToParts(date).forEach(x=>M[x.type]=x.value);
+  return {d:P.day,m:P.month,y:P.year.replace(/\D/g,""),mn:M.month||""};
+}
 (function initWhen(){
-  const now=new Date();
-  $("dt").value=now.getFullYear()+"-"+pad(now.getMonth()+1)+"-"+pad(now.getDate());
+  const now=new Date(),base=new Date(now.getFullYear(),now.getMonth(),now.getDate(),12);
+  for(let i=0;i<=120;i++){
+    const dt=new Date(base);dt.setDate(base.getDate()+i);
+    const h=hijriParts(dt),o=document.createElement("option");
+    o.value=dt.getFullYear()+"-"+pad(dt.getMonth()+1)+"-"+pad(dt.getDate());
+    o.textContent=(i===0?"اليوم ":i===1?"غدًا ":"")+DAYS[dt.getDay()]+" "+ar(h.d)+" "+h.mn+" "+ar(h.y)+"هـ";
+    $("dt").appendChild(o);
+  }
   for(let m=6*60;m<=22*60;m+=5){
     const h=Math.floor(m/60),mi=m%60,o=document.createElement("option");
     o.value=pad(h)+":"+pad(mi);o.textContent=ar((h%12||12)+":"+pad(mi))+" "+(h<12?"صباحًا":"مساءً");
@@ -304,15 +315,10 @@ function fillSetup(){
 })();
 function whenInfo(){
   const v=$("dt").value;if(!v)return null;
-  const [y,mo,d]=v.split("-").map(Number),date=new Date(y,mo-1,d,12),S="‏/‏";
-  let hj="";
-  try{const P={};new Intl.DateTimeFormat("ar-SA-u-ca-islamic-umalqura-nu-latn",{day:"numeric",month:"numeric",year:"numeric"}).formatToParts(date).forEach(x=>P[x.type]=x.value);
-    hj="‏"+P.day+S+P.month+S+P.year.replace(/\D/g,"")+"هـ"}catch(e){}
-  const g="‏"+d+S+mo+S+y+"م",t=$("tm").options[$("tm").selectedIndex];
-  return {day:DAYS[date.getDay()],hj,g,date:hj?hj+" الموافق "+g:g,time:t?t.textContent:""};
+  const [y,mo,d]=v.split("-").map(Number),date=new Date(y,mo-1,d,12),S="\u200F/\u200F";
+  const h=hijriParts(date),hj="\u200F"+h.d+S+h.m+S+h.y+"هـ",t=$("tm").options[$("tm").selectedIndex];
+  return {day:DAYS[date.getDay()],hj,date:hj,time:t?t.textContent:""};
 }
-
-/* ---------- message ---------- */
 function full(){
   const E=$("emo").checked,e=s=>E?s+" ":"";
   const body=$("msg").value.trim();if(!body)return "";
@@ -329,7 +335,6 @@ function full(){
 }
 function render(){
   const w=whenInfo();
-  if(w){$("day").value=w.day;$("hijri").textContent=ar(w.hj?w.hj+" — "+w.g:w.g)}
   const t=full();
   $("pv").textContent=t||"اكتب المهمة لتظهر المعاينة هنا…";
   $("share").href=t?"https://wa.me/?text="+encodeURIComponent(t):"#";
