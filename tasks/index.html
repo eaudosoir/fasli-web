@@ -77,6 +77,7 @@ button,.btn{font:inherit;font-weight:700;border:0;border-radius:10px;padding:11p
 .f span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.9rem}
 .f small{color:var(--muted);display:block;font-size:.78rem}
 .f button{background:none;color:var(--red);padding:4px 8px;font-size:1.1rem}
+.last{display:grid;gap:8px;background:var(--done);color:var(--done-ink);border-radius:10px;padding:10px 12px;font-size:.92rem}
 .preview{background:var(--done);border-radius:10px;padding:12px 14px;white-space:pre-wrap;font-size:.95rem;overflow-wrap:anywhere}
 .note{background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:10px 12px;font-size:.88rem;margin:0}
 .bar{height:10px;background:var(--line);border-radius:6px;overflow:hidden}
@@ -158,7 +159,6 @@ footer{text-align:center;color:var(--muted);font-size:.82rem}
       </div>
     </div>
     <div class="row">
-      <label class="chk"><input type="checkbox" id="ack" checked> التحية لأولياء الأمور</label>
       <label class="chk"><input type="checkbox" id="emo" checked> الرموز التعبيرية</label>
     </div>
     <div>
@@ -175,12 +175,15 @@ footer{text-align:center;color:var(--muted);font-size:.82rem}
     <a class="btn primary" id="share" href="#" target="_blank" rel="noopener">إرسال عبر واتساب</a>
     <p class="note" id="fileNote" hidden>مع الملف: يُنسخ نص المهمة تلقائيًا ثم تفتح قائمة المشاركة. اختر واتساب ثم القروبات. إذا ظهر الملف بدون النص، الصق النص في خانة التعليق.</p>
     <p class="note">واتساب لا يسمح لأي موقع بالإرسال الآلي للقروبات. بعد الضغط تفتح قائمة المحادثات: حدّد القروبات (حتى ٥ في كل مرة) ثم أرسل. أو اضغط اسم القروب بالأسفل لنسخ المهمة وفتحه مباشرة إن أضفت رابطه.</p>
+    <div class="last" id="lastBox" hidden>
+      <span>✅ أُرسلت المهمة ومُسحت من المربع. لإرسالها لقروبات أخرى:</span>
+      <button class="ghost" id="resend" type="button">إرسال المهمة السابقة مرة أخرى</button>
+    </div>
     <div class="hint" id="cnt"></div>
     <div class="bar"><i id="bar"></i></div>
     <div class="chips" id="chips"></div>
     <div class="row">
       <button class="ghost" id="copy" type="button">نسخ المهمة</button>
-      <button class="ghost" id="done" type="button">حفظ في السجل ومهمة جديدة</button>
     </div>
   </section>
 
@@ -212,7 +215,7 @@ footer{text-align:center;color:var(--muted);font-size:.82rem}
     </details>
   </section>
 
-  <footer>تصميم وبرمجة: أ. عبدالله ال عواد · الإصدار ٤</footer>
+  <footer>تصميم وبرمجة: أ. عبدالله ال عواد · الإصدار ٥</footer>
 </div>
 <div class="toast" id="toast" hidden></div>
 
@@ -320,14 +323,17 @@ function whenInfo(){
   const h=hijriParts(date),hj="\u200F"+h.d+S+h.m+S+h.y+"هـ",t=$("tm").options[$("tm").selectedIndex];
   return {day:DAYS[date.getDay()],hj,date:hj,time:t?t.textContent:""};
 }
+const GREET="السلام عليكم ورحمة الله وبركاته\n";
+const bodyOf=()=>{const b=$("msg").value.trim();return b===GREET.trim()?"":b};
+let last=null;
+const current=()=>full()||(last?last.t:"");
 function full(){
   const E=$("emo").checked,e=s=>E?s+" ":"";
-  const body=$("msg").value.trim();if(!body)return "";
+  const body=bodyOf();if(!body)return "";
   const w=whenInfo(),t0=$("teacher").value||"",type=$("tpl").value;
   const head=prio==2?e("🔴")+"*تنبيه عاجل*":prio==1?e("🟠")+"*تنبيه مهم*":e("📚")+"*"+(GEN(type)?"تنبيه من معلم المادة":type)+"*";
   let t=head+(prio&&!GEN(type)?" — "+type:"")+"\n\n";
-  if($("ack").checked) t+="السلام عليكم ورحمة الله وبركاته\nأولياء أمور الطلاب الكرام،\n\n";
-  t+=e("📝")+"*المطلوب:*\n"+body+"\n";
+  t+=body+"\n";
   if(w&&!GEN(type)) t+="\n"+e("⏰")+"*"+$("whenLbl").value+":*\n"+"اليوم: "+w.day+"\nالتاريخ: "+w.date+"\nالوقت: "+w.time+"\n";
   t+="\nشاكرين تعاونكم "+(E?"🌹":"")+"\n";
   if(t0) t+="\n"+(sub(t0)?"معلم "+sub(t0)+": ":"المعلم: ")+nm(t0);
@@ -341,6 +347,7 @@ function render(){
   $("pv").textContent=t||"اكتب المهمة لتظهر المعاينة هنا…";
   $("share").href=t?"https://wa.me/?text="+encodeURIComponent(t):"#";
   $("share").setAttribute("aria-disabled",t?"false":"true");
+  $("lastBox").hidden=!(last&&!t);
   store.set("p_msg",$("msg").value);store.set("p_teacher",$("teacher").value);store.set("p_tm",$("tm").value);store.set("p_wl",$("whenLbl").value);
 }
 function renderSend(){
@@ -350,7 +357,7 @@ function renderSend(){
     const link=(cfg.g.find(g=>g[0]===name)||[])[1]||"",b=document.createElement("button");
     b.type="button";b.className="chip"+(sent.includes(name)?" sent":"");b.textContent=name;
     b.onclick=async()=>{
-      if(!sent.includes(name)){ if(!full()){toast("اكتب المهمة أولًا");return} await copy(); if(link) window.open(link,"_blank"); }
+      if(!sent.includes(name)){ if(!current()){toast("اكتب المهمة أولًا");return} await copy(); if(link) window.open(link,"_blank"); }
       sent=sent.includes(name)?sent.filter(x=>x!==name):[...sent,name];store.set("p_sent",sent);renderSend();
     };
     c.appendChild(b);
@@ -395,18 +402,26 @@ $("file").onchange=e=>{
   const big=add.find(f=>f.size>64*1048576);if(big){toast("الملف أكبر من ٦٤ م.ب");return}
   files=[...files,...add].slice(0,5);renderFiles();
 };
-async function shareWithFiles(){
-  const t=full();
-  try{await navigator.clipboard.writeText(t)}catch(e){}
-  const data={files,text:t};
-  if(!(navigator.canShare&&navigator.canShare({files}))){toast("هذا المتصفح لا يدعم إرسال الملفات — أُرسل النص، وأرفق الملف من واتساب");window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank");return}
-  try{await navigator.share(data)}
-  catch(e){ if(e.name==="AbortError")return;
-    try{await navigator.share({files})}catch(e2){if(e2.name!=="AbortError")toast("تعذّر الإرسال — جرّب ملفًا آخر")} }
+function shareWithFiles(t,fl){
+  try{navigator.clipboard.writeText(t).catch(()=>{})}catch(e){}
+  if(!(navigator.canShare&&navigator.canShare({files:fl}))){toast("هذا المتصفح لا يدعم إرسال الملفات — أُرسل النص، وأرفق الملف من واتساب");window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank");return}
+  navigator.share({files:fl,text:t}).catch(e=>{ if(e.name==="AbortError")return;
+    navigator.share({files:fl}).catch(e2=>{if(e2.name!=="AbortError")toast("تعذّر الإرسال — جرّب ملفًا آخر")}) });
+}
+function sendNow(t,fl){ if(fl.length) shareWithFiles(t,fl); else window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank"); }
+function commit(t){
+  if(!last||last.t!==t){sent=[];store.set("p_sent",sent)}
+  last={t,files:files.slice()};
+  const w=whenInfo();
+  log.unshift({type:$("tpl").value,who:$("teacher").value,body:$("msg").value.trim(),prio,groups:picked.slice(),when:w?w.day+" "+w.hj+" "+w.time:""});
+  log=log.slice(0,20);store.set("p_log",log);
+  $("msg").value=GREET;files=[];renderFiles();
+  render();renderSend();renderLog();
+  setTimeout(()=>toast("أُرسلت المهمة ومُسحت من المربع"),400);
 }
 function toast(s){const e=$("toast");e.textContent=s;e.hidden=false;clearTimeout(e._t);e._t=setTimeout(()=>e.hidden=true,2400)}
 async function copy(){
-  const t=full();if(!t){toast("اكتب المهمة أولًا");return false}
+  const t=current();if(!t){toast("اكتب المهمة أولًا");return false}
   try{await navigator.clipboard.writeText(t);toast("تم نسخ المهمة");return true}
   catch(e){toast("لم يتم النسخ — انسخ من المعاينة");return false}
 }
@@ -415,24 +430,22 @@ function setPrio(p){prio=p;store.set("p_prio",p);document.querySelectorAll("#pri
 /* ---------- wiring ---------- */
 Object.keys(TPL).forEach(k=>{const o=document.createElement("option");o.textContent=k;$("tpl").appendChild(o)});
 $("tpl").value=TPL[store.get("p_tpl","")]!==undefined?store.get("p_tpl"):"واجب منزلي";
-if(!$("msg").value&&!store.get("p_msg",""))$("msg").value="";
-$("msg").value=store.get("p_msg","");
-$("tpl").onchange=()=>{store.set("p_tpl",$("tpl").value);const t=TPL[$("tpl").value];if(t||!$("msg").value.trim())$("msg").value=t;render();$("msg").focus()};
+$("msg").value=store.get("p_msg","").trim()?store.get("p_msg",""):GREET;
+$("tpl").onchange=()=>{store.set("p_tpl",$("tpl").value);render()};
+$("msg").addEventListener("focus",()=>{const m=$("msg");if(m.value===GREET)setTimeout(()=>m.setSelectionRange(m.value.length,m.value.length),0)});
 document.querySelectorAll("#prio button").forEach(b=>b.onclick=()=>setPrio(+b.dataset.p));
 ["msg"].forEach(i=>$(i).addEventListener("input",render));
-["teacher","dt","tm","whenLbl","ack","emo"].forEach(i=>$(i).addEventListener("change",render));
+["teacher","dt","tm","whenLbl","emo"].forEach(i=>$(i).addEventListener("change",render));
 $("all").onclick=()=>{picked=cfg.g.map(g=>g[0]);store.set("p_picked",picked);fillGroups();renderSend()};
 $("none").onclick=()=>{picked=[];store.set("p_picked",picked);fillGroups();renderSend()};
 $("copy").onclick=copy;
-$("share").addEventListener("click",e=>{if(!full()){e.preventDefault();toast("اكتب المهمة أولًا");return}if(files.length){e.preventDefault();shareWithFiles()}});
-$("done").onclick=()=>{
-  const body=$("msg").value.trim();if(!body){toast("لا توجد مهمة لحفظها");return}
-  const w=whenInfo();
-  log.unshift({type:$("tpl").value,who:$("teacher").value,body,prio,groups:picked.slice(),when:w?w.day+" "+w.hj+" "+w.time:""});
-  log=log.slice(0,20);store.set("p_log",log);
-  sent=[];store.set("p_sent",sent);files=[];renderFiles();$("msg").value="";$("tpl").value="واجب منزلي";store.set("p_tpl","واجب منزلي");setPrio(0);
-  renderSend();renderLog();render();toast("حُفظت في السجل — جاهز لمهمة جديدة");
-};
+$("share").addEventListener("click",e=>{
+  e.preventDefault();
+  const t=full();
+  if(!t){ if(last){sendNow(last.t,last.files)} else toast("اكتب المهمة أولًا"); return }
+  sendNow(t,files);commit(t);
+});
+$("resend").onclick=()=>{if(last)sendNow(last.t,last.files)};
 $("save").onclick=()=>{
   const t=$("tList").value.split("\n").map(s=>s.trim()).filter(Boolean);
   const g=$("gList").value.split("\n").map(s=>s.trim()).filter(Boolean).map(s=>{const i=s.indexOf("|");return i<0?[s,""]:[s.slice(0,i).trim(),s.slice(i+1).trim()]}).filter(x=>x[0]);
