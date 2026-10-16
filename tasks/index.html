@@ -298,7 +298,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem}
     </details>
   </section>
 
-  <footer>تصميم وبرمجة: أ. عبدالله ال عواد · الإصدار ١٦</footer>
+  <footer>تصميم وبرمجة: أ. عبدالله ال عواد · الإصدار ١٧</footer>
 </div>
 <div class="scrim" id="installSheet" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="insT">
@@ -651,13 +651,12 @@ function showSheet(){
 function closeSheet(){$("installSheet").hidden=true}
 function maybeAsk(when){
   if(!canAsk())return;
-  const k="p_ask_"+when, last=store.get(k,0);
-  if(Date.now()-last<(when==="open"?3:1)*864e5)return;
-  store.set(k,Date.now());
+  const last=store.get("p_later",0);
+  if(Date.now()-last<(when==="open"?1:0.5)*864e5)return;
   setTimeout(showSheet,when==="open"?1800:900);
 }
 $("installBtn").onclick=showSheet;
-$("insLater").onclick=closeSheet;
+$("insLater").onclick=()=>{store.set("p_later",Date.now());closeSheet()};
 $("installSheet").onclick=e=>{if(e.target.id==="installSheet")closeSheet()};
 $("insGo").onclick=async()=>{
   if(deferred){deferred.prompt();const r=await deferred.userChoice.catch(()=>({}));deferred=null;$("installBtn").hidden=true;closeSheet();if(r&&r.outcome==="accepted")store.set("p_installed",1)}
