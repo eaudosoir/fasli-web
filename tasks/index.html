@@ -298,7 +298,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem}
     </details>
   </section>
 
-  <footer>تصميم وبرمجة: أ. عبدالله ال عواد · الإصدار ١٥</footer>
+  <footer>تصميم وبرمجة: أ. عبدالله ال عواد · الإصدار ١٦</footer>
 </div>
 <div class="scrim" id="installSheet" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="insT">
@@ -314,6 +314,12 @@ footer{text-align:center;color:var(--muted);font-size:.8rem}
       <li>اختر «إضافة إلى الشاشة الرئيسية»</li>
       <li>اضغط «إضافة» أعلى الشاشة</li>
     </ol>
+    <ol class="ios" id="insAnd" hidden>
+      <li>اضغط زر القائمة <span class="sh" style="color:var(--ink)">⋮</span> أعلى متصفح كروم</li>
+      <li>اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية»</li>
+      <li>اضغط «تثبيت» أو «إضافة» للتأكيد</li>
+    </ol>
+    <p class="hint" id="insSam" hidden>في متصفح سامسونج: اضغط ☰ أسفل الشاشة ثم «إضافة صفحة إلى» ثم «الشاشة الرئيسية».</p>
     <div class="acts">
       <button class="next" id="insGo" type="button">تثبيت الآن</button>
       <button class="ghost" id="insLater" type="button">لاحقًا</button>
@@ -625,16 +631,21 @@ $("shareCfg").onclick=async()=>{
 
 /* ---------- install (PWA) ---------- */
 const isStandalone=()=>matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+const isAndroid=/android/i.test(navigator.userAgent);
 const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
 let deferred=null;
 if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
 addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferred=e;$("installBtn").hidden=false;maybeAsk("open")});
 addEventListener("appinstalled",()=>{deferred=null;$("installBtn").hidden=true;closeSheet();store.set("p_installed",1);toast("تم التثبيت — ستجده على الشاشة الرئيسية")});
-function canAsk(){return !isStandalone()&&!store.get("p_installed",0)&&(deferred||isIOS)}
+function canAsk(){return !isStandalone()&&!store.get("p_installed",0)&&(deferred||isIOS||isAndroid)}
 function showSheet(){
   if(!canAsk())return;
-  $("insIos").hidden=!isIOS||!!deferred; $("insPerks").hidden=isIOS&&!deferred;
-  $("insGo").textContent=(isIOS&&!deferred)?"فهمت":"تثبيت الآن";
+  const manual=!deferred;
+  $("insIos").hidden=!(manual&&isIOS);
+  $("insAnd").hidden=!(manual&&isAndroid);
+  $("insSam").hidden=!(manual&&isAndroid);
+  $("insPerks").hidden=manual&&(isIOS||isAndroid);
+  $("insGo").textContent=manual?"فهمت":"تثبيت الآن";
   $("installSheet").hidden=false;
 }
 function closeSheet(){$("installSheet").hidden=true}
@@ -652,7 +663,7 @@ $("insGo").onclick=async()=>{
   if(deferred){deferred.prompt();const r=await deferred.userChoice.catch(()=>({}));deferred=null;$("installBtn").hidden=true;closeSheet();if(r&&r.outcome==="accepted")store.set("p_installed",1)}
   else closeSheet();
 };
-if(isIOS&&!isStandalone()&&!store.get("p_installed",0)){$("installBtn").hidden=false;maybeAsk("open")}
+if((isIOS||isAndroid)&&!isStandalone()&&!store.get("p_installed",0)){$("installBtn").hidden=false;setTimeout(()=>maybeAsk("open"),1200)}
 if(isStandalone())store.set("p_installed",1);
 fillTeachers();fillGroups();fillSetup();renderSend();renderLog();render();
 openStep($("teacher").value?"s-task":"s-teacher",false);
