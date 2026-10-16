@@ -55,10 +55,10 @@ button,.btn{font:inherit;font-weight:700;border:0;border-radius:10px;padding:11p
 .primary[aria-disabled=true]{opacity:.45;pointer-events:none}
 .ghost{background:var(--soft);color:var(--accent)}
 .small{padding:6px 12px;font-size:.88rem}
-.groups{display:grid;gap:6px}
-.g{display:flex;align-items:center;gap:10px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer}
+.groups{display:grid;gap:12px}.grade{display:grid;gap:6px}.grade b{font-size:.9rem;color:var(--muted)}.gg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.g{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer}
 .g.on{border-color:var(--accent);background:var(--soft)}
-.g span{flex:1;min-width:0}
+.g span{flex:1;min-width:0;white-space:nowrap}.gg .g{padding:10px 8px;gap:6px}
 .g small{color:var(--muted);font-size:.78rem}
 .when{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:8px}
 .when>div{min-width:0}
@@ -72,7 +72,7 @@ button,.btn{font:inherit;font-weight:700;border:0;border-radius:10px;padding:11p
 .note{background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:10px 12px;font-size:.88rem;margin:0}
 .bar{height:10px;background:var(--line);border-radius:6px;overflow:hidden}
 .bar i{display:block;height:100%;background:var(--wa);width:0;transition:width .3s}
-.chips{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.chips{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .chip{background:var(--bg);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:10px 6px;font-size:.95rem}
 .chip.sent{background:var(--done);border-color:var(--done-ink);color:var(--done-ink)}
 .chip.sent::after{content:" ✓"}
@@ -99,18 +99,18 @@ footer{text-align:center;color:var(--muted);font-size:.82rem}
     </svg>
     <div>
       <h1>مهام القادسية</h1>
-      <p class="sub">إرسال المهام لقروبات المدرسة دفعة واحدة<br>ابتدائية القادسية · تعليم عسير</p>
+      <p class="sub">إرسال مهام المعلمين لقروبات أولياء الأمور دفعة واحدة<br>ابتدائية القادسية · تعليم عسير</p>
     </div>
   </header>
 
   <section>
-    <h2><span class="n">١</span> المعلم المكلَّف</h2>
+    <h2><span class="n">١</span> المعلم</h2>
     <select id="teacher"></select>
     <p class="hint" id="noTeachers" hidden>أضف أسماء المعلمين من «الإعدادات» أسفل الصفحة.</p>
   </section>
 
   <section>
-    <h2><span class="n">٢</span> القروبات <span class="end" id="gcount"></span></h2>
+    <h2><span class="n">٢</span> قروبات أولياء الأمور <span class="end" id="gcount"></span></h2>
     <div class="row">
       <button class="ghost small" id="all" type="button">تحديد الكل</button>
       <button class="ghost small" id="none" type="button">إلغاء التحديد</button>
@@ -128,7 +128,7 @@ footer{text-align:center;color:var(--muted);font-size:.82rem}
     <div class="hint" id="hijri"></div>
     <div>
       <label for="whenLbl">يُكتب في الرسالة باسم</label>
-      <select id="whenLbl"><option>موعد التنفيذ</option><option>آخر موعد للتسليم</option><option>موعد الاجتماع</option><option>الموعد</option></select>
+      <select id="whenLbl"><option>موعد التسليم</option><option>موعد الاختبار</option><option>الموعد</option></select>
     </div>
   </section>
 
@@ -140,7 +140,7 @@ footer{text-align:center;color:var(--muted);font-size:.82rem}
     </div>
     <div>
       <label for="msg">نص المهمة</label>
-      <textarea id="msg" placeholder="اكتب المهمة المطلوبة…"></textarea>
+      <textarea id="msg" placeholder="اكتب المطلوب من الطالب…"></textarea>
     </div>
     <div>
       <label>الأهمية</label>
@@ -151,7 +151,7 @@ footer{text-align:center;color:var(--muted);font-size:.82rem}
       </div>
     </div>
     <div class="row">
-      <label class="chk"><input type="checkbox" id="ack" checked> طلب تأكيد الاستلام</label>
+      <label class="chk"><input type="checkbox" id="ack" checked> التحية لأولياء الأمور</label>
       <label class="chk"><input type="checkbox" id="emo" checked> الرموز التعبيرية</label>
     </div>
     <div class="preview" id="pv"></div>
@@ -177,18 +177,18 @@ footer{text-align:center;color:var(--muted);font-size:.82rem}
 
   <section>
     <details id="setup">
-      <summary>الإعدادات (المعلمون والقروبات)</summary>
+      <summary>الإعدادات (المعلمون وروابط القروبات)</summary>
       <div style="display:grid;gap:12px;margin-top:10px">
         <div>
-          <label for="tList">أسماء المعلمين — اسم في كل سطر</label>
+          <label for="tList">المعلمون — معلم في كل سطر، ويمكن كتابة المادة بعد علامة |</label>
           <textarea id="tList"></textarea>
         </div>
         <div>
-          <label for="gList">القروبات — قروب في كل سطر، ويمكن إضافة رابط الدعوة بعد علامة |</label>
-          <textarea id="gList" placeholder="قروب المعلمين | https://chat.whatsapp.com/..."></textarea>
+          <label for="gList">قروبات الفصول — قروب في كل سطر، ويمكن إضافة رابط الدعوة بعد علامة |</label>
+          <textarea id="gList" placeholder="رابع أ | https://chat.whatsapp.com/..."></textarea>
         </div>
         <div>
-          <label for="sender">التوقيع أسفل الرسالة</label>
+          <label for="sender">اسم المدرسة أسفل الرسالة</label>
           <input type="text" id="sender">
         </div>
         <button class="ghost" id="save" type="button">حفظ الإعدادات</button>
@@ -209,54 +209,62 @@ const ar=x=>String(x).replace(/[0-9]/g,d=>"٠١٢٣٤٥٦٧٨٩"[d]);
 const pad=n=>String(n).padStart(2,"0");
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const DAYS=["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
-const ALL="جميع المعلمين";
-
+const GRADES=[["أول",["أ","ب"]],["ثاني",["أ","ب","ج"]],["ثالث",["أ","ب","ج"]],["رابع",["أ","ب","ج"]],["خامس",["أ","ب","ج"]],["سادس",["أ","ب","ج"]]];
 const DEF={
-  t:["أ. عبدالله ال عواد"],
-  g:[["قروب المعلمين",""],["قروب الإدارة والوكلاء",""],["لجنة التحصيل الدراسي",""],["لجنة النشاط",""],["لجنة التوجيه والإرشاد",""],["قروب المناوبة والإشراف",""]],
-  s:"إدارة ابتدائية القادسية"
+  t:["أ. عبدالله ال عواد | الدراسات الاجتماعية"],
+  g:GRADES.flatMap(([g,x])=>x.map(c=>[g+" "+c,""])),
+  s:"ابتدائية القادسية"
 };
 const TPL={
-  "مهمة عامة":"",
-  "حصة انتظار":"تغطية حصة انتظار بدلًا من الزميل/ة: \nالفصل: \nالحصة: ",
-  "مناوبة / إشراف":"المناوبة والإشراف في: ",
-  "تسليم كشوف أو تقارير":"نأمل تسليم: \nإلى: ",
-  "رصد الدرجات":"نأمل استكمال رصد درجات:  في نظام نور.",
-  "اجتماع":"حضور اجتماع: \nالمكان: ",
-  "تحديث منصة مدرستي":"نأمل تحديث المحتوى والواجبات في منصة مدرستي لمادة: ",
-  "تكليف بلجنة":"تم تكليفكم بالعمل في لجنة: "
+  "واجب منزلي":"حل الواجب في كتاب الطالب صفحة: ",
+  "اختبار قصير":"اختبار قصير في درس: \nنأمل مراجعة الدرس مع الطالب.",
+  "مراجعة للاختبار":"نأمل مراجعة الدروس التالية مع الطالب استعدادًا للاختبار:\n",
+  "أدوات مطلوبة":"نأمل إحضار الأدوات التالية: ",
+  "مشروع / بحث":"تسليم مشروع / بحث بعنوان: ",
+  "واجب منصة مدرستي":"حل الواجب المنشور في منصة مدرستي لدرس: ",
+  "تنبيه عام":""
 };
+const nm=t=>t.split("|")[0].trim(), sub=t=>(t.split("|")[1]||"").trim();
 
 /* ---------- config ---------- */
-let cfg=store.get("m_cfg",null)||DEF;
+let cfg=store.get("p_cfg",null)||DEF;
 (function importFromHash(){
   const m=location.hash.match(/^#c=(.+)$/);if(!m)return;
   try{
     const c=JSON.parse(decodeURIComponent(escape(atob(m[1].replace(/-/g,"+").replace(/_/g,"/")))));
-    if(Array.isArray(c.t)&&Array.isArray(c.g)){cfg={t:c.t,g:c.g,s:c.s||DEF.s};store.set("m_cfg",cfg);setTimeout(()=>toast("تم تحميل أسماء المعلمين والقروبات"),300)}
+    if(Array.isArray(c.t)&&Array.isArray(c.g)){cfg={t:c.t,g:c.g,s:c.s||DEF.s};store.set("p_cfg",cfg);setTimeout(()=>toast("تم تحميل المعلمين والقروبات"),300)}
   }catch(e){}
   history.replaceState(null,"",location.pathname);
 })();
 
-let picked=store.get("m_picked",[]), sent=store.get("m_sent",[]), prio=store.get("m_prio",0), log=store.get("m_log",[]);
+let picked=store.get("p_picked",[]), sent=store.get("p_sent",[]), prio=store.get("p_prio",0), log=store.get("p_log",[]);
 
 function fillTeachers(){
-  const s=$("teacher"),cur=store.get("m_teacher",ALL);s.innerHTML="";
-  [ALL,...cfg.t].forEach(n=>{const o=document.createElement("option");o.textContent=n;s.appendChild(o)});
-  s.value=[ALL,...cfg.t].includes(cur)?cur:ALL;
+  const s=$("teacher"),cur=store.get("p_teacher","");s.innerHTML="";
+  cfg.t.forEach(t=>{const o=document.createElement("option");o.value=t;o.textContent=nm(t)+(sub(t)?" — "+sub(t):"");s.appendChild(o)});
+  if(cfg.t.includes(cur))s.value=cur;
   $("noTeachers").hidden=cfg.t.length>1;
 }
 function fillGroups(){
   const box=$("groups");box.innerHTML="";
   picked=picked.filter(n=>cfg.g.some(g=>g[0]===n));
-  cfg.g.forEach(([name,link],i)=>{
-    const l=document.createElement("label");l.className="g"+(picked.includes(name)?" on":"");
-    l.innerHTML='<input type="checkbox" id="gc'+i+'"'+(picked.includes(name)?" checked":"")+'><span>'+esc(name)+(link?' <small>· رابط مباشر</small>':'')+'</span>';
-    l.querySelector("input").onchange=e=>{
-      picked=e.target.checked?[...picked,name]:picked.filter(x=>x!==name);
-      store.set("m_picked",picked);fillGroups();renderSend();
-    };
-    box.appendChild(l);
+  const sections=[];
+  cfg.g.forEach((g,i)=>{const k=g[0].split(" ")[0];let sec=sections.find(x=>x.k===k);if(!sec){sec={k,items:[]};sections.push(sec)}sec.items.push([g,i])});
+  sections.forEach(sec=>{
+    const d=document.createElement("div");d.className="grade";
+    const multi=sec.items.length>1;
+    d.innerHTML=multi?"<b>الصف ال"+esc(sec.k)+"</b>":"";
+    const w=document.createElement("div");w.className="gg";
+    sec.items.forEach(([[name,link],i])=>{
+      const l=document.createElement("label");l.className="g"+(picked.includes(name)?" on":"");
+      l.innerHTML='<input type="checkbox" id="gc'+i+'"'+(picked.includes(name)?" checked":"")+'><span>'+esc(name)+(link?' <small>🔗</small>':'')+'</span>';
+      l.querySelector("input").onchange=e=>{
+        picked=e.target.checked?[...picked,name]:picked.filter(x=>x!==name);
+        store.set("p_picked",picked);fillGroups();renderSend();
+      };
+      w.appendChild(l);
+    });
+    d.appendChild(w);box.appendChild(d);
   });
   $("gcount").textContent=ar(picked.length)+" من "+ar(cfg.g.length);
 }
@@ -275,8 +283,8 @@ function fillSetup(){
     o.value=pad(h)+":"+pad(mi);o.textContent=ar((h%12||12)+":"+pad(mi))+" "+(h<12?"صباحًا":"مساءً");
     $("tm").appendChild(o);
   }
-  $("tm").value=store.get("m_tm","07:00");
-  $("whenLbl").value=store.get("m_wl","موعد التنفيذ");
+  $("tm").value=store.get("p_tm","07:00");
+  $("whenLbl").value=store.get("p_wl","موعد التسليم");
 })();
 function whenInfo(){
   const v=$("dt").value;if(!v)return null;
@@ -292,13 +300,14 @@ function whenInfo(){
 function full(){
   const E=$("emo").checked,e=s=>E?s+" ":"";
   const body=$("msg").value.trim();if(!body)return "";
-  const w=whenInfo(),who=$("teacher").value,type=$("tpl").value;
-  const head=prio==2?e("🔴")+"*مهمة عاجلة*":prio==1?e("🟠")+"*مهمة مهمة*":e("📌")+"*مهمة جديدة*";
-  let t=head+(type!=="مهمة عامة"?" — "+type:"")+"\n\n";
-  t+=(who===ALL?e("👥")+"إلى: جميع المعلمين":e("👤")+"المكلَّف: "+who)+"\n\n";
-  t+=e("📝")+"*المهمة:*\n"+body+"\n";
+  const w=whenInfo(),t0=$("teacher").value||"",type=$("tpl").value;
+  const head=prio==2?e("🔴")+"*تنبيه عاجل*":prio==1?e("🟠")+"*تنبيه مهم*":e("📚")+"*"+(type==="تنبيه عام"?"تنبيه من معلم المادة":type)+"*";
+  let t=head+(prio&&type!=="تنبيه عام"?" — "+type:"")+"\n\n";
+  if($("ack").checked) t+="السلام عليكم ورحمة الله وبركاته\nأولياء أمور الطلاب الكرام،\n\n";
+  t+=e("📝")+"*المطلوب:*\n"+body+"\n";
   if(w) t+="\n"+e("⏰")+"*"+$("whenLbl").value+":*\n"+"اليوم: "+w.day+"\nالتاريخ: "+w.date+"\nالوقت: "+w.time+"\n";
-  if($("ack").checked) t+="\n"+e("✅")+"نأمل الرد بكلمة «تم» عند الاستلام.\n";
+  t+="\nشاكرين تعاونكم "+(E?"🌹":"")+"\n";
+  if(t0) t+="\n"+(sub(t0)?"معلم "+sub(t0)+": ":"المعلم: ")+nm(t0);
   if(cfg.s.trim()) t+="\n"+cfg.s.trim();
   return ar(t.trim());
 }
@@ -309,7 +318,7 @@ function render(){
   $("pv").textContent=t||"اكتب المهمة لتظهر المعاينة هنا…";
   $("share").href=t?"https://wa.me/?text="+encodeURIComponent(t):"#";
   $("share").setAttribute("aria-disabled",t?"false":"true");
-  store.set("m_msg",$("msg").value);store.set("m_teacher",$("teacher").value);store.set("m_tm",$("tm").value);store.set("m_wl",$("whenLbl").value);
+  store.set("p_msg",$("msg").value);store.set("p_teacher",$("teacher").value);store.set("p_tm",$("tm").value);store.set("p_wl",$("whenLbl").value);
 }
 function renderSend(){
   const c=$("chips");c.innerHTML="";
@@ -319,7 +328,7 @@ function renderSend(){
     b.type="button";b.className="chip"+(sent.includes(name)?" sent":"");b.textContent=name;
     b.onclick=async()=>{
       if(!sent.includes(name)){ if(!full()){toast("اكتب المهمة أولًا");return} await copy(); if(link) window.open(link,"_blank"); }
-      sent=sent.includes(name)?sent.filter(x=>x!==name):[...sent,name];store.set("m_sent",sent);renderSend();
+      sent=sent.includes(name)?sent.filter(x=>x!==name):[...sent,name];store.set("p_sent",sent);renderSend();
     };
     c.appendChild(b);
   });
@@ -334,12 +343,12 @@ function renderLog(){
   if(!log.length){L.innerHTML='<p class="hint">تظهر هنا المهام المرسلة لإعادة استخدامها.</p>';return}
   log.forEach((it,i)=>{
     const d=document.createElement("div");d.className="it";
-    d.innerHTML="<b>"+esc(it.type)+" · "+esc(it.who)+"</b><div>"+esc(it.body.length>90?it.body.slice(0,90)+"…":it.body)+"</div><div class='meta'>"+esc(ar(it.when))+" · "+esc(ar(it.groups.length))+" قروبات</div>";
+    d.innerHTML="<b>"+esc(it.type)+" · "+esc(nm(it.who))+"</b><div>"+esc(it.body.length>90?it.body.slice(0,90)+"…":it.body)+"</div><div class='meta'>"+esc(ar(it.when))+" · "+esc(ar(it.groups.length))+" قروبات</div>";
     const r=document.createElement("div");r.className="row";
     const u=document.createElement("button");u.type="button";u.className="ghost small";u.textContent="استخدام مرة أخرى";
-    u.onclick=()=>{$("tpl").value=it.type;$("msg").value=it.body;if([ALL,...cfg.t].includes(it.who))$("teacher").value=it.who;picked=it.groups.filter(n=>cfg.g.some(g=>g[0]===n));store.set("m_picked",picked);setPrio(it.prio||0);fillGroups();renderSend();render();scrollTo({top:0,behavior:"smooth"});toast("تم تحميل المهمة")};
+    u.onclick=()=>{$("tpl").value=it.type;$("msg").value=it.body;if(cfg.t.includes(it.who))$("teacher").value=it.who;picked=it.groups.filter(n=>cfg.g.some(g=>g[0]===n));store.set("p_picked",picked);setPrio(it.prio||0);fillGroups();renderSend();render();scrollTo({top:0,behavior:"smooth"});toast("تم تحميل المهمة")};
     const x=document.createElement("button");x.type="button";x.className="ghost small";x.textContent="حذف";
-    x.onclick=()=>{log.splice(i,1);store.set("m_log",log);renderLog()};
+    x.onclick=()=>{log.splice(i,1);store.set("p_log",log);renderLog()};
     r.append(u,x);d.appendChild(r);L.appendChild(d);
   });
 }
@@ -349,33 +358,34 @@ async function copy(){
   try{await navigator.clipboard.writeText(t);toast("تم نسخ المهمة");return true}
   catch(e){toast("لم يتم النسخ — انسخ من المعاينة");return false}
 }
-function setPrio(p){prio=p;store.set("m_prio",p);document.querySelectorAll("#prio button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.p==p)));render()}
+function setPrio(p){prio=p;store.set("p_prio",p);document.querySelectorAll("#prio button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.p==p)));render()}
 
 /* ---------- wiring ---------- */
 Object.keys(TPL).forEach(k=>{const o=document.createElement("option");o.textContent=k;$("tpl").appendChild(o)});
-$("tpl").value=store.get("m_tpl","مهمة عامة");
-$("msg").value=store.get("m_msg","");
-$("tpl").onchange=()=>{store.set("m_tpl",$("tpl").value);const t=TPL[$("tpl").value];if(t||!$("msg").value.trim())$("msg").value=t;render();$("msg").focus()};
+$("tpl").value=TPL[store.get("p_tpl","")]!==undefined?store.get("p_tpl"):"واجب منزلي";
+if(!$("msg").value&&!store.get("p_msg",""))$("msg").value="";
+$("msg").value=store.get("p_msg","");
+$("tpl").onchange=()=>{store.set("p_tpl",$("tpl").value);const t=TPL[$("tpl").value];if(t||!$("msg").value.trim())$("msg").value=t;render();$("msg").focus()};
 document.querySelectorAll("#prio button").forEach(b=>b.onclick=()=>setPrio(+b.dataset.p));
 ["msg"].forEach(i=>$(i).addEventListener("input",render));
 ["teacher","dt","tm","whenLbl","ack","emo"].forEach(i=>$(i).addEventListener("change",render));
-$("all").onclick=()=>{picked=cfg.g.map(g=>g[0]);store.set("m_picked",picked);fillGroups();renderSend()};
-$("none").onclick=()=>{picked=[];store.set("m_picked",picked);fillGroups();renderSend()};
+$("all").onclick=()=>{picked=cfg.g.map(g=>g[0]);store.set("p_picked",picked);fillGroups();renderSend()};
+$("none").onclick=()=>{picked=[];store.set("p_picked",picked);fillGroups();renderSend()};
 $("copy").onclick=copy;
 $("share").addEventListener("click",e=>{if(!full()){e.preventDefault();toast("اكتب المهمة أولًا")}});
 $("done").onclick=()=>{
   const body=$("msg").value.trim();if(!body){toast("لا توجد مهمة لحفظها");return}
   const w=whenInfo();
   log.unshift({type:$("tpl").value,who:$("teacher").value,body,prio,groups:picked.slice(),when:w?w.day+" "+w.hj+" "+w.time:""});
-  log=log.slice(0,20);store.set("m_log",log);
-  sent=[];store.set("m_sent",sent);$("msg").value="";$("tpl").value="مهمة عامة";store.set("m_tpl","مهمة عامة");setPrio(0);
+  log=log.slice(0,20);store.set("p_log",log);
+  sent=[];store.set("p_sent",sent);$("msg").value="";$("tpl").value="واجب منزلي";store.set("p_tpl","واجب منزلي");setPrio(0);
   renderSend();renderLog();render();toast("حُفظت في السجل — جاهز لمهمة جديدة");
 };
 $("save").onclick=()=>{
   const t=$("tList").value.split("\n").map(s=>s.trim()).filter(Boolean);
   const g=$("gList").value.split("\n").map(s=>s.trim()).filter(Boolean).map(s=>{const i=s.indexOf("|");return i<0?[s,""]:[s.slice(0,i).trim(),s.slice(i+1).trim()]}).filter(x=>x[0]);
   if(!g.length){toast("أضف قروبًا واحدًا على الأقل");return}
-  cfg={t,g,s:$("sender").value.trim()};store.set("m_cfg",cfg);
+  cfg={t,g,s:$("sender").value.trim()};store.set("p_cfg",cfg);
   fillTeachers();fillGroups();renderSend();render();toast("تم حفظ الإعدادات");
 };
 $("shareCfg").onclick=async()=>{
