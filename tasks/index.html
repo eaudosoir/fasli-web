@@ -11,40 +11,40 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="ساعي">
-<meta name="theme-color" content="#4f46e5">
+<meta name="theme-color" content="#0f766e">
 <title>ساعي — مهام المعلمين لأولياء الأمور</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;600;700&display=swap">
 <style>
 :root{
-  --bg:#f4f5fb; --surface:#ffffff; --ink:#1b1d3a; --muted:#6b6f8e; --line:#e4e6f2;
-  --accent:#5b4bea; --accent2:#8b5cf6; --accent-ink:#ffffff; --soft:#efedff; --teal:#0fb5a6;
+  --bg:#f2f8f8; --surface:#ffffff; --ink:#12302d; --muted:#5f7f7b; --line:#dcecea;
+  --accent:#0d9488; --accent2:#06b6d4; --accent-ink:#ffffff; --soft:#e2f7f5; --teal:#0fb5a6;
   --wa:#1fb35a; --wa2:#13a07f; --done:#e6f7f1; --done-ink:#0f8a62; --warn:#8a5a00; --warn-bg:#fff6e0; --red:#e5484d;
-  --shadow:0 1px 2px rgba(27,29,58,.05),0 8px 24px -12px rgba(27,29,58,.18);
-  --grad:linear-gradient(135deg,#4f46e5 0%,#7c3aed 55%,#0ea5e9 130%);
+  --shadow:0 1px 2px rgba(18,48,45,.05),0 8px 24px -12px rgba(18,48,45,.18);
+  --grad:linear-gradient(135deg,#0f766e 0%,#14b8a6 55%,#22d3ee 120%);
   --f:"Noto Naskh Arabic","Traditional Arabic","Arial",serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0e0f1d; --surface:#171930; --ink:#eceefe; --muted:#a3a7c9; --line:#272a4a;
-  --accent:#8f84ff; --accent2:#b18cff; --accent-ink:#0e0f1d; --soft:#22244a; --teal:#3dd6c6;
+  --bg:#0b1716; --surface:#11211f; --ink:#e6f6f4; --muted:#9dbbb7; --line:#1f3a37;
+  --accent:#2dd4bf; --accent2:#22d3ee; --accent-ink:#06201d; --soft:#123230; --teal:#3dd6c6;
   --wa:#27c96a; --wa2:#1db38d; --done:#123328; --done-ink:#6fe0b3; --warn:#f5cd70; --warn-bg:#33290f; --red:#ff7a7e;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px -14px rgba(0,0,0,.6); color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0e0f1d; --surface:#171930; --ink:#eceefe; --muted:#a3a7c9; --line:#272a4a;
-  --accent:#8f84ff; --accent2:#b18cff; --accent-ink:#0e0f1d; --soft:#22244a; --teal:#3dd6c6;
+  --bg:#0b1716; --surface:#11211f; --ink:#e6f6f4; --muted:#9dbbb7; --line:#1f3a37;
+  --accent:#2dd4bf; --accent2:#22d3ee; --accent-ink:#06201d; --soft:#123230; --teal:#3dd6c6;
   --wa:#27c96a; --wa2:#1db38d; --done:#123328; --done-ink:#6fe0b3; --warn:#f5cd70; --warn-bg:#33290f; --red:#ff7a7e;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px -14px rgba(0,0,0,.6); color-scheme:dark}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f);font-weight:600;direction:rtl;line-height:1.7;
-  background-image:radial-gradient(600px 300px at 100% -10%,rgba(124,58,237,.10),transparent 60%),radial-gradient(500px 260px at -10% 20%,rgba(14,165,233,.08),transparent 60%);
+  background-image:radial-gradient(600px 300px at 100% -10%,rgba(20,184,166,.12),transparent 60%),radial-gradient(500px 260px at -10% 20%,rgba(34,211,238,.09),transparent 60%);
   background-attachment:fixed;
   padding-left:max(14px,env(safe-area-inset-left,0px));padding-right:max(14px,env(safe-area-inset-right,0px));padding-block:14px 56px}
 [hidden]{display:none!important}
 .wrap{max-width:620px;margin:0 auto;display:grid;gap:14px}
 
 /* hero */
-header.hero{position:relative;overflow:hidden;border-radius:24px;padding:18px 18px 16px;color:#fff;background:var(--grad);box-shadow:0 18px 40px -20px rgba(79,70,229,.7);display:grid;gap:14px}
+header.hero{position:relative;overflow:hidden;border-radius:24px;padding:18px 18px 16px;color:#fff;background:var(--grad);box-shadow:0 18px 40px -20px rgba(13,148,136,.65);display:grid;gap:14px}
 header.hero::before{content:"";position:absolute;inset:auto -60px -90px auto;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.10)}
 header.hero::after{content:"";position:absolute;top:-70px;left:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.07)}
 .hero .top{display:flex;align-items:center;gap:12px;position:relative;z-index:1}
@@ -65,7 +65,7 @@ h2 .n{flex:none;width:30px;height:30px;border-radius:10px;display:grid;place-ite
 h2 .end{margin-inline-start:auto;font-size:.85rem;color:var(--muted);font-weight:600}
 label{font-size:.88rem;color:var(--muted)}
 select,textarea,input[type=text],input[type=date]{width:100%;font:inherit;font-weight:600;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:14px;padding:11px 13px;transition:border-color .15s,box-shadow .15s;appearance:none;-webkit-appearance:none}
-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%238b8fb0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-position:14px 50%;background-size:12px 8px;background-repeat:no-repeat;padding-left:36px}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%235f7f7b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-position:14px 50%;background-size:12px 8px;background-repeat:no-repeat;padding-left:36px}
 textarea{min-height:130px;resize:vertical;line-height:1.85}
 select:focus,textarea:focus,input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 18%,transparent)}
 button:focus-visible,a:focus-visible,h2[role=button]:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:12px}
@@ -78,7 +78,7 @@ button:active,.btn:active{transform:scale(.98)}
 .primary[aria-disabled=true]{opacity:.45;pointer-events:none}
 .ghost{background:var(--soft);color:var(--accent)}
 .small{padding:7px 13px;font-size:.86rem;border-radius:999px}
-.next{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;width:100%;padding:13px;box-shadow:0 12px 24px -14px rgba(91,75,234,.8)}
+.next{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;width:100%;padding:13px;box-shadow:0 12px 24px -14px rgba(13,148,136,.75)}
 
 /* groups */
 .groups{display:grid;gap:12px}.grade{display:grid;gap:6px}.grade b{font-size:.86rem;color:var(--muted)}
@@ -148,7 +148,7 @@ summary{cursor:pointer;color:var(--accent);font-weight:700}
 footer{text-align:center;color:var(--muted);font-size:.8rem}
 
 /* install sheet */
-.scrim{position:fixed;inset:0;background:rgba(14,15,29,.45);backdrop-filter:blur(3px);z-index:20;display:flex;align-items:flex-end;justify-content:center;animation:fade .2s ease}
+.scrim{position:fixed;inset:0;background:rgba(6,24,22,.45);backdrop-filter:blur(3px);z-index:20;display:flex;align-items:flex-end;justify-content:center;animation:fade .2s ease}
 .sheet{width:100%;max-width:520px;background:var(--surface);border-radius:26px 26px 0 0;padding:10px 20px calc(22px + env(safe-area-inset-bottom,0px));display:grid;gap:14px;box-shadow:0 -20px 40px -20px rgba(0,0,0,.35);animation:up .28s cubic-bezier(.2,.8,.2,1)}
 .sheet .grab{width:44px;height:5px;border-radius:9px;background:var(--line);margin:0 auto 4px}
 .sheet .head{display:flex;align-items:center;gap:12px}
@@ -171,7 +171,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem}
 <div class="wrap">
   <header class="hero">
     <div class="top">
-      <div class="logo" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><rect x="11" y="9" width="26" height="33" rx="5" fill="#fff"/><rect x="18" y="5.5" width="12" height="7" rx="2.5" fill="#fde68a"/><path d="M16 22l3 3 5-6M16 32l3 3 5-6" stroke="#5b4bea" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M27 22.5h5M27 32.5h5" stroke="#8b5cf6" stroke-width="2.6" stroke-linecap="round"/></svg></div>
+      <div class="logo" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><rect x="11" y="9" width="26" height="33" rx="5" fill="#fff"/><rect x="18" y="5.5" width="12" height="7" rx="2.5" fill="#fde68a"/><path d="M16 22l3 3 5-6M16 32l3 3 5-6" stroke="#0d9488" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M27 22.5h5M27 32.5h5" stroke="#06b6d4" stroke-width="2.6" stroke-linecap="round"/></svg></div>
       <div>
         <h1>ساعي</h1>
         <p class="sub">يوصل مهام المعلمين لقروبات أولياء الأمور<br>ابتدائية القادسية</p>
@@ -298,7 +298,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem}
     </details>
   </section>
 
-  <footer>تصميم وبرمجة: أ. عبدالله ال عواد · الإصدار ١٩</footer>
+  <footer>تصميم: أ. عبدالله ال عواد · الإصدار ٢٠</footer>
 </div>
 <div class="scrim" id="installSheet" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="insT">
