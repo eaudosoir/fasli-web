@@ -68,6 +68,15 @@ button,.btn{font:inherit;font-weight:700;border:0;border-radius:10px;padding:11p
 .seg button{background:var(--bg);border:1px solid var(--line);color:var(--ink);padding:9px 4px}
 .seg button[aria-pressed=true]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .seg button.u[aria-pressed=true]{background:var(--red);border-color:var(--red);color:#fff}
+.drop{display:flex;flex-direction:column;align-items:center;gap:2px;border:2px dashed var(--line);border-radius:12px;padding:14px;cursor:pointer;color:var(--accent);font-weight:700;background:var(--bg)}
+.drop small{color:var(--muted);font-weight:600}
+.files{display:grid;gap:6px;margin-top:8px}
+.f{display:flex;align-items:center;gap:10px;background:var(--soft);border-radius:10px;padding:8px 10px}
+.f img{width:44px;height:44px;object-fit:cover;border-radius:8px;flex:none}
+.f .ic{width:44px;height:44px;border-radius:8px;background:var(--surface);display:grid;place-items:center;font-size:1.3rem;flex:none}
+.f span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.9rem}
+.f small{color:var(--muted);display:block;font-size:.78rem}
+.f button{background:none;color:var(--red);padding:4px 8px;font-size:1.1rem}
 .preview{background:var(--done);border-radius:10px;padding:12px 14px;white-space:pre-wrap;font-size:.95rem;overflow-wrap:anywhere}
 .note{background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:10px 12px;font-size:.88rem;margin:0}
 .bar{height:10px;background:var(--line);border-radius:6px;overflow:hidden}
@@ -154,12 +163,19 @@ footer{text-align:center;color:var(--muted);font-size:.82rem}
       <label class="chk"><input type="checkbox" id="ack" checked> التحية لأولياء الأمور</label>
       <label class="chk"><input type="checkbox" id="emo" checked> الرموز التعبيرية</label>
     </div>
+    <div>
+      <label>إرفاق ملف (اختياري) — صورة أو PDF أو ورقة عمل</label>
+      <label class="drop" for="file"><span>📎 اضغط لاختيار ملف</span><small>حتى ٥ ملفات</small></label>
+      <input type="file" id="file" multiple accept="image/*,application/pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx" hidden>
+      <div class="files" id="files"></div>
+    </div>
     <div class="preview" id="pv"></div>
   </section>
 
   <section>
     <h2><span class="n">٥</span> الإرسال</h2>
     <a class="btn primary" id="share" href="#" target="_blank" rel="noopener">إرسال عبر واتساب</a>
+    <p class="note" id="fileNote" hidden>مع الملف: يُنسخ نص المهمة تلقائيًا ثم تفتح قائمة المشاركة. اختر واتساب ثم القروبات. إذا ظهر الملف بدون النص، الصق النص في خانة التعليق.</p>
     <p class="note">واتساب لا يسمح لأي موقع بالإرسال الآلي للقروبات. بعد الضغط تفتح قائمة المحادثات: حدّد القروبات (حتى ٥ في كل مرة) ثم أرسل. أو اضغط اسم القروب بالأسفل لنسخ المهمة وفتحه مباشرة إن أضفت رابطه.</p>
     <div class="hint" id="cnt"></div>
     <div class="bar"><i id="bar"></i></div>
@@ -198,7 +214,7 @@ footer{text-align:center;color:var(--muted);font-size:.82rem}
     </details>
   </section>
 
-  <footer>تصميم وبرمجة: أ. عبدالله ال عواد · الإصدار ١</footer>
+  <footer>تصميم وبرمجة: أ. عبدالله ال عواد · الإصدار ٢</footer>
 </div>
 <div class="toast" id="toast" hidden></div>
 
@@ -352,6 +368,35 @@ function renderLog(){
     r.append(u,x);d.appendChild(r);L.appendChild(d);
   });
 }
+let files=[];
+const fmtSize=b=>b<1048576?ar(Math.max(1,Math.round(b/1024)))+" ك.ب":ar((b/1048576).toFixed(1))+" م.ب";
+function renderFiles(){
+  const w=$("files");w.innerHTML="";
+  files.forEach((f,i)=>{
+    const d=document.createElement("div");d.className="f";
+    if(f.type.startsWith("image/")){const im=document.createElement("img");im.alt="";im.src=URL.createObjectURL(f);d.appendChild(im)}
+    else{const c=document.createElement("div");c.className="ic";c.textContent=f.type==="application/pdf"?"📄":"📎";d.appendChild(c)}
+    const t=document.createElement("span");t.innerHTML=esc(f.name)+"<small>"+fmtSize(f.size)+"</small>";d.appendChild(t);
+    const x=document.createElement("button");x.type="button";x.setAttribute("aria-label","حذف الملف");x.textContent="✕";
+    x.onclick=()=>{files.splice(i,1);renderFiles()};d.appendChild(x);w.appendChild(d);
+  });
+  $("fileNote").hidden=!files.length;
+  $("share").textContent=files.length?"إرسال المهمة مع الملف عبر واتساب":"إرسال عبر واتساب";
+}
+$("file").onchange=e=>{
+  const add=[...e.target.files];e.target.value="";
+  const big=add.find(f=>f.size>64*1048576);if(big){toast("الملف أكبر من ٦٤ م.ب");return}
+  files=[...files,...add].slice(0,5);renderFiles();
+};
+async function shareWithFiles(){
+  const t=full();
+  try{await navigator.clipboard.writeText(t)}catch(e){}
+  const data={files,text:t};
+  if(!(navigator.canShare&&navigator.canShare({files}))){toast("هذا المتصفح لا يدعم إرسال الملفات — أُرسل النص، وأرفق الملف من واتساب");window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank");return}
+  try{await navigator.share(data)}
+  catch(e){ if(e.name==="AbortError")return;
+    try{await navigator.share({files})}catch(e2){if(e2.name!=="AbortError")toast("تعذّر الإرسال — جرّب ملفًا آخر")} }
+}
 function toast(s){const e=$("toast");e.textContent=s;e.hidden=false;clearTimeout(e._t);e._t=setTimeout(()=>e.hidden=true,2400)}
 async function copy(){
   const t=full();if(!t){toast("اكتب المهمة أولًا");return false}
@@ -372,13 +417,13 @@ document.querySelectorAll("#prio button").forEach(b=>b.onclick=()=>setPrio(+b.da
 $("all").onclick=()=>{picked=cfg.g.map(g=>g[0]);store.set("p_picked",picked);fillGroups();renderSend()};
 $("none").onclick=()=>{picked=[];store.set("p_picked",picked);fillGroups();renderSend()};
 $("copy").onclick=copy;
-$("share").addEventListener("click",e=>{if(!full()){e.preventDefault();toast("اكتب المهمة أولًا")}});
+$("share").addEventListener("click",e=>{if(!full()){e.preventDefault();toast("اكتب المهمة أولًا");return}if(files.length){e.preventDefault();shareWithFiles()}});
 $("done").onclick=()=>{
   const body=$("msg").value.trim();if(!body){toast("لا توجد مهمة لحفظها");return}
   const w=whenInfo();
   log.unshift({type:$("tpl").value,who:$("teacher").value,body,prio,groups:picked.slice(),when:w?w.day+" "+w.hj+" "+w.time:""});
   log=log.slice(0,20);store.set("p_log",log);
-  sent=[];store.set("p_sent",sent);$("msg").value="";$("tpl").value="واجب منزلي";store.set("p_tpl","واجب منزلي");setPrio(0);
+  sent=[];store.set("p_sent",sent);files=[];renderFiles();$("msg").value="";$("tpl").value="واجب منزلي";store.set("p_tpl","واجب منزلي");setPrio(0);
   renderSend();renderLog();render();toast("حُفظت في السجل — جاهز لمهمة جديدة");
 };
 $("save").onclick=()=>{
