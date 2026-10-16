@@ -127,7 +127,7 @@ footer{text-align:center;color:var(--muted);font-size:.82rem}
     <div class="groups" id="groups"></div>
   </section>
 
-  <section>
+  <section id="whenSec">
     <h2><span class="n">٣</span> التاريخ والوقت</h2>
     <div class="when">
       <div><label for="dt">اليوم والتاريخ (هجري)</label><select id="dt"></select></div>
@@ -212,7 +212,7 @@ footer{text-align:center;color:var(--muted);font-size:.82rem}
     </details>
   </section>
 
-  <footer>تصميم وبرمجة: أ. عبدالله ال عواد · الإصدار ٣</footer>
+  <footer>تصميم وبرمجة: أ. عبدالله ال عواد · الإصدار ٤</footer>
 </div>
 <div class="toast" id="toast" hidden></div>
 
@@ -236,8 +236,9 @@ const TPL={
   "أدوات مطلوبة":"نأمل إحضار الأدوات التالية: ",
   "مشروع / بحث":"تسليم مشروع / بحث بعنوان: ",
   "واجب منصة مدرستي":"حل الواجب المنشور في منصة مدرستي لدرس: ",
-  "تنبيه عام":""
+  "مهمة عامة":""
 };
+const GEN=t=>t==="مهمة عامة"||t==="تنبيه عام";
 const nm=t=>t.split("|")[0].trim(), sub=t=>(t.split("|")[1]||"").trim();
 
 /* ---------- config ---------- */
@@ -323,17 +324,18 @@ function full(){
   const E=$("emo").checked,e=s=>E?s+" ":"";
   const body=$("msg").value.trim();if(!body)return "";
   const w=whenInfo(),t0=$("teacher").value||"",type=$("tpl").value;
-  const head=prio==2?e("🔴")+"*تنبيه عاجل*":prio==1?e("🟠")+"*تنبيه مهم*":e("📚")+"*"+(type==="تنبيه عام"?"تنبيه من معلم المادة":type)+"*";
-  let t=head+(prio&&type!=="تنبيه عام"?" — "+type:"")+"\n\n";
+  const head=prio==2?e("🔴")+"*تنبيه عاجل*":prio==1?e("🟠")+"*تنبيه مهم*":e("📚")+"*"+(GEN(type)?"تنبيه من معلم المادة":type)+"*";
+  let t=head+(prio&&!GEN(type)?" — "+type:"")+"\n\n";
   if($("ack").checked) t+="السلام عليكم ورحمة الله وبركاته\nأولياء أمور الطلاب الكرام،\n\n";
   t+=e("📝")+"*المطلوب:*\n"+body+"\n";
-  if(w) t+="\n"+e("⏰")+"*"+$("whenLbl").value+":*\n"+"اليوم: "+w.day+"\nالتاريخ: "+w.date+"\nالوقت: "+w.time+"\n";
+  if(w&&!GEN(type)) t+="\n"+e("⏰")+"*"+$("whenLbl").value+":*\n"+"اليوم: "+w.day+"\nالتاريخ: "+w.date+"\nالوقت: "+w.time+"\n";
   t+="\nشاكرين تعاونكم "+(E?"🌹":"")+"\n";
   if(t0) t+="\n"+(sub(t0)?"معلم "+sub(t0)+": ":"المعلم: ")+nm(t0);
   if(cfg.s.trim()) t+="\n"+cfg.s.trim();
   return ar(t.trim());
 }
 function render(){
+  $("whenSec").hidden=GEN($("tpl").value);
   const w=whenInfo();
   const t=full();
   $("pv").textContent=t||"اكتب المهمة لتظهر المعاينة هنا…";
@@ -364,10 +366,10 @@ function renderLog(){
   if(!log.length){L.innerHTML='<p class="hint">تظهر هنا المهام المرسلة لإعادة استخدامها.</p>';return}
   log.forEach((it,i)=>{
     const d=document.createElement("div");d.className="it";
-    d.innerHTML="<b>"+esc(it.type)+" · "+esc(nm(it.who))+"</b><div>"+esc(it.body.length>90?it.body.slice(0,90)+"…":it.body)+"</div><div class='meta'>"+esc(ar(it.when))+" · "+esc(ar(it.groups.length))+" قروبات</div>";
+    d.innerHTML="<b>"+esc(it.type)+" · "+esc(nm(it.who))+"</b><div>"+esc(it.body.length>90?it.body.slice(0,90)+"…":it.body)+"</div><div class='meta'>"+esc(ar(GEN(it.type)?"":it.when))+" · "+esc(ar(it.groups.length))+" قروبات</div>";
     const r=document.createElement("div");r.className="row";
     const u=document.createElement("button");u.type="button";u.className="ghost small";u.textContent="استخدام مرة أخرى";
-    u.onclick=()=>{$("tpl").value=it.type;$("msg").value=it.body;if(cfg.t.includes(it.who))$("teacher").value=it.who;picked=it.groups.filter(n=>cfg.g.some(g=>g[0]===n));store.set("p_picked",picked);setPrio(it.prio||0);fillGroups();renderSend();render();scrollTo({top:0,behavior:"smooth"});toast("تم تحميل المهمة")};
+    u.onclick=()=>{$("tpl").value=it.type==="تنبيه عام"?"مهمة عامة":it.type;$("msg").value=it.body;if(cfg.t.includes(it.who))$("teacher").value=it.who;picked=it.groups.filter(n=>cfg.g.some(g=>g[0]===n));store.set("p_picked",picked);setPrio(it.prio||0);fillGroups();renderSend();render();scrollTo({top:0,behavior:"smooth"});toast("تم تحميل المهمة")};
     const x=document.createElement("button");x.type="button";x.className="ghost small";x.textContent="حذف";
     x.onclick=()=>{log.splice(i,1);store.set("p_log",log);renderLog()};
     r.append(u,x);d.appendChild(r);L.appendChild(d);
