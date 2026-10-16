@@ -79,7 +79,7 @@ button,.btn{font:inherit;font-weight:700;border:0;border-radius:10px;padding:11p
 .f button{background:none;color:var(--red);padding:4px 8px;font-size:1.1rem}
 .last{display:grid;gap:8px;background:var(--done);color:var(--done-ink);border-radius:10px;padding:10px 12px;font-size:.92rem}
 .step{gap:0}
-.step h2{cursor:pointer;user-select:none;white-space:nowrap}
+.step h2{cursor:pointer;user-select:none;white-space:nowrap;min-width:0}
 .step h2::after{content:"⌄";margin-inline-start:8px;color:var(--muted);transition:transform .2s}
 .step.open h2::after{transform:rotate(180deg)}
 .step .sum{margin-inline-start:auto;font-size:.85rem;color:var(--muted);font-weight:600;flex:1;min-width:0;text-align:end;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -87,6 +87,8 @@ button,.btn{font:inherit;font-weight:700;border:0;border-radius:10px;padding:11p
 .step .body{display:none;gap:12px;margin-top:12px}
 .step.open .body{display:grid}
 .step:not(.open){opacity:.92}
+.fld{animation:fin .25s ease}@keyframes fin{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.fld{animation:none}}
 .next{background:var(--accent);color:var(--accent-ink);width:100%}
 @media (prefers-reduced-motion:reduce){.step h2::after{transition:none}}
 .preview{background:var(--done);border-radius:10px;padding:12px 14px;white-space:pre-wrap;font-size:.95rem;overflow-wrap:anywhere}
@@ -139,25 +141,25 @@ footer{text-align:center;color:var(--muted);font-size:.82rem}
         <label for="tpl">نوع المهمة</label>
         <select id="tpl"></select>
       </div>
-      <div>
+      <div id="f-text" class="fld">
         <label for="msg">نص المهمة</label>
         <textarea id="msg" placeholder="اكتب المطلوب من الطالب…"></textarea>
       </div>
-      <div>
+      <div id="f-prio" class="fld">
         <label>الأهمية</label>
         <div class="seg" id="prio">
-          <button type="button" data-p="0" aria-pressed="true">عادية</button>
+          <button type="button" data-p="0" aria-pressed="false">عادية</button>
           <button type="button" data-p="1" aria-pressed="false">مهمة</button>
           <button type="button" data-p="2" class="u" aria-pressed="false">عاجلة</button>
         </div>
       </div>
-      <div>
+      <div id="f-file" class="fld">
         <label>إرفاق ملف (اختياري) — صورة أو PDF أو ورقة عمل</label>
         <label class="drop" for="file"><span>📎 اضغط لاختيار ملف</span><small>حتى ٥ ملفات</small></label>
         <input type="file" id="file" multiple accept="image/*,application/pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx" hidden>
         <div class="files" id="files"></div>
       </div>
-      <button class="btn next" type="button" data-next="s-task">التالي: اختيار القروبات</button>
+      <button class="btn next" id="f-next" type="button" data-next="s-task">التالي: اختيار القروبات</button>
     </div>
   </section>
 
@@ -238,7 +240,7 @@ footer{text-align:center;color:var(--muted);font-size:.82rem}
     </details>
   </section>
 
-  <footer>تصميم وبرمجة: أ. عبدالله ال عواد · الإصدار ١١</footer>
+  <footer>تصميم وبرمجة: أ. عبدالله ال عواد · الإصدار ١٢</footer>
 </div>
 <div class="toast" id="toast" hidden></div>
 
@@ -279,7 +281,7 @@ if(cfg.t.length<=1||((cfg.t.length===30||cfg.t.length===31)&&!cfg.t.some(t=>t.in
   history.replaceState(null,"",location.pathname);
 })();
 
-let picked=store.get("p_picked",[]), sent=store.get("p_sent",[]), prio=store.get("p_prio",0), log=store.get("p_log",[]);
+let picked=store.get("p_picked",[]), sent=store.get("p_sent",[]), prio=-1, log=store.get("p_log",[]);
 
 function fillTeachers(){
   const s=$("teacher"),cur=store.get("p_teacher","");s.innerHTML='<option value="" disabled>اختر اسمك…</option>';s.value="";
@@ -353,7 +355,7 @@ let last=null;
 const current=()=>full()||(last?last.t:"");
 function full(){
   const E=$("emo").checked,e=s=>E?s+" ":"";
-  const body=bodyOf();if(!body)return "";
+  const body=bodyOf();if(!body||!$("tpl").value)return "";
   const w=whenInfo(),t0=$("teacher").value||"",type=$("tpl").value;
   const head=prio==2?e("🔴")+"*تنبيه عاجل*":prio==1?e("🟠")+"*تنبيه مهم*":e("📚")+"*"+(GEN(type)?"تنبيه من معلم المادة":type)+"*";
   let t=head+(prio&&!GEN(type)?" — "+type:"")+"\n\n";
@@ -366,6 +368,8 @@ function full(){
 }
 function render(){
   $("whenSec").hidden=GEN($("tpl").value);
+  const hasT=!!$("tpl").value, hasB=hasT&&!!bodyOf(), hasP=hasB&&prio>=0;
+  $("f-text").hidden=!hasT; $("f-prio").hidden=!hasB; $("f-file").hidden=!hasP; $("f-next").hidden=!hasP;
   if(typeof updateSteps==="function"&&$("s-teacher").querySelector(".sum"))try{updateSteps()}catch(e){}
   const w=whenInfo();
   const t=full();
@@ -402,7 +406,7 @@ function renderLog(){
     d.innerHTML="<b>"+esc(it.type)+" · "+esc(nm(it.who))+"</b><div>"+esc(it.body.length>90?it.body.slice(0,90)+"…":it.body)+"</div><div class='meta'>"+esc(ar(GEN(it.type)?"":it.when))+" · "+esc(ar(it.groups.length))+" قروبات</div>";
     const r=document.createElement("div");r.className="row";
     const u=document.createElement("button");u.type="button";u.className="ghost small";u.textContent="استخدام مرة أخرى";
-    u.onclick=()=>{$("tpl").value=it.type==="تنبيه عام"?"مهمة عامة":it.type;$("msg").value=it.body;if(cfg.t.includes(it.who))$("teacher").value=it.who;picked=it.groups.filter(n=>cfg.g.some(g=>g[0]===n));store.set("p_picked",picked);setPrio(it.prio||0);fillGroups();renderSend();render();openStep("s-task");toast("تم تحميل المهمة")};
+    u.onclick=()=>{$("tpl").value=it.type==="تنبيه عام"?"مهمة عامة":it.type;$("msg").value=it.body;if(cfg.t.includes(it.who))$("teacher").value=it.who;picked=it.groups.filter(n=>cfg.g.some(g=>g[0]===n));store.set("p_picked",picked);setPrio(it.prio>=0?it.prio:0);fillGroups();renderSend();render();openStep("s-task");toast("تم تحميل المهمة")};
     const x=document.createElement("button");x.type="button";x.className="ghost small";x.textContent="حذف";
     x.onclick=()=>{log.splice(i,1);store.set("p_log",log);renderLog()};
     r.append(u,x);d.appendChild(r);L.appendChild(d);
@@ -441,7 +445,7 @@ function commit(t){
   const w=whenInfo();
   log.unshift({type:$("tpl").value,who:$("teacher").value,body:$("msg").value.trim(),prio,groups:picked.slice(),when:w?w.day+" "+w.hj+" "+w.time:""});
   log=log.slice(0,20);store.set("p_log",log);
-  $("msg").value=GREET;files=[];renderFiles();
+  $("msg").value=GREET;$("tpl").value="";prio=-1;document.querySelectorAll("#prio button").forEach(b=>b.setAttribute("aria-pressed","false"));files=[];renderFiles();
   render();renderSend();renderLog();
   setTimeout(()=>toast("أُرسلت المهمة ومُسحت من المربع"),400);
   setTimeout(()=>{$("s-send").classList.add("open");$("s-task").classList.add("open");updateSteps()},50);
@@ -452,7 +456,7 @@ async function copy(){
   try{await navigator.clipboard.writeText(t);toast("تم نسخ المهمة");return true}
   catch(e){toast("لم يتم النسخ — انسخ من المعاينة");return false}
 }
-function setPrio(p){prio=p;store.set("p_prio",p);document.querySelectorAll("#prio button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.p==p)));render()}
+function setPrio(p){prio=p;document.querySelectorAll("#prio button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.p==p)));render()}
 
 /* ---------- steps ---------- */
 const STEPS=["s-teacher","s-task","s-groups","whenSec","s-send"];
@@ -474,17 +478,22 @@ function updateSteps(){
   const w=whenInfo();sum("whenSec",w?ar(w.day+" "+w.hj+" · "+w.time):"");
   sum("s-send","");
   $("s-teacher").classList.toggle("done",!!t);
-  $("s-task").classList.toggle("done",!!b);
+  $("s-task").classList.toggle("done",!!b&&!!$("tpl").value&&prio>=0);
   $("s-groups").classList.toggle("done",picked.length>0);
-  $("whenSec").classList.toggle("done",true);
+  $("whenSec").classList.toggle("done",picked.length>0&&$("s-task").classList.contains("done"));
 }
 STEPS.forEach(id=>{const h=$(id).querySelector("h2");
-  const go=()=>{ $(id).classList.contains("open")?($(id).classList.remove("open"),updateSteps()):openStep(id,false) };
+  const go=()=>{
+    if($(id).classList.contains("open")){$(id).classList.remove("open");updateSteps();return}
+    const v=visibleSteps(),i=v.indexOf(id),miss=v.slice(0,i).find(x=>!$(x).classList.contains("done"));
+    if(miss){toast("أكمل خطوة «"+$(miss).querySelector("h2").childNodes[1].textContent.trim()+"» أولًا");openStep(miss,false);return}
+    openStep(id,false);
+  };
   h.onclick=go;h.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}};
 });
 document.querySelectorAll("[data-next]").forEach(b=>b.onclick=()=>{
   const id=b.dataset.next;
-  if(id==="s-task"&&!bodyOf()){toast("اكتب المهمة أولًا");$("msg").focus();return}
+  if(id==="s-task"&&!$("s-task").classList.contains("done")){toast("أكمل خانات المهمة أولًا");return}
   if(id==="s-groups"&&!picked.length){toast("اختر قروبًا واحدًا على الأقل");return}
   openStep(nextOf(id));
 });
@@ -492,9 +501,10 @@ $("teacher").addEventListener("change",()=>{render();openStep("s-task")});
 
 /* ---------- wiring ---------- */
 Object.keys(TPL).forEach(k=>{const o=document.createElement("option");o.textContent=k;$("tpl").appendChild(o)});
-$("tpl").value=TPL[store.get("p_tpl","")]!==undefined?store.get("p_tpl"):"واجب منزلي";
+{const o=document.createElement("option");o.value="";o.disabled=true;o.textContent="اختر نوع المهمة…";$("tpl").prepend(o)}
+$("tpl").value="";
 $("msg").value=store.get("p_msg","").trim()?store.get("p_msg",""):GREET;
-$("tpl").onchange=()=>{store.set("p_tpl",$("tpl").value);render()};
+$("tpl").onchange=()=>{render();if(!bodyOf())setTimeout(()=>{$("msg").focus()},50)};
 $("msg").addEventListener("focus",()=>{const m=$("msg");if(m.value===GREET)setTimeout(()=>m.setSelectionRange(m.value.length,m.value.length),0)});
 document.querySelectorAll("#prio button").forEach(b=>b.onclick=()=>setPrio(+b.dataset.p));
 ["msg"].forEach(i=>$(i).addEventListener("input",render));
@@ -522,7 +532,7 @@ $("shareCfg").onclick=async()=>{
   try{await navigator.clipboard.writeText(url);toast("تم نسخ الرابط الجاهز")}catch(e){prompt("انسخ الرابط:",url)}
 };
 
-fillTeachers();fillGroups();fillSetup();setPrio(prio);renderSend();renderLog();render();
+fillTeachers();fillGroups();fillSetup();renderSend();renderLog();render();
 openStep($("teacher").value?"s-task":"s-teacher",false);
 </script>
 </body>
