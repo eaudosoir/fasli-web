@@ -240,12 +240,13 @@ footer{text-align:center;color:var(--muted);font-size:.82rem}
     </details>
   </section>
 
-  <footer>تصميم وبرمجة: أ. عبدالله ال عواد · الإصدار ١٣</footer>
+  <footer>تصميم وبرمجة: أ. عبدالله ال عواد · الإصدار ١٤</footer>
 </div>
 <div class="toast" id="toast" hidden></div>
 
 <script>
 const $=id=>document.getElementById(id);
+const ck={get(k){const m=document.cookie.match(new RegExp("(?:^|; )"+k+"=([^;]*)"));return m?decodeURIComponent(m[1]):""},set(k,v){try{document.cookie=k+"="+encodeURIComponent(v)+"; max-age=31536000; path=/; SameSite=Lax"}catch(e){}}};
 const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 const ar=x=>String(x).replace(/[0-9]/g,d=>"٠١٢٣٤٥٦٧٨٩"[d]);
 const pad=n=>String(n).padStart(2,"0");
@@ -285,7 +286,7 @@ if(cfg.t.length<=1||((cfg.t.length===30||cfg.t.length===31)&&!cfg.t.some(t=>t.in
 let picked=store.get("p_picked",[]), sent=store.get("p_sent",[]), prio=-1, log=store.get("p_log",[]);
 
 function fillTeachers(){
-  const s=$("teacher"),cur=store.get("p_teacher","");s.innerHTML='<option value="" disabled>اختر اسمك…</option>';s.value="";
+  const s=$("teacher"),cur=store.get("p_teacher","")||ck.get("p_teacher");s.innerHTML='<option value="" disabled>اختر اسمك…</option>';s.value="";
   cfg.t.forEach(t=>{const o=document.createElement("option");o.value=t;o.textContent=nm(t)+(sub(t)?" — "+sub(t):"");s.appendChild(o)});
   if(cfg.t.includes(cur))s.value=cur;
   $("noTeachers").hidden=cfg.t.length>1;
@@ -499,7 +500,7 @@ document.querySelectorAll("[data-next]").forEach(b=>b.onclick=()=>{
   if(id==="s-groups"&&!picked.length){toast("اختر قروبًا واحدًا على الأقل");return}
   openStep(nextOf(id));
 });
-$("teacher").addEventListener("change",()=>{render();openStep("s-task")});
+$("teacher").addEventListener("change",()=>{store.set("p_teacher",$("teacher").value);ck.set("p_teacher",$("teacher").value);render();openStep("s-task")});
 
 /* ---------- wiring ---------- */
 Object.keys(TPL).forEach(k=>{const o=document.createElement("option");o.textContent=k;$("tpl").appendChild(o)});
