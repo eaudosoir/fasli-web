@@ -1009,3 +1009,19 @@ body.demo .assistant-banner { top: calc(38px + env(safe-area-inset-top, 0px)); }
 .sync-form { display: flex; flex-direction: column; gap: 4px; } .sync-form input[dir=ltr] { text-align: left; }
 .sync-how { margin: 4px 0 0; padding-inline-start: 20px; line-height: 2; color: var(--ink2); }
 .rep-tiles b.small { font-size: 15px; }
+
+/* ===== بوابة الطالب: الحسابات والبطاقات ===== */
+.pt-acts { display: flex; gap: 8px; margin: 10px 0; }
+.rec code, .pt-card code { font-family: ui-monospace, Menlo, Consolas, monospace; direction: ltr; unicode-bidi: isolate; background: var(--pri-ll); color: var(--pri); padding: 1px 6px; border-radius: 6px; }
+.pt-print { display: none; }
+.pt-card { border: 1.5px solid #16316E; border-radius: 4mm; padding: 3mm 4mm; display: flex; flex-direction: column; gap: 1mm; break-inside: avoid; background: #fff; color: #14213D; border-top: 3mm solid #D4A437; }
+.pt-top { display: flex; align-items: center; justify-content: space-between; } .pt-top img { height: 7mm; width: auto; } .pt-top span { font-size: 12pt; color: #16316E; font-weight: 700; }
+.pt-name { font-size: 13pt; } .pt-cls { font-size: 9.5pt; color: #4A5568; }
+.pt-cred { display: flex; gap: 4mm; } .pt-cred div { flex: 1; display: flex; flex-direction: column; gap: 1mm; background: #F7F3EA; border-radius: 2.5mm; padding: 1.5mm 3mm; }
+.pt-cred small { font-size: 8.5pt; color: #6B5A2E; } .pt-cred code { font-size: 14pt; letter-spacing: 1px; background: none; padding: 0; color: #16316E; font-weight: 700; }
+.pt-url { direction: ltr; font-size: 9pt; color: #16316E; text-align: center; font-family: ui-monospace, Menlo, Consolas, monospace; }
+.pt-note { font-size: 8.5pt; color: #4A5568; line-height: 1.6; } .pt-t { font-size: 8.5pt; color: #6B7280; }
+@media print {
+  .pt-print { display: grid !important; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .pt-card, .pt-cred div { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
