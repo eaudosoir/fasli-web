@@ -108,8 +108,11 @@ const Portal = {
     }
     await this.save(c);
     for (let i = 0; i < writes.length; i += 300) { progress(`رفع الملخصات ${Math.min(i + 300, writes.length)} / ${writes.length}`); await fs(':commit', { writes: writes.slice(i, i + 300) }); }
-    const st = { ...(App.S.portalLast || {}) }; classIds.forEach(cid => st[cid] = new Date().toISOString()); await App.set('portalLast', st);
-    return { sent: writes.length, failed, stopped, total: sids.length };
+    const res = { sent: writes.length, failed, stopped, total: sids.length, at: new Date().toISOString() };
+    const st = { ...(App.S.portalLast || {}) }, rs = { ...(App.S.portalResult || {}) };
+    classIds.forEach(cid => { if (writes.length) st[cid] = res.at; rs[cid] = res; });
+    await App.set('portalLast', st); await App.set('portalResult', rs);
+    return res;
   },
 
   async resetPass(sid) {
@@ -145,7 +148,8 @@ Screens.portal = async (v, p) => {
       ${missing ? `<button class="btn gold block" data-mk>${ic('plus')} إنشاء ${missing === studs.length ? 'حسابات الفصل' : `${missing} حساب ناقص`}</button>` : ''}
       ${withAcc.length ? `<button class="btn soft block" data-print>${ic('print')} طباعة بطاقات الفصل</button>` : ''}
     </div>
-    ${withAcc.length ? `<section class="card no-print pt-pub"><div class="grow"><b>${ic('upload')} تحديث البوابة</b><small>${Portal.online() ? (App.S.portalLast?.[cid] ? `آخر تحديث لهذا الفصل: ${(d => `${shortDate(ymd(d))} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`)(new Date(App.S.portalLast[cid]))}` : 'لم يُرفع ملخص هذا الفصل بعد') : 'يتطلب تسجيل الدخول في «الحساب والمزامنة»'}</small></div>
+    ${withAcc.length ? `<section class="card no-print pt-pub"><div class="grow"><b>${ic('upload')} تحديث البوابة</b><small>${Portal.online() ? (App.S.portalLast?.[cid] ? `آخر تحديث لهذا الفصل: ${(d => `${shortDate(ymd(d))} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`)(new Date(App.S.portalLast[cid]))}` : 'لم يُرفع ملخص هذا الفصل بعد') : 'يتطلب تسجيل الدخول في «الحساب والمزامنة»'}</small>
+      ${(r => r ? `<small class="pt-res ${r.failed.length || r.stopped || r.sent < r.total ? 'bad' : 'ok'}">نتيجة آخر محاولة: رُفعت ${r.sent} من ${r.total} بطاقة${r.failed.length ? ` · تعذّر ${r.failed.length}: ${esc(r.failed.slice(0, 3).join('، '))}` : ''}${r.stopped ? ' · توقف لحد Firebase، أعد المحاولة بعد ساعة' : ''}${r.err ? ` · ${esc(r.err)}` : ''}</small>` : '')(App.S.portalResult?.[cid])}</div>
       <div class="row gap"><button class="btn primary sm" data-pub="one">هذا الفصل</button><button class="btn ghost sm" data-pub="all">كل الفصول</button></div></section>` : ''}
     <section class="card no-print"><div class="rec-list">${studs.map(s => { const a = Portal.account(s.id); return `<div class="rec"><span class="av">${esc(initials(s.name))}</span><div class="grow"><b>${esc(s.name)}</b><small>${a ? `المعرّف <code>${a.id}</code> · كلمة المرور <code>${a.pass}</code>` : 'لا يوجد حساب بعد'}</small></div>${a ? `<button class="icon-btn sm" data-msg="${s.id}" aria-label="رسالة للطالب">${ic(a.msg ? 'note' : 'edit')}</button><button class="icon-btn sm" data-rp="${s.id}" aria-label="كلمة مرور جديدة">${ic('history')}</button>` : ''}</div>`; }).join('')}</div></section>
     <p class="hint no-print">${ic('info')} زر ${ic('edit')} يكتب رسالة تشجيعية تظهر للطالب في بطاقته. التحديث يرفع الملخص فقط، ويُعاد متى شئت.</p>
@@ -181,7 +185,10 @@ Screens.portal = async (v, p) => {
       if (r.stopped === 'limit') m += ' — توقف مؤقتًا لحد Firebase في إنشاء الحسابات، أكمل بعد ساعة';
       if (r.failed.length) m += ` · تعذّر ${r.failed.length}: ${r.failed.slice(0, 3).join('، ')}`;
       toast(m, r.failed.length || r.stopped ? 'bad' : 'ok');
-    } catch (e) { toast(e.message || 'تعذّر التحديث', 'bad'); }
+    } catch (e) {
+      toast(e.message || 'تعذّر التحديث', 'bad');
+      const rs = { ...(App.S.portalResult || {}) }; ids.forEach(id => rs[id] = { sent: 0, total: App.classStudents(id).length, failed: [], err: e.message || 'تعذّر التحديث', at: new Date().toISOString() }); await App.set('portalResult', rs);
+    }
     b.textContent = lbl; all.forEach(x => x.disabled = false); App.render();
   });
   v.querySelector('[data-print]')?.addEventListener('click', () => Native.print(`بطاقات بوابة الطالب — ${App.className(cid)}`));
