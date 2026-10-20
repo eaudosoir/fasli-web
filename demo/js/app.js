@@ -77,10 +77,11 @@ const App = {
     window.scrollTo(0, 0);
   },
   renderNav() {
-    $('#nav').innerHTML = NAV.map(n => `<button class="nav-item ${n.center ? 'center' : ''}" data-nav="${n.id}">
+    $('#nav').innerHTML = NAV.map(n => `<button class="nav-item ${n.center ? 'center' : ''} ${n.wide ? 'nav-wide nav-' + n.id : ''}" data-nav="${n.id}" ${n.ext ? `title="${n.label}: مهام المعلمين لأولياء الأمور"` : ''}>
       <span class="nav-ic">${ic(n.icon)}</span><span class="nav-lb">${n.label}</span></button>`).join('');
     $$('#nav .nav-item').forEach(b => b.onclick = () => {
       if (b.dataset.nav === 'session') return this.openCurrentSession();
+      const ext = NAV.find(n => n.id === b.dataset.nav)?.ext; if (ext) return Native.open(ext);
       this.stack = []; this.go(b.dataset.nav);
     });
   },
@@ -212,7 +213,8 @@ const NAV = [
   { id: 'students', label: 'الطلاب', icon: 'users' },
   { id: 'session', label: 'الحصة', icon: 'checkSq', center: true },
   { id: 'followup', label: 'المتابعة', icon: 'flag' },
-  { id: 'reports', label: 'التقارير', icon: 'chart' }
+  { id: 'reports', label: 'التقارير', icon: 'chart' },
+  { id: 'saei', label: 'ساعي', icon: 'send', ext: 'https://eaudosoir.github.io/fasli-web/tasks/', wide: true }
 ];
 const NAV_ROOT = { reset: 'home', photos: 'home', worksheet: 'home', remedial: 'followup', monthly: 'home', platforms: 'home', ask: 'home', seats: 'session', qbank: 'home', attention: 'followup', weekly: 'home', ideas: 'home', quiz: 'session', stars: 'home', curriculum: 'home', covers: 'home', merge: 'home', portfolio: 'home', student: 'students', more: 'home', timetable: 'home', calendar: 'home', settings: 'home', madrasati: 'home', lists: 'home', backup: 'home' };
 
@@ -402,6 +404,7 @@ function bindBack(v) { $$('[data-back]', v).forEach(b => b.onclick = () => App.b
 /* شاشة "المزيد" */
 Screens.more = async (v) => {
   v.innerHTML = topbar('المزيد') + `<div class="page"><div class="menu-list">
+    <button class="menu-item saei-item" data-saei><span class="mi-ic">${ic('send')}</span><span class="mi-tx"><b>ساعي</b><small>إرسال مهام المعلمين لقروبات أولياء الأمور</small></span>${ic('chev', 'mi-ch')}</button>
     ${menuItem('platforms', 'sync', 'المزامنة مع مدرستي ونور', 'سحب الطلاب والواجبات والدرجات وتعبئة الغياب')}
     ${menuItem('ask', 'search', 'اسأل فصلي', 'بحث ذكي: «الهاربين هذا الأسبوع»، «أكثر طلاب السادس تأخرًا»')}
     ${menuItem('weekly', 'send', 'رسالة الأسبوع لأولياء الأمور', 'ملخص أداء كل طالب في رسالة واتساب جاهزة')}
@@ -426,6 +429,7 @@ Screens.more = async (v) => {
     ${menuItem('settings', 'settings', 'الإعدادات', 'بياناتك، القفل، التنبيهات')}
   </div><div class="about"><img class="about-brand" src="img/brand-navy.png" alt="فصلي"><small>إدارة صفك بسهولة · الإصدار ${Native.call('appVersion') || '1.0'}</small><small>تصميم وبرمجة: أ. عبدالله ال عواد</small></div></div>`;
   bindBack(v); bindGo(v);
+  v.querySelector('[data-saei]').onclick = () => Native.open('https://eaudosoir.github.io/fasli-web/tasks/');
 };
 const menuItem = (go, icon, t, s) => `<button class="menu-item" data-go="${go}"><span class="mi-ic">${ic(icon)}</span><span class="mi-tx"><b>${t}</b><small>${s}</small></span>${ic('chev', 'mi-ch')}</button>`;
 

@@ -1028,3 +1028,12 @@ body.demo .assistant-banner { top: calc(38px + env(safe-area-inset-top, 0px)); }
 .pt-pub { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; } .pt-pub .grow { display: flex; flex-direction: column; min-width: 180px; } .pt-pub small { color: var(--mut); font-size: 12.5px; }
 .pt-res { margin-top: 4px; font-weight: 700; } .pt-res.ok { color: #1B7F4B !important; } .pt-res.bad { color: #B3261E !important; }
 .btn.ghost.pt-clean { color: #B3261E; border: 1.5px solid #E8A39C; background: #FFF1EF; margin-bottom: 10px; font-weight: 700; } .btn.pt-clean .ic { color: #C62828; stroke-width: 2.3; } .pt-n { background: #B3261E; color: #fff; border-radius: 10px; padding: 0 8px; font-size: 12px; }
+
+/* ===== ساعي في الشريط الجانبي (الشاشات الكبيرة فقط؛ في الجوال من «المزيد») ===== */
+.nav-item.nav-wide { display: none; }
+@media (min-width: 820px) {
+  .nav-item.nav-wide { display: flex; margin-top: 10px; padding-top: 14px; border-top: 1px solid var(--line); }
+  .nav-saei .nav-ic { background: linear-gradient(135deg, #14B8A6, #0D9488); color: #fff; box-shadow: 0 6px 14px -8px #0D9488; }
+  .nav-saei { color: #0D9488; }
+}
+.saei-item .mi-ic { background: linear-gradient(135deg, #14B8A6, #0D9488) !important; color: #fff !important; }
