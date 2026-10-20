@@ -33,7 +33,8 @@ self.addEventListener('fetch', e => {
   if (url.origin !== location.origin) return;
 
   // ملفات التطبيق: الشبكة أولًا ليصل التحديث، والذاكرة عند انقطاع الإنترنت
-  e.respondWith(fetch(req).then(res => {
+  // no-cache: يتحقق من الخادم في كل مرة (GitHub Pages يحفظ الملفات في المتصفح ١٠ دقائق فيتأخر وصول التحديث)
+  e.respondWith(fetch(req, { cache: 'no-cache' }).then(res => {
     if (res.ok) { const copy = res.clone(); caches.open(VERSION).then(c => c.put(req, copy)); }
     return res;
   }).catch(async () => (await caches.match(req, { ignoreSearch: true })) || (req.mode === 'navigate' ? caches.match('index.html') : Response.error())));

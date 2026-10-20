@@ -15,10 +15,19 @@ const PWA = {
         reg.addEventListener('updatefound', () => {
           const w = reg.installing;
           w?.addEventListener('statechange', () => {
-            if (w.state === 'installed' && navigator.serviceWorker.controller) toast('وصل تحديث جديد لفصلي — أعد فتح التطبيق لتطبيقه', 'ok');
+            if (w.state === 'activated' && hadCtl) showUpd();
           });
         });
+        setInterval(() => reg.update().catch(() => { }), 30 * 60000);
       }).catch(() => { });
+      // شريط ثابت عند وصول تحديث: ضغطة واحدة تعيد تحميل فصلي بالنسخة الجديدة (البيانات محفوظة في الجهاز)
+      const hadCtl = !!navigator.serviceWorker.controller;
+      const showUpd = () => {
+        if (document.getElementById('updBar')) return;
+        const b = document.createElement('button'); b.id = 'updBar'; b.className = 'upd-bar';
+        b.innerHTML = `${ic('history')}<span>وصل تحديث جديد لفصلي — اضغط للتحديث</span>`;
+        b.onclick = () => location.reload(); document.body.appendChild(b);
+      };
     }
 
     // طلب حفظ دائم للبيانات حتى لا يمسحها المتصفح
