@@ -33,7 +33,6 @@ const Portal = {
     const c = this.cfg(); if (!c.accounts[sid]) return;
     c.accounts[sid] = { ...c.accounts[sid], msg: msg.trim().slice(0, 300) }; await this.save(c);
   },
-  email: id => `${id}@student.fasli.app`,
   online: () => typeof Sync !== 'undefined' && Sync.configured() && Sync.on() && !!Sync.portalApi?.uid(),
 
   /* ملخص الطالب الذي يُرفع — لا جوال ولا هوية ولا سلوك سلبي ولا خطة علاجية */
@@ -64,53 +63,52 @@ const Portal = {
     return out;
   },
 
-  /* إنشاء حساب الطالب في Firebase أو تحديث كلمة مروره عند تغييرها */
-  async ensureAuth(a) {
-    const { post, cfg } = Sync.portalApi, base = `${cfg.authBase}/v1/accounts`, key = `?key=${cfg.apiKey}`, email = this.email(a.id);
-    const err = j => (j?.error?.message || '').split(' ')[0];
-    if (!a.uid) {
-      const r = await post(`${base}:signUp${key}`, { email, password: a.pass, returnSecureToken: true });
-      if (r.ok) return { uid: r.j.localId, fbPass: a.pass };
-      if (err(r.j) !== 'EMAIL_EXISTS') throw new Error(err(r.j) || 'signUp');
-    }
-    if (a.uid && a.fbPass === a.pass) return { uid: a.uid, fbPass: a.fbPass };
-    // الحساب موجود: نسجّل دخوله بكلمة المرور المسجلة سابقًا ثم نضع الجديدة
-    for (const old of [a.fbPass, a.pass].filter(Boolean)) {
-      const r = await post(`${base}:signInWithPassword${key}`, { email, password: old, returnSecureToken: true });
-      if (!r.ok) { if (err(r.j).startsWith('TOO_MANY')) throw new Error('TOO_MANY_ATTEMPTS_TRY_LATER'); continue; }
-      if (old !== a.pass) { const u = await post(`${base}:update${key}`, { idToken: r.j.idToken, password: a.pass, returnSecureToken: false }); if (!u.ok) throw new Error(err(u.j) || 'update'); }
-      return { uid: r.j.localId, fbPass: a.pass };
-    }
-    throw new Error('LOGIN_FAILED');
+  /* بطاقة الطالب تُحفظ في portal/{مفتاح} — المفتاح بصمة (SHA-256) للمعرّف وكلمة المرور، والمحتوى مشفّر بهما (AES-GCM).
+     لا حسابات Firebase للطلاب: من يعرف المعرّف وكلمة المرور فقط يصل لبطاقته ويفك تشفيرها. */
+  async keyOf(id, pass) {
+    const h = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`fasli-portal-v1|${id}|${pass}`));
+    return Array.from(new Uint8Array(h), b => b.toString(16).padStart(2, '0')).join('');
+  },
+  async encrypt(id, pass, obj) {
+    const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pass), 'PBKDF2', false, ['deriveKey']);
+    const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt: new TextEncoder().encode(`fasli|${id}`), iterations: 60000, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['encrypt']);
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(JSON.stringify(obj)));
+    const b64 = u => btoa(String.fromCharCode(...new Uint8Array(u)));
+    return { iv: b64(iv), d: b64(ct) };
   },
 
-  /* رفع ملخصات الطلاب: الحسابات أولًا ثم وثيقة لكل طالب في portal/{uid} */
+  /* رفع بطاقات الطلاب: كتابة واحدة مجمّعة لكل ٣٠٠ طالب، وحذف البطاقة القديمة إن تغيّرت كلمة المرور */
   async publish(classIds, progress = () => { }) {
     if (!this.online()) throw new Error('سجّل دخولك في «الحساب والمزامنة» أولًا');
     const { fs, cfg, uid } = Sync.portalApi, me = uid();
     const D = await Follow.load(), rankOf = this.ranks(classIds, D), c = this.cfg();
     const sids = classIds.flatMap(cid => App.classStudents(cid).map(s => s.id)).filter(sid => c.accounts[sid]);
-    let done = 0, failed = [], stopped = '';
-    const writes = [];
+    const doc = k => `projects/${cfg.projectId}/databases/(default)/documents/portal/${k}`;
+    const writes = [], next = {}, failed = [];
+    let done = 0;
     for (const sid of sids) {
-      progress(`الحسابات ${++done} / ${sids.length}`);
+      progress(`تجهيز البطاقات ${++done} / ${sids.length}`);
       try {
-        const r = await this.ensureAuth(c.accounts[sid]);
-        c.accounts[sid] = { ...c.accounts[sid], ...r };
-        writes.push({
-          update: { name: `projects/${cfg.projectId}/databases/(default)/documents/portal/${r.uid}`, fields: { teacher: { stringValue: me }, sid: { stringValue: sid }, d: { stringValue: JSON.stringify(this.summary(sid, D, rankOf)) } } },
-          updateTransforms: [{ fieldPath: 't', setToServerValue: 'REQUEST_TIME' }]
-        });
-      } catch (e) {
-        if (String(e.message).startsWith('TOO_MANY') || String(e.message).startsWith('QUOTA')) { stopped = 'limit'; break; }
-        failed.push(App.stu[sid]?.name || sid);
-      }
+        const a = c.accounts[sid], k = await this.keyOf(a.id, a.pass), e = await this.encrypt(a.id, a.pass, this.summary(sid, D, rankOf));
+        writes.push({ update: { name: doc(k), fields: { teacher: { stringValue: me }, v: { integerValue: '1' }, iv: { stringValue: e.iv }, d: { stringValue: e.d } } }, updateTransforms: [{ fieldPath: 't', setToServerValue: 'REQUEST_TIME' }] });
+        if (a.key && a.key !== k) writes.push({ delete: doc(a.key) });   // كلمة مرور قديمة
+        if (a.uid) writes.push({ delete: doc(a.uid) });                   // من النسخة الأولى للبوابة
+        next[sid] = k;
+      } catch (e) { failed.push(App.stu[sid]?.name || sid); }
     }
+    let sent = 0;
+    for (let i = 0; i < writes.length; i += 300) {
+      const part = writes.slice(i, i + 300);
+      progress(`رفع البطاقات ${Math.min(i + 300, writes.length)} / ${writes.length}`);
+      await fs(':commit', { writes: part });
+      sent += part.filter(w => w.update).length;
+    }
+    for (const [sid, k] of Object.entries(next)) { const { uid: _u, fbPass: _f, ...rest } = c.accounts[sid]; c.accounts[sid] = { ...rest, key: k }; }
     await this.save(c);
-    for (let i = 0; i < writes.length; i += 300) { progress(`رفع الملخصات ${Math.min(i + 300, writes.length)} / ${writes.length}`); await fs(':commit', { writes: writes.slice(i, i + 300) }); }
-    const res = { sent: writes.length, failed, stopped, total: sids.length, at: new Date().toISOString() };
+    const res = { sent, failed, stopped: '', total: sids.length, at: new Date().toISOString() };
     const st = { ...(App.S.portalLast || {}) }, rs = { ...(App.S.portalResult || {}) };
-    classIds.forEach(cid => { if (writes.length) st[cid] = res.at; rs[cid] = res; });
+    classIds.forEach(cid => { if (sent) st[cid] = res.at; rs[cid] = res; });
     await App.set('portalLast', st); await App.set('portalResult', rs);
     return res;
   },

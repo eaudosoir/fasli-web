@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16316E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="بوابة فصلي">
+<meta name="robots" content="noindex">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>بوابة الطالب — فصلي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;600;700&display=swap">
+<style>
+:root { --navy: #16316E; --navy2: #0B1F4D; --gold: #D4A437; --gold-l: #F6E7BF; --bg: #F7F3EA; --card: #FFFDF8; --ink: #14213D; --mut: #5B6478; --line: #E6DCC6; --ok: #1B7F4B; --bad: #B3261E;
+  --f: "Noto Naskh Arabic", "Traditional Arabic", Tahoma, serif; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--bg); color: var(--ink); font-family: var(--f); -webkit-text-size-adjust: 100%; }
+body { min-height: 100vh; padding-bottom: env(safe-area-inset-bottom); }
+button, input { font: inherit; color: inherit; }
+.hero { background: linear-gradient(160deg, #223F86, var(--navy2)); color: #fff; padding: calc(28px + env(safe-area-inset-top)) 16px 64px; text-align: center; border-radius: 0 0 28px 28px; }
+.hero img { width: 150px; height: auto; display: block; margin: 0 auto 8px; filter: drop-shadow(0 8px 20px rgba(0,0,0,.35)); }
+.hero p { color: #F6D27A; font-size: 15px; }
+.wrap { max-width: 520px; margin: -44px auto 0; padding: 0 16px 32px; display: flex; flex-direction: column; gap: 14px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 18px; box-shadow: 0 10px 28px -18px rgba(20,33,61,.45); }
+h1 { font-size: 22px; line-height: 1.5; } h2 { font-size: 17px; margin-bottom: 10px; }
+.mut { color: var(--mut); font-size: 14px; line-height: 1.7; }
+label { display: flex; flex-direction: column; gap: 6px; font-size: 15px; font-weight: 700; margin-top: 12px; }
+input[type=text], input[type=password], input[inputmode] { direction: ltr; text-align: center; font-size: 22px; letter-spacing: 2px; padding: 12px; border: 1.5px solid var(--line); border-radius: 14px; background: #fff; font-family: ui-monospace, Menlo, Consolas, monospace; }
+input:focus { outline: 3px solid var(--gold-l); border-color: var(--gold); }
+.rem { flex-direction: row; align-items: center; gap: 8px; font-weight: 400; font-size: 14px; color: var(--mut); }
+.rem input { width: 20px; height: 20px; accent-color: var(--navy); }
+.btn { width: 100%; margin-top: 16px; padding: 13px; border: 0; border-radius: 14px; background: var(--navy); color: #fff; font-size: 17px; font-weight: 700; cursor: pointer; }
+.btn:disabled { opacity: .6; } .btn.ghost { background: transparent; color: var(--navy); border: 1.5px solid var(--line); margin-top: 0; }
+.err { color: var(--bad); font-size: 14px; margin-top: 10px; min-height: 1em; line-height: 1.7; }
+.who { display: flex; align-items: center; gap: 12px; }
+.av { width: 54px; height: 54px; border-radius: 18px; background: var(--gold-l); color: #6B4E0E; display: grid; place-items: center; font-size: 20px; font-weight: 700; flex: none; }
+.ring-row { display: flex; align-items: center; gap: 16px; }
+.ring { position: relative; width: 116px; height: 116px; flex: none; }
+.ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring b { position: absolute; inset: 0; display: grid; place-items: center; font-size: 26px; color: var(--navy); }
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.tile { background: #F3EEE2; border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 2px; }
+.tile b { font-size: 24px; color: var(--navy); } .tile small { font-size: 13px; color: var(--mut); }
+.star { display: flex; align-items: center; gap: 12px; background: linear-gradient(135deg, #FFF3CF, #F6D27A); border: 1px solid #E9C25A; color: #5A3E05; }
+.star .ic { font-size: 34px; }
+.badges { display: flex; flex-wrap: wrap; gap: 8px; }
+.bdg { background: #EEF1F8; color: var(--navy); border: 1px solid #D5DCEC; border-radius: 999px; padding: 6px 12px; font-size: 14px; }
+.hw { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+.hw.ok { color: var(--ok); } .hw.bad { color: var(--bad); }
+.msg { background: #FBF6E8; border-inline-start: 5px solid var(--gold); border-radius: 0 16px 16px 0; padding: 14px 16px; font-size: 16px; line-height: 1.9; }
+.msg small { display: block; color: var(--mut); font-size: 13px; margin-top: 6px; }
+.foot { text-align: center; color: var(--mut); font-size: 12.5px; line-height: 1.9; }
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<header class="hero"><img src="brand-white.png" alt="فصلي"><p>بوابة الطالب</p></header>
+<main class="wrap">
+
+  <section class="card" id="login">
+    <h1>مرحبًا بك</h1>
+    <p class="mut">أدخل معرّف الدخول وكلمة المرور المكتوبين في البطاقة التي أرسلها معلم المادة.</p>
+    <form id="f" autocomplete="on">
+      <label>معرّف الدخول<input type="text" name="id" placeholder="s001" autocapitalize="none" autocomplete="username" spellcheck="false" required></label>
+      <label>كلمة المرور<input type="password" name="pw" inputmode="numeric" placeholder="••••••" autocomplete="current-password" required></label>
+      <label class="rem"><input type="checkbox" name="rem" checked> تذكّرني على هذا الجهاز</label>
+      <button class="btn" type="submit">دخول</button>
+      <p class="err" id="err" role="alert"></p>
+    </form>
+  </section>
+
+  <div id="view" hidden></div>
+
+  <p class="foot">بطاقة الطالب خاصة به وحده، ولا يراها غيره.<br>فصلي — إدارة صفك بسهولة</p>
+</main>
+
+<script src="config.js"></script>
+<script>
+'use strict';
+const CFG = Object.assign({ fsBase: 'https://firestore.googleapis.com' }, window.FASLI_PORTAL || {});
+const LS = 'fasli-portal-login';
+const $ = s => document.querySelector(s);
+const esc = t => String(t ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const n = x => Number(x || 0).toLocaleString('ar-SA');
+const enc = new TextEncoder();
+const unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+
+async function keyOf(id, pass) {
+  const h = await crypto.subtle.digest('SHA-256', enc.encode(`fasli-portal-v1|${id}|${pass}`));
+  return Array.from(new Uint8Array(h), b => b.toString(16).padStart(2, '0')).join('');
+}
+async function decrypt(id, pass, iv, d) {
+  const base = await crypto.subtle.importKey('raw', enc.encode(pass), 'PBKDF2', false, ['deriveKey']);
+  const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt: enc.encode(`fasli|${id}`), iterations: 60000, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+  const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(iv) }, key, unb64(d));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+async function load(id, pass) {
+  const k = await keyOf(id, pass);
+  let r;
+  try { r = await fetch(`${CFG.fsBase}/v1/projects/${CFG.projectId}/databases/(default)/documents/portal/${k}?key=${CFG.apiKey}`, { cache: 'no-store' }); }
+  catch (e) { throw new Error('لا يوجد اتصال بالإنترنت، حاول مرة أخرى.'); }
+  if (r.status === 404 || r.status === 403) throw new Error('المعرّف أو كلمة المرور غير صحيحة. تأكد منهما في البطاقة، فإن كانت صحيحة فربما لم يُحدّث المعلم البوابة بعد.');
+  if (!r.ok) throw new Error('تعذّر الوصول إلى البوابة الآن، حاول بعد قليل.');
+  const f = (await r.json()).fields || {};
+  try { return await decrypt(id, pass, f.iv.stringValue, f.d.stringValue); }
+  catch (e) { throw new Error('المعرّف أو كلمة المرور غير صحيحة.'); }
+}
+
+function dates(iso) {
+  const d = new Date(iso);
+  const g = d.toLocaleDateString('ar-SA-u-ca-gregory', { day: 'numeric', month: 'long', year: 'numeric' });
+  const h = d.toLocaleDateString('ar-SA-u-ca-islamic-umalqura', { day: 'numeric', month: 'long', year: 'numeric' });
+  const t = d.toLocaleTimeString('ar-SA', { hour: 'numeric', minute: '2-digit' });
+  return `${h} — ${g}، الساعة ${t}`;
+}
+const initials = s => String(s).trim().split(/\s+/).slice(0, 2).map(w => w[0]).join('');
+
+function render(x) {
+  const a = x.att || {}, rate = a.rate ?? null, C = 2 * Math.PI * 48;
+  const first = String(x.name).split(/\s+/)[0];
+  $('#view').innerHTML = `
+    <section class="card">
+      <div class="who"><span class="av">${esc(initials(x.name))}</span><div><h1>${esc(x.name)}</h1><p class="mut">${esc(x.cls)} · ${esc(x.subject)}</p></div></div>
+    </section>
+
+    ${x.star ? `<section class="card star"><span class="ic" aria-hidden="true">🏆</span><div><b>نجم الأسبوع</b><p>${esc(first)} من أفضل ثلاثة في فصله هذا الأسبوع. أحسنت!</p></div></section>` : ''}
+
+    <section class="card">
+      <h2>الحضور</h2>
+      <div class="ring-row">
+        <div class="ring" role="img" aria-label="نسبة الحضور ${rate ?? 'غير متاحة'}">
+          <svg viewBox="0 0 110 110"><circle cx="55" cy="55" r="48" fill="none" stroke="#EDE6D6" stroke-width="11"/>
+          <circle cx="55" cy="55" r="48" fill="none" stroke="${rate === null ? '#EDE6D6' : rate >= 90 ? '#1D9E75' : rate >= 75 ? '#D4A437' : '#C8463D'}" stroke-width="11" stroke-linecap="round" stroke-dasharray="${rate === null ? 0 : C * rate / 100} ${C}"/></svg>
+          <b>${rate === null ? '—' : n(rate) + '٪'}</b>
+        </div>
+        <div class="mut">حضر <b>${n(a.present)}</b> من <b>${n(a.total)}</b> حصة<br>غاب <b>${n(a.absent)}</b>${a.late ? ` · تأخر <b>${n(a.late)}</b>` : ''}</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>النقاط والمشاركة</h2>
+      <div class="tiles">
+        <div class="tile"><b>${n(x.points)}</b><small>مجموع النقاط</small></div>
+        <div class="tile"><b>${x.rank ? n(x.rank) : '—'}</b><small>${x.rank ? `ترتيبه بين ${n(x.classmates)} طالبًا` : 'الترتيب في الفصل'}</small></div>
+        <div class="tile"><b>${n(x.weekPoints)}</b><small>نقاط هذا الأسبوع</small></div>
+        <div class="tile"><b>${n(x.part)}</b><small>مرات المشاركة</small></div>
+      </div>
+    </section>
+
+    ${x.badges?.length ? `<section class="card"><h2>الأوسمة</h2><div class="badges">${x.badges.map(b => `<span class="bdg" title="${esc(b.desc)}">${esc(b.icon)} ${esc(b.name)}</span>`).join('')}</div></section>` : ''}
+
+    <section class="card">
+      <h2>الواجبات</h2>
+      ${x.hwOpen ? `<p class="hw bad">عليه ${n(x.hwOpen)} ${x.hwOpen === 1 ? 'واجب لم يُسلَّم' : 'واجبات لم تُسلَّم'} — نرجو المتابعة معه.</p>` : `<p class="hw ok">أحسنت، لا توجد واجبات ناقصة.</p>`}
+    </section>
+
+    ${x.msg ? `<section class="card"><h2>رسالة من المعلم</h2><div class="msg">${esc(x.msg)}<small>${esc(x.teacher)}</small></div></section>` : ''}
+
+    <p class="foot">آخر تحديث من المعلم: ${esc(dates(x.updated))}<br>${esc(x.teacher)}${x.school ? ' · ' + esc(x.school) : ''}</p>
+    <button class="btn ghost" id="out">تسجيل الخروج</button>`;
+  $('#login').hidden = true; $('#view').hidden = false;
+  $('#out').onclick = () => { try { localStorage.removeItem(LS); } catch (e) { } $('#view').hidden = true; $('#login').hidden = false; $('#f').reset(); $('#err').textContent = ''; };
+}
+
+$('#f').onsubmit = async e => {
+  e.preventDefault();
+  const f = e.target, id = f.id.value.trim().toLowerCase(), pw = f.pw.value.trim(), btn = f.querySelector('button');
+  $('#err').textContent = '';
+  if (!/^s\d{3,}$/.test(id)) return $('#err').textContent = 'معرّف الدخول يبدأ بحرف s ثم أرقام، مثل s001';
+  if (!/^\d{6}$/.test(pw)) return $('#err').textContent = 'كلمة المرور ستة أرقام';
+  btn.disabled = true; btn.textContent = 'جارٍ الدخول…';
+  try {
+    render(await load(id, pw));
+    try { if (f.rem.checked) localStorage.setItem(LS, JSON.stringify({ id, pw })); else localStorage.removeItem(LS); } catch (x) { }
+  } catch (x) { $('#err').textContent = x.message; }
+  btn.disabled = false; btn.textContent = 'دخول';
+};
+
+(async () => {
+  let s = null; try { s = JSON.parse(localStorage.getItem(LS) || 'null'); } catch (e) { }
+  if (s?.id && s?.pw) { try { render(await load(s.id, s.pw)); } catch (e) { $('#err').textContent = e.message; } }
+})();
+</script>
+</body>
+</html>
