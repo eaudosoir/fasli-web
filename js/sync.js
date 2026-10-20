@@ -267,6 +267,8 @@ const Sync = (() => {
   return {
     configured, start, run, signIn, signOut, resetPassword, link, cloudState, badge,
     on: () => !!auth?.linkedAt,
+    // لبوابة الطالب: نفس الاتصال والرمز، دون المساس بالمزامنة
+    portalApi: { post, fs, uid: () => auth?.uid || null, cfg: C, AuthError },
     status: () => ({ email: auth?.email || '', linked: !!auth?.linkedAt, expired: !!auth?.expired, pending: Object.keys(queue).length, lastOk: ls.get(LS_ST, {})?.lastOk || null, busy, err: lastErr })
   };
 })();

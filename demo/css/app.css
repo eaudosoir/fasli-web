@@ -1025,3 +1025,4 @@ body.demo .assistant-banner { top: calc(38px + env(safe-area-inset-top, 0px)); }
   .pt-print { display: grid !important; grid-template-columns: 1fr 1fr; gap: 4mm; }
   .pt-card, .pt-cred div { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
+.pt-pub { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; } .pt-pub .grow { display: flex; flex-direction: column; min-width: 180px; } .pt-pub small { color: var(--mut); font-size: 12.5px; }
