@@ -56,6 +56,8 @@ h1{margin:0;font-size:1.4rem;font-weight:700;line-height:1.3}
 .resetBtn{white-space:nowrap;flex:none;display:inline-flex;align-items:center;gap:5px;background:#fff;color:#B3261E;border:0;padding:7px 12px;border-radius:999px;font-size:.85rem;font-weight:700;position:relative;z-index:1;box-shadow:0 4px 12px -6px rgba(0,0,0,.35);cursor:pointer}
 .installBtn:not([hidden])+.resetBtn{margin-inline-start:6px}.installBtn[hidden]+.resetBtn{margin-inline-start:auto}
 .resetBtn:active{transform:scale(.96)}
+.backFasli{order:-1;display:inline-flex;align-items:center;gap:2px;flex:none;background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.35);padding:6px 10px 6px 12px;border-radius:999px;font-size:.85rem;font-weight:700;text-decoration:none;position:relative;z-index:1}
+.backFasli[hidden]{display:none}
 .prog{position:relative;z-index:1;display:grid;gap:6px}
 .prog .lbl{display:flex;justify-content:space-between;font-size:.82rem;color:rgba(255,255,255,.9)}
 .prog .track{height:8px;border-radius:99px;background:rgba(255,255,255,.22);overflow:hidden}
@@ -180,6 +182,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem}
         <p class="sub">يوصل مهام المعلمين لقروبات أولياء الأمور<br>ابتدائية القادسية</p>
       </div>
       <button class="installBtn" id="installBtn" type="button" hidden>📲 تثبيت</button>
+      <a class="backFasli" id="backFasli" href="../" hidden aria-label="رجوع إلى فصلي"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg><span>فصلي</span></a>
       <button class="resetBtn" id="resetBtn" type="button" title="تصفير الاختيارات" aria-label="تصفير الاختيارات والبدء من جديد"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg><span>تصفير</span></button>
     </div>
     <div class="prog" aria-live="polite">
@@ -302,7 +305,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem}
     </details>
   </section>
 
-  <footer>تصميم: أ. عبدالله ال عواد · الإصدار ٢١</footer>
+  <footer>تصميم: أ. عبدالله ال عواد · الإصدار ٢٢</footer>
 </div>
 <div class="scrim" id="installSheet" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="insT">
@@ -620,6 +623,8 @@ $("share").addEventListener("click",e=>{
   sendNow(t,files);commit(t);
 });
 $("resend").onclick=()=>{if(last)sendNow(last.t,last.files)};
+/* فُتح من فصلي: زر رجوع إليه، ويبقى ظاهرًا طوال الجلسة */
+(function(){try{if(new URLSearchParams(location.search).get("from")==="fasli"){sessionStorage.setItem("fromFasli","1");history.replaceState(null,"",location.pathname+location.hash)}if(sessionStorage.getItem("fromFasli"))$("backFasli").hidden=false}catch(e){}})();
 /* تصفير الاختيارات: يبقى اسم المعلم، ويعود كل ما عداه كما في أول فتح */
 $("resetBtn").onclick=()=>{
   $("tpl").value="";$("msg").value=GREET;store.set("p_msg","");

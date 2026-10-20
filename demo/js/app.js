@@ -82,7 +82,7 @@ const App = {
       <span class="nav-ic">${ic(n.icon)}</span><span class="nav-lb">${n.label}</span></button>`).join('');
     $$('#nav .nav-item').forEach(b => b.onclick = () => {
       if (b.dataset.nav === 'session') return this.openCurrentSession();
-      const nv = NAV.find(n => n.id === b.dataset.nav); if (nv?.ext) return Native.open(nv.ext); if (nv?.act) return nv.act();
+      const nv = NAV.find(n => n.id === b.dataset.nav); if (nv?.ext) return openSaei(); if (nv?.act) return nv.act();
       this.stack = []; this.go(b.dataset.nav);
     });
   },
@@ -440,9 +440,15 @@ Screens.more = async (v) => {
     <button class="menu-item exit-item" data-exit><span class="mi-ic">${ic('logout')}</span><span class="mi-tx"><b>خروج</b><small>قفل فصلي برمزك السري عند ترك الجهاز</small></span>${ic('chev', 'mi-ch')}</button>
   </div><div class="about"><img class="about-brand" src="img/brand-navy.png" alt="فصلي"><small>إدارة صفك بسهولة · الإصدار ${Native.call('appVersion') || '1.0'}</small><small>تصميم وبرمجة: أ. عبدالله ال عواد</small></div></div>`;
   bindBack(v); bindGo(v);
-  v.querySelector('[data-saei]').onclick = () => Native.open('https://eaudosoir.github.io/fasli-web/tasks/');
+  v.querySelector('[data-saei]').onclick = () => openSaei();
   v.querySelector('[data-exit]').onclick = () => App.exit();
 };
+/* ساعي: يُفتح في نفس النافذة ليعيدك زر الرجوع إلى فصلي (وفي تطبيق الأندرويد في المتصفح) */
+function openSaei() {
+  const url = 'https://eaudosoir.github.io/fasli-web/tasks/?from=fasli';
+  if (Native.has()) return Native.open(url);
+  location.href = url;
+}
 const menuItem = (go, icon, t, s) => `<button class="menu-item" data-go="${go}"><span class="mi-ic">${ic(icon)}</span><span class="mi-tx"><b>${t}</b><small>${s}</small></span>${ic('chev', 'mi-ch')}</button>`;
 
 /* ===== أفكار التطبيق: ملاحظات المعلم لتطوير فصلي ===== */
