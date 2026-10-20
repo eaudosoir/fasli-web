@@ -77,7 +77,7 @@ const App = {
     window.scrollTo(0, 0);
   },
   renderNav() {
-    $('#nav').innerHTML = NAV.map(n => `<button class="nav-item ${n.center ? 'center' : ''} ${n.wide ? 'nav-wide nav-' + n.id : ''}" data-nav="${n.id}" ${n.ext ? `title="${n.label}: مهام المعلمين لأولياء الأمور"` : ''}>
+    $('#nav').innerHTML = NAV.map(n => `<button class="nav-item nav-${n.id} ${n.center ? 'center' : ''} ${n.wide ? 'nav-wide' : ''}" data-nav="${n.id}" ${n.ext ? `title="${n.label}: مهام المعلمين لأولياء الأمور"` : ''}>
       <span class="nav-ic">${ic(n.icon)}</span><span class="nav-lb">${n.label}</span></button>`).join('');
     $$('#nav .nav-item').forEach(b => b.onclick = () => {
       if (b.dataset.nav === 'session') return this.openCurrentSession();

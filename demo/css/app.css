@@ -1033,7 +1033,19 @@ body.demo .assistant-banner { top: calc(38px + env(safe-area-inset-top, 0px)); }
 .nav-item.nav-wide { display: none; }
 @media (min-width: 820px) {
   .nav-item.nav-wide { display: flex; margin-top: 10px; padding-top: 14px; border-top: 1px solid var(--line); }
-  .nav-saei .nav-ic { background: linear-gradient(135deg, #14B8A6, #0D9488); color: #fff; box-shadow: 0 6px 14px -8px #0D9488; }
+  #nav .nav-saei .nav-ic { background: linear-gradient(135deg, #14B8A6, #0D9488); color: #fff; box-shadow: 0 6px 14px -8px #0D9488; }
   .nav-saei { color: #0D9488; }
 }
 .saei-item .mi-ic { background: linear-gradient(135deg, #14B8A6, #0D9488) !important; color: #fff !important; }
+
+/* ===== أيقونات الشريط الملوّنة (بنفس شكل أيقونة ساعي) ===== */
+.nav-item:not(.center) .nav-ic { width: 40px; height: 40px; border-radius: 14px; color: #fff; transition: transform .2s, box-shadow .2s; }
+#nav .nav-home .nav-ic { background: linear-gradient(135deg, #3B6FD8, #1E4BA8); box-shadow: 0 6px 14px -8px #1E4BA8; }
+#nav .nav-students .nav-ic { background: linear-gradient(135deg, #8B6CE0, #6243C4); box-shadow: 0 6px 14px -8px #6243C4; }
+#nav .nav-followup .nav-ic { background: linear-gradient(135deg, #F08A5D, #D9572B); box-shadow: 0 6px 14px -8px #D9572B; }
+#nav .nav-reports .nav-ic { background: linear-gradient(135deg, #F2B53A, #D18A12); box-shadow: 0 6px 14px -8px #D18A12; }
+#nav .nav-saei .nav-ic { background: linear-gradient(135deg, #14B8A6, #0D9488); box-shadow: 0 6px 14px -8px #0D9488; }
+.nav-home { color: #1E4BA8; } .nav-students { color: #6243C4; } .nav-followup { color: #C24A20; } .nav-reports { color: #A86C08; } .nav-saei { color: #0D9488; }
+.nav-item:not(.center).active .nav-ic { transform: translateY(-2px) scale(1.06); outline: 2.5px solid var(--gold); outline-offset: 2px; }
+.nav-item:not(.center).active .nav-lb { font-weight: 700; }
+.nav-item:not(.center):not(.active) { opacity: .88; }

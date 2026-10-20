@@ -155,6 +155,12 @@ async function sessionPicker(v, p) {
   const lessons = p.cover ? [] : Sched.lessonsOn();
   v.innerHTML = topbar(p.cover ? 'حصة انتظار' : 'الحصة') + `<div class="page">
     ${p.cover ? `<div class="ses-flag cover">${ic('clock')} حصة الانتظار ${p.period ? ordinal(p.period) : ''} — اختر الفصل الذي تغطيه</div>` : ''}
+    ${p.cover ? '' : (() => {
+      const nx = Sched.next(), bn = Sched.bellNow();
+      const t = !lessons.length ? 'لا حصص لك اليوم' : bn.kind === 'break' ? 'وقت الفسحة الآن' : bn.kind === 'before' ? 'لم يبدأ اليوم الدراسي بعد' : bn.kind === 'after' ? 'انتهى اليوم الدراسي' : 'ليست لك حصة الآن';
+      const nxt = nx ? `حصتك القادمة: <b>${nx.entry.classId === 'wait' ? 'حصة انتظار' : esc(App.className(nx.entry.classId))}</b> — ${nx.when === 'today' ? `بعد ${fmtDur(nx.inMin)}` : nx.when === 'tomorrow' ? `غدًا ${fmt12(nx.start)}` : `${nx.when} ${fmt12(nx.start)}`}` : '';
+      return `<div class="info-card ses-idle">${ic('clock')}<div><b>${t}</b><p>${nxt ? nxt + '<br>' : ''}أثناء الحصة يفتح هذا الزر فصلك مباشرة للحضور والمشاركة والواجبات. الآن يمكنك فتح أي فصل أو تسجيل حصة فاتتك.</p></div></div>`;
+    })()}
     ${p.cover ? '' : `<section class="card"><div class="card-h"><h3>${ic('clock')} حصص اليوم</h3></div>
       ${lessons.length ? `<div class="menu-list">${lessons.map(l => `<button class="menu-item" data-pick="${l.entry.classId}|${l.entry.period}"><span class="mi-ic num-ic">${l.entry.period}</span><span class="mi-tx"><b>${esc(App.className(l.entry.classId))}</b><small>${fmt12(l.start)} – ${fmt12(l.end)}</small></span>${ic('chev', 'mi-ch')}</button>`).join('')}</div>` : '<p class="muted pad">لا حصص في جدولك اليوم</p>'}
     </section>`}
