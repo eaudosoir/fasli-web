@@ -72,6 +72,7 @@ const App = {
     const view = $('#view');
     view.classList.remove('enter'); void view.offsetWidth; view.classList.add('enter');
     $$('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.nav === (NAV_ROOT[cur.screen] || cur.screen)));
+    { const ib = $('#nav .nav-ideas .nav-ic'), n = (this.S.appIdeas || []).filter(x => !x.done).length; if (ib) { ib.querySelector('i')?.remove(); if (n) ib.insertAdjacentHTML('beforeend', `<i class="nav-badge">${n}</i>`); } }
     document.body.dataset.screen = cur.screen;
     try { await fn(view, cur.params); } catch (e) { console.error(e); view.innerHTML = `<div class="empty">${ic('alert')}<h3>حدث خطأ</h3><p>${esc(e.message)}</p></div>`; }
     window.scrollTo(0, 0);
@@ -81,7 +82,7 @@ const App = {
       <span class="nav-ic">${ic(n.icon)}</span><span class="nav-lb">${n.label}</span></button>`).join('');
     $$('#nav .nav-item').forEach(b => b.onclick = () => {
       if (b.dataset.nav === 'session') return this.openCurrentSession();
-      const ext = NAV.find(n => n.id === b.dataset.nav)?.ext; if (ext) return Native.open(ext);
+      const nv = NAV.find(n => n.id === b.dataset.nav); if (nv?.ext) return Native.open(nv.ext); if (nv?.act) return nv.act();
       this.stack = []; this.go(b.dataset.nav);
     });
   },
@@ -176,6 +177,13 @@ const App = {
   /* ===== القفل ===== */
   bioReady() { return !!this.S.bioUnlock && Native.has() && Native.call('biometricStatus') === 'ok'; },
   onBioResult(ok) { if (this._bioCb) this._bioCb(ok); else if (this._bioSetup) { const f = this._bioSetup; this._bioSetup = null; f(ok); } },
+  /* خروج: يقفل التطبيق فورًا إن كان القفل مفعّلًا، وإلا يعرض تفعيله لحماية بيانات الطلاب */
+  async exit() {
+    if (this.S.lockEnabled && await DB.getSetting('pinHash')) { this.lock(); return; }
+    const r = await sheet(`<div class="info-card">${ic('lock')}<div><b>لحماية بيانات طلابك</b><p>«خروج» يقفل فصلي فلا يفتحه أحد إلا برمزك السري. فعّل القفل مرة واحدة من الإعدادات، ثم يكفي الضغط على «خروج» عند ترك الجهاز.</p></div></div>
+      <div class="row gap"><button class="btn primary grow" data-ok>${ic('lock')} تفعيل القفل الآن</button><button class="btn ghost grow" data-close>لاحقًا</button></div>`, { title: 'خروج', onMount: (el, close) => el.querySelector('[data-ok]').onclick = () => close(true) });
+    if (r) { this.stack = []; this.go('settings'); }
+  },
   lock() {
     if (this.locked) return Promise.resolve();
     this.locked = true;
@@ -214,7 +222,9 @@ const NAV = [
   { id: 'session', label: 'الحصة', icon: 'checkSq', center: true },
   { id: 'followup', label: 'المتابعة', icon: 'flag' },
   { id: 'reports', label: 'التقارير', icon: 'chart' },
-  { id: 'saei', label: 'ساعي', icon: 'send', ext: 'https://eaudosoir.github.io/fasli-web/tasks/', wide: true }
+  { id: 'ideas', label: 'أفكاري', icon: 'bulb', wide: true },
+  { id: 'saei', label: 'ساعي', icon: 'send', ext: 'https://eaudosoir.github.io/fasli-web/tasks/', wide: true },
+  { id: 'exit', label: 'خروج', icon: 'logout', act: () => App.exit(), wide: true }
 ];
 const NAV_ROOT = { reset: 'home', photos: 'home', worksheet: 'home', remedial: 'followup', monthly: 'home', platforms: 'home', ask: 'home', seats: 'session', qbank: 'home', attention: 'followup', weekly: 'home', ideas: 'home', quiz: 'session', stars: 'home', curriculum: 'home', covers: 'home', merge: 'home', portfolio: 'home', student: 'students', more: 'home', timetable: 'home', calendar: 'home', settings: 'home', madrasati: 'home', lists: 'home', backup: 'home' };
 
@@ -427,9 +437,11 @@ Screens.more = async (v) => {
     ${menuItem('backup', 'shield', 'النسخ الاحتياطي', 'حفظ واستعادة بياناتك')}
     ${menuItem('reset', 'trash', 'تصفير البيانات', 'مسح كامل أو جزئي: سجلات، فصول، فترة — بنسخة احتياطية تلقائية')}
     ${menuItem('settings', 'settings', 'الإعدادات', 'بياناتك، القفل، التنبيهات')}
+    <button class="menu-item exit-item" data-exit><span class="mi-ic">${ic('logout')}</span><span class="mi-tx"><b>خروج</b><small>قفل فصلي برمزك السري عند ترك الجهاز</small></span>${ic('chev', 'mi-ch')}</button>
   </div><div class="about"><img class="about-brand" src="img/brand-navy.png" alt="فصلي"><small>إدارة صفك بسهولة · الإصدار ${Native.call('appVersion') || '1.0'}</small><small>تصميم وبرمجة: أ. عبدالله ال عواد</small></div></div>`;
   bindBack(v); bindGo(v);
   v.querySelector('[data-saei]').onclick = () => Native.open('https://eaudosoir.github.io/fasli-web/tasks/');
+  v.querySelector('[data-exit]').onclick = () => App.exit();
 };
 const menuItem = (go, icon, t, s) => `<button class="menu-item" data-go="${go}"><span class="mi-ic">${ic(icon)}</span><span class="mi-tx"><b>${t}</b><small>${s}</small></span>${ic('chev', 'mi-ch')}</button>`;
 

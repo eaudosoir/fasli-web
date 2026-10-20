@@ -86,6 +86,7 @@ const IC = {
   alert: '<path d="M12 3.5 2.5 20h19z"/><path d="M12 10v4.5M12 17.5v.1"/>',
   history: '<path d="M3.5 12a8.5 8.5 0 1 0 2.5-6"/><path d="M3 4v4h4M12 8v4.5l3 1.8"/>',
   run: '<circle cx="14" cy="4.5" r="2"/><path d="m8 21 3-6 3 2.5V21M6 12l3-4h5l3 4 3 1M11 15l-1.5-4"/>',
+  logout: '<path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M9 8l-4 4 4 4M5 12h10"/>',
   door: '<path d="M5 21V4a1 1 0 0 1 1-1h9v18M15 3l4 1.5V21M3 21h18"/><circle cx="12" cy="12.5" r=".8"/>',
   sparkle: '<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18"/>',
   school: '<path d="M2.5 9.5 12 4.5l9.5 5-9.5 5z"/><path d="M6.5 11.5V17c3.5 2.5 7.5 2.5 11 0v-5.5M21.5 9.5v6"/>',
