@@ -116,6 +116,52 @@ const Portal = {
   async resetPass(sid) {
     const c = this.cfg(); if (!c.accounts[sid]) return;
     c.accounts[sid] = { ...c.accounts[sid], pass: this.newPass(), reset: ymd() }; await this.save(c);
+  },
+
+  /* حسابات طلاب لم يعودوا في قوائمك (حُذفوا أو أُخرجوا) */
+  orphans() { return Object.keys(this.cfg().accounts).filter(sid => !App.stu[sid] || App.stu[sid].active === false || !App.cls[App.stu[sid].classId]); },
+
+  /* تنظيف البوابة: حذف البطاقات من الإنترنت، وحسب الاختيار الحسابات نفسها، وحسابات التجربة الأولى في Firebase */
+  async clean({ classIds = [], cards = true, accounts = false, orphans = true, auth = false }, progress = () => { }) {
+    if (!this.online()) throw new Error('سجّل دخولك في «الحساب والمزامنة» أولًا');
+    const { fs, post, cfg } = Sync.portalApi, c = this.cfg();
+    const doc = k => `projects/${cfg.projectId}/databases/(default)/documents/portal/${k}`;
+    const inScope = classIds.flatMap(cid => App.classStudents(cid).map(s => s.id)).filter(sid => c.accounts[sid]);
+    const gone = orphans ? this.orphans() : [];
+    const res = { cards: 0, accounts: 0, orphans: gone.length, auth: 0, authLeft: 0 };
+
+    // ١) حسابات Firebase القديمة: دخول بكلمة المرور ثم حذف الحساب (قبل حذف الحسابات المحلية)
+    if (auth) {
+      const list = [...new Set([...inScope, ...gone])].map(sid => c.accounts[sid]).filter(a => a && !a.authClean);
+      const base = `${cfg.authBase}/v1/accounts`, key = `?key=${cfg.apiKey}`;
+      for (let i = 0; i < list.length; i++) {
+        const a = list[i]; progress(`حسابات قديمة ${i + 1} / ${list.length}`);
+        const r = await post(`${base}:signInWithPassword${key}`, { email: `${a.id}@student.fasli.app`, password: a.pass, returnSecureToken: true });
+        const m = r.j?.error?.message || '';
+        if (r.ok) { const d = await post(`${base}:delete${key}`, { idToken: r.j.idToken }); if (d.ok) { res.auth++; a.authClean = true; } }
+        else if (/TOO_MANY|QUOTA/.test(m)) { res.authLeft = list.length - i; break; }
+        else a.authClean = true; // لا يوجد حساب قديم لهذا الطالب
+      }
+    }
+
+    // ٢) حذف البطاقات من البوابة
+    const dels = [];
+    const drop = sid => { const a = c.accounts[sid]; if (a?.key) dels.push({ delete: doc(a.key) }); if (a?.uid) dels.push({ delete: doc(a.uid) }); };
+    if (cards || accounts) inScope.forEach(drop);
+    gone.forEach(drop);
+    for (let i = 0; i < dels.length; i += 300) { progress(`حذف البطاقات ${Math.min(i + 300, dels.length)} / ${dels.length}`); await fs(':commit', { writes: dels.slice(i, i + 300) }); }
+    res.cards = dels.length;
+
+    // ٣) تحديث الحسابات المحلية
+    if (cards || accounts) inScope.forEach(sid => { if (accounts) { delete c.accounts[sid]; res.accounts++; } else { const { key: _k, uid: _u, fbPass: _f, ...rest } = c.accounts[sid]; c.accounts[sid] = rest; } });
+    gone.forEach(sid => delete c.accounts[sid]);
+    await this.save(c);
+    if (cards || accounts) {
+      const st = { ...(App.S.portalLast || {}) }, rs = { ...(App.S.portalResult || {}) };
+      classIds.forEach(cid => { delete st[cid]; delete rs[cid]; });
+      await App.set('portalLast', st); await App.set('portalResult', rs);
+    }
+    return res;
   }
 };
 
@@ -149,6 +195,7 @@ Screens.portal = async (v, p) => {
     ${withAcc.length ? `<section class="card no-print pt-pub"><div class="grow"><b>${ic('upload')} تحديث البوابة</b><small>${Portal.online() ? (App.S.portalLast?.[cid] ? `آخر تحديث لهذا الفصل: ${(d => `${shortDate(ymd(d))} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`)(new Date(App.S.portalLast[cid]))}` : 'لم يُرفع ملخص هذا الفصل بعد') : 'يتطلب تسجيل الدخول في «الحساب والمزامنة»'}</small>
       ${(r => r ? `<small class="pt-res ${r.failed.length || r.stopped || r.sent < r.total ? 'bad' : 'ok'}">نتيجة آخر محاولة: رُفعت ${r.sent} من ${r.total} بطاقة${r.failed.length ? ` · تعذّر ${r.failed.length}: ${esc(r.failed.slice(0, 3).join('، '))}` : ''}${r.stopped ? ' · توقف لحد Firebase، أعد المحاولة بعد ساعة' : ''}${r.err ? ` · ${esc(r.err)}` : ''}</small>` : '')(App.S.portalResult?.[cid])}</div>
       <div class="row gap"><button class="btn primary sm" data-pub="one">هذا الفصل</button><button class="btn ghost sm" data-pub="all">كل الفصول</button></div></section>` : ''}
+    ${total ? `<button class="btn ghost block no-print pt-clean" data-clean>${ic('trash')} تنظيف البوابة${Portal.orphans().length ? ` <span class="pt-n">${Portal.orphans().length}</span>` : ''}</button>` : ''}
     <section class="card no-print"><div class="rec-list">${studs.map(s => { const a = Portal.account(s.id); return `<div class="rec"><span class="av">${esc(initials(s.name))}</span><div class="grow"><b>${esc(s.name)}</b><small>${a ? `المعرّف <code>${a.id}</code> · كلمة المرور <code>${a.pass}</code>` : 'لا يوجد حساب بعد'}</small></div>${a ? `<button class="icon-btn sm" data-msg="${s.id}" aria-label="رسالة للطالب">${ic(a.msg ? 'note' : 'edit')}</button><button class="icon-btn sm" data-rp="${s.id}" aria-label="كلمة مرور جديدة">${ic('history')}</button>` : ''}</div>`; }).join('')}</div></section>
     <p class="hint no-print">${ic('info')} زر ${ic('edit')} يكتب رسالة تشجيعية تظهر للطالب في بطاقته. التحديث يرفع الملخص فقط، ويُعاد متى شئت.</p>
     <div class="print-area pt-print">${withAcc.map(card).join('')}</div>`
@@ -188,6 +235,45 @@ Screens.portal = async (v, p) => {
       const rs = { ...(App.S.portalResult || {}) }; ids.forEach(id => rs[id] = { sent: 0, total: App.classStudents(id).length, failed: [], err: e.message || 'تعذّر التحديث', at: new Date().toISOString() }); await App.set('portalResult', rs);
     }
     b.textContent = lbl; all.forEach(x => x.disabled = false); App.render();
+  });
+  v.querySelector('[data-clean]')?.addEventListener('click', async () => {
+    if (!Portal.online()) { toast('سجّل دخولك في «الحساب والمزامنة» أولًا', 'bad'); return App.go('sync'); }
+    const orph = Portal.orphans().length;
+    const opt = await sheet(`
+      <span class="lbl">النطاق</span>
+      <div class="seg" data-scope><button type="button" class="on" data-v="one">${esc(App.className(cid))}</button><button type="button" data-v="all">كل الفصول</button></div>
+      <div class="rs-kinds" style="margin-top:12px">
+        <label class="rs-k on"><input type="radio" name="what" value="cards" checked><div class="grow"><b>حذف البطاقات من الإنترنت فقط</b><small>تبقى المعرّفات وكلمات المرور كما هي، وتعود البطاقات عند «تحديث البوابة». مناسب لإيقاف البوابة مؤقتًا.</small></div></label>
+        <label class="rs-k"><input type="radio" name="what" value="accounts"><div class="grow"><b>حذف البطاقات والحسابات نهائيًا</b><small>تُلغى المعرّفات وكلمات المرور، ويلزم إنشاء حسابات وطباعة بطاقات جديدة. مناسب لنهاية العام.</small></div></label>
+        <label class="rs-k"><input type="radio" name="what" value="none"><div class="grow"><b>لا تحذف بطاقات الفصول</b><small>نفّذ الخيارات التالية فقط.</small></div></label>
+      </div>
+      <div class="rs-kinds" style="margin-top:12px">
+        <label class="rs-k ${orph ? 'on' : 'dis'}"><input type="checkbox" name="orph" ${orph ? 'checked' : 'disabled'}><div class="grow"><b>طلاب لم يعودوا في قوائمك</b><small>${orph ? `${orph} حساب لطلاب حُذفوا — تُحذف بطاقاتهم وحساباتهم` : 'لا يوجد'}</small></div></label>
+        <label class="rs-k"><input type="checkbox" name="auth"><div class="grow"><b>حسابات Firebase القديمة</b><small>من التجربة الأولى للبوابة؛ لا تضر، وحذفها اختياري. قد يتوقف مؤقتًا لحد Firebase فتكمله لاحقًا.</small></div></label>
+      </div>
+      <button class="btn danger block" data-ok style="margin-top:14px">${ic('trash')} تنظيف</button>`, {
+      title: 'تنظيف البوابة', onMount: (el, close) => {
+        let scope = 'one';
+        $$('[data-scope] button', el).forEach(b => b.onclick = () => { scope = b.dataset.v; $$('[data-scope] button', el).forEach(x => x.classList.toggle('on', x === b)); });
+        $$('.rs-k input', el).forEach(i => i.onchange = () => $$('.rs-k', el).forEach(l => { const x = l.querySelector('input'); l.classList.toggle('on', x.checked); }));
+        el.querySelector('[data-ok]').onclick = () => close({ scope, what: el.querySelector('[name=what]:checked').value, orph: el.querySelector('[name=orph]').checked, auth: el.querySelector('[name=auth]').checked });
+      }
+    });
+    if (!opt) return;
+    if (opt.what === 'none' && !opt.orph && !opt.auth) return toast('لم تختر شيئًا للتنظيف');
+    const ids = opt.scope === 'all' ? classes.map(c => c.id) : [cid];
+    if (opt.what === 'accounts' && !await confirmBox(`حذف حسابات ${opt.scope === 'all' ? 'كل الفصول' : esc(App.className(cid))} نهائيًا؟<br><small>لن تعمل البطاقات المطبوعة الحالية، ويلزم طباعة بطاقات جديدة.</small>`, { ok: 'حذف نهائي', danger: true })) return;
+    const b = v.querySelector('[data-clean]'); b.disabled = true;
+    try {
+      const r = await Portal.clean({ classIds: opt.what === 'none' ? [] : ids, cards: opt.what !== 'none', accounts: opt.what === 'accounts', orphans: opt.orph, auth: opt.auth }, t => b.textContent = t);
+      const parts = [];
+      if (r.cards) parts.push(`حُذفت ${r.cards} بطاقة`);
+      if (r.accounts) parts.push(`و${r.accounts} حساب`);
+      if (r.orphans) parts.push(`ونُظّف ${r.orphans} حساب لطلاب محذوفين`);
+      if (opt.auth) parts.push(`وحُذف ${r.auth} حساب Firebase قديم${r.authLeft ? ` (بقي ${r.authLeft}، أكمل بعد ساعة)` : ''}`);
+      toast(parts.join(' ') || 'لا يوجد ما يُنظَّف', r.authLeft ? 'bad' : 'ok');
+    } catch (e) { toast(e.message || 'تعذّر التنظيف', 'bad'); }
+    App.render();
   });
   v.querySelector('[data-print]')?.addEventListener('click', () => Native.print(`بطاقات بوابة الطالب — ${App.className(cid)}`));
 };

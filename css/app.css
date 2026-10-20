@@ -1027,3 +1027,4 @@ body.demo .assistant-banner { top: calc(38px + env(safe-area-inset-top, 0px)); }
 }
 .pt-pub { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; } .pt-pub .grow { display: flex; flex-direction: column; min-width: 180px; } .pt-pub small { color: var(--mut); font-size: 12.5px; }
 .pt-res { margin-top: 4px; font-weight: 700; } .pt-res.ok { color: #1B7F4B !important; } .pt-res.bad { color: #B3261E !important; }
+.pt-clean { color: #B3261E; border: 1.5px dashed #E8A39C; background: transparent; margin-bottom: 10px; } .pt-n { background: #B3261E; color: #fff; border-radius: 10px; padding: 0 8px; font-size: 12px; }
