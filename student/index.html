@@ -145,7 +145,7 @@ function render(x) {
       <h2>النقاط والمشاركة</h2>
       <div class="tiles">
         <div class="tile"><b>${n(x.points)}</b><small>مجموع النقاط</small></div>
-        <div class="tile"><b>${x.rank ? n(x.rank) : '—'}</b><small>${x.rank ? `ترتيبه بين ${n(x.classmates)} طالبًا` : 'الترتيب في الفصل'}</small></div>
+        <div class="tile"><b>${x.rank ? n(x.rank) : '—'}</b><small>${x.rank ? `ترتيبه بين ${n(x.classmates)} طالبًا` : 'يظهر الترتيب بعد أول نقطة'}</small></div>
         <div class="tile"><b>${n(x.weekPoints)}</b><small>نقاط هذا الأسبوع</small></div>
         <div class="tile"><b>${n(x.part)}</b><small>مرات المشاركة</small></div>
       </div>

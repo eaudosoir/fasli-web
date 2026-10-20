@@ -58,7 +58,7 @@ const Portal = {
       const studs = App.classStudents(cid), tot = {};
       D.pts.forEach(x => { if (App.stu[x.studentId]?.classId === cid) tot[x.studentId] = (tot[x.studentId] || 0) + (x.value || 1); });
       const stars = new Set(weekStars(cid, D).slice(0, 3).filter(x => x.score > 0).map(x => x.sid));
-      studs.forEach(st => { const mine = tot[st.id] || 0; out[st.id] = { rank: 1 + studs.filter(o => (tot[o.id] || 0) > mine).length, n: studs.length, star: stars.has(st.id) }; });
+      studs.forEach(st => { const mine = tot[st.id] || 0; out[st.id] = { rank: mine > 0 ? 1 + studs.filter(o => (tot[o.id] || 0) > mine).length : null, n: studs.length, star: stars.has(st.id) }; });
     }
     return out;
   },
