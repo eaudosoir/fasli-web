@@ -1136,3 +1136,8 @@ body.demo .assistant-banner { top: calc(38px + env(safe-area-inset-top, 0px)); }
   .gb-th span { font-size: 11px; max-width: none; } .gb-th small { background: none; }
   .gb-tbl td.gb-tot { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
+.gb-imp { display: flex; flex-direction: column; gap: 4px; max-height: 50vh; overflow-y: auto; margin-top: 10px; }
+.gb-imp-r { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 12px; background: var(--pri-ll); }
+.gb-imp-r small { display: block; color: var(--mut); font-size: 12.5px; } .gb-imp-r > b { font-size: 17px; color: var(--pri); }
+.gb-imp-r.no { background: #FDE8E8; } .gb-imp-r.no small { color: var(--bad); }
+[data-theme=dark] .gb-imp-r.no { background: rgba(240,112,112,.12); }

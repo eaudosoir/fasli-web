@@ -146,6 +146,7 @@ Screens.gradebook = async (v, p) => {
       <div class="table-wrap gb-wrap"><table class="tbl gb-tbl"><thead>${head}</thead><tbody>${body}</tbody></table></div>
       <div class="rep-sign"><span>معلم المادة: ${esc(App.S.teacherName)}</span><span>التوقيع: ..................</span><span>${hijri(new Date())}</span></div>
     </div>
+    <button class="btn soft block no-print" data-imp>${ic('upload')} استيراد درجات بند (لصق قائمة أو ملف Excel)</button>
     <button class="btn danger-ghost block no-print" data-zeroall>${ic('trash')} تصفير كل البنود لطلاب ${esc(App.className(cid))}</button>
     <div class="rep-actions no-print"><button class="btn primary grow" data-print>${ic('print')} طباعة / PDF</button><button class="btn soft grow" data-xlsx>${ic('download')} Excel</button><button class="btn gold grow" data-noor>${ic('send')} تعبئة نور</button></div>
     <button class="btn ghost block no-print" data-xall>${ic('download')} Excel لكل الفصول</button>
@@ -200,6 +201,8 @@ Screens.gradebook = async (v, p) => {
   };
   $$('[data-zero]', v).forEach(b => b.onclick = () => { const I = GB_ITEMS.find(x => x.k === b.dataset.zero); zero([I.k], I.t); });
   v.querySelector('[data-zeroall]').onclick = () => zero(GB_ITEMS.map(I => I.k), 'كل البنود');
+
+  v.querySelector('[data-imp]').onclick = async () => { if (await gbImport(T, cid)) App.render(); };
 
   /* تعديل درجة طالب في بند */
   $$('[data-cell]', v).forEach(b => b.onclick = async () => {
@@ -374,4 +377,68 @@ async function gbStudentCard(s) {
     ${GB_ITEMS.map(I => { const x = r.it[I.k], pc = x.val === null ? 0 : x.val / I.max * 100; return `<div class="gb-bar" data-gbk="${I.k}"><span class="gb-bar-t">${I.s}${x.ov ? ' <i class="gb-dot" title="معدّلة يدويًا"></i>' : ''}</span><span class="gb-bar-b"><i style="width:${pc}%"></i></span><b>${GB.fmt(x.val)}<small>/${arNum(I.max)}</small></b></div>`; }).join('')}
     <div class="gb-bar total"><span class="gb-bar-t">المجموع</span><span></span><b>${GB.fmt(r.total)}<small>/${arNum(100)}</small></b></div>
     ${r.full ? '' : '<p class="muted small">بعض البنود لم تُرصد بعد (—).</p>'}</div>`;
+}
+
+/* ===== استيراد درجات بند من قائمة ملصوقة أو ملف: الاسم [الفصل] الدرجة ===== */
+function gbParseRows(rows) {
+  const out = [];
+  rows.forEach(r => {
+    const cells = r.map(c => String(c ?? '').trim()).filter(Boolean);
+    const nums = cells.map(c => c.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace('٫', '.')).map(c => /^\d+(\.\d+)?$/.test(c) ? +c : null);
+    const name = cells.find((c, i) => nums[i] === null && /[\u0621-\u064A]{2,}\s+[\u0621-\u064A]{2,}/.test(c) && !GB_CLASS_RX.test(c));
+    if (!name) return;
+    let val = null; for (let i = nums.length - 1; i >= 0; i--) if (nums[i] !== null) { val = nums[i]; break; }
+    if (val === null) return;
+    const cl = cells.find(c => GB_CLASS_RX.test(c));
+    out.push({ name, cls: cl || '', val });
+  });
+  return out;
+}
+const GB_CLASS_RX = /^(?:ال)?(رابع|خامس|سادس)\s*[أابجـ\-]*\s*[أابج]?$/;
+function gbClassId(t) {
+  const m = String(t).replace(/^ال/, '').match(/(رابع|خامس|سادس)\s*-?\s*([أابج])/); if (!m) return null;
+  const g = { رابع: 4, خامس: 5, سادس: 6 }[m[1]], sec = { 'أ': 1, 'ا': 1, 'ب': 2, 'ج': 3 }[m[2]];
+  return `g${g}s${sec}`;
+}
+async function gbImport(T, cid) {
+  const r = await sheet(`<span class="lbl">في أي بند أرصد الدرجات؟</span>
+    <div class="chips" data-chips="it">${GB_ITEMS.map((I, i) => `<button type="button" class="chip ${I.k === 'part' ? 'on' : ''}" data-v="${I.k}">${I.s} (${arNum(I.max)})</button>`).join('')}</div>
+    <label class="fld"><span>الصق القائمة: كل طالب في سطر — الاسم ثم الفصل (اختياري) ثم الدرجة</span><textarea name="t" rows="8" placeholder="يزن محمد ثابت	رابع أ	10&#10;أحمد عبدالرحيم عسيري	رابع أ	8.75"></textarea></label>
+    <div class="row gap"><button class="btn primary grow" data-ok>${ic('check')} مطابقة الأسماء</button><button class="btn soft grow" data-file>${ic('upload')} ملف Excel</button></div>
+    <p class="muted small mt">إذا كان في السطر أكثر من رقم تُؤخذ آخر درجة فيه. الطلاب غير الموجودين في القائمة لا تتغير درجاتهم.</p>`, {
+    title: 'استيراد درجات', onMount: (el, close) => {
+      bindChips(el);
+      el.querySelector('[data-ok]').onclick = () => close({ k: chipVal(el, 'it'), rows: el.querySelector('[name=t]').value.split(/\n/).map(l => l.split(/\t|,|،|;|\s{2,}|\|/)) });
+      el.querySelector('[data-file]').onclick = async () => { const f = await pickFile('.xlsx,.csv,.txt'); if (f) try { close({ k: chipVal(el, 'it'), rows: await readSheetFile(f) }); } catch (e) { toast(esc(e.message), 'bad'); } };
+    }
+  });
+  if (!r) return false;
+  const I = GB_ITEMS.find(x => x.k === r.k) || GB_ITEMS[2], list = gbParseRows(r.rows);
+  if (!list.length) { toast('لم أجد أسماء ودرجات في القائمة', 'bad'); return false; }
+  /* مطابقة: كل كلمة في الاسم المختصر تُبحث في الاسم الكامل (يُقبل اختلاف حرف واحد)، والاسم الأول شرط، ولا يتكرر طالب */
+  const W = n => normName(n).replace(/\bعبد\s+/g, 'عبد').replace(/\bبن\s+|\bابن\s+/g, '').replace(/\bال\s*/g, 'ال').split(' ').filter(Boolean);
+  const lev1 = (a, b) => { if (a === b) return 1; if (Math.abs(a.length - b.length) > 1 || a.length < 3) return 0; let i = 0, j = 0, e = 0; while (i < a.length && j < b.length) { if (a[i] === b[j]) { i++; j++; continue; } if (++e > 1) return 0; if (a.length > b.length) i++; else if (b.length > a.length) j++; else { i++; j++; } } return e + (a.length - i) + (b.length - j) <= 1 ? .8 : 0; };
+  const score = (a, b) => { const A = W(a), B = W(b); if (!A.length || lev1(A[0], B[0]) < .8) return 0; let t = 0, k = 0; A.forEach(w => { let m = 0; for (let q = k; q < B.length; q++) { const v = lev1(w, B[q]); if (v > m) { m = v; if (v === 1) { k = q + 1; break; } } } t += m; }); return t / A.length; };
+  const cand = [];
+  list.forEach((x, i) => App.students.filter(s => !x.cls || !gbClassId(x.cls) || s.classId === gbClassId(x.cls)).forEach(s => { const v = score(x.name, s.name); if (v >= .6) cand.push({ i, s, v }); }));
+  cand.sort((a, b) => b.v - a.v);
+  const used = new Set(), pick = {};
+  cand.forEach(c => { if (pick[c.i] || used.has(c.s.id)) return; pick[c.i] = c; used.add(c.s.id); });
+  const res = list.map((x, i) => ({ ...x, s: pick[i]?.s || null, sc: pick[i]?.v || 0, bad: x.val < 0 || x.val > I.max }));
+  const ok = res.filter(x => x.s && !x.bad), miss = res.filter(x => !x.s || x.bad);
+  const go = await sheet(`<div class="rep-tiles sm"><div><b>${arNum(ok.length)}</b><small>طابقت</small></div><div><b>${arNum(miss.length)}</b><small>لم تطابق</small></div></div>
+    <div class="gb-imp">${res.map(x => `<div class="gb-imp-r ${x.s && !x.bad ? '' : 'no'}"><span class="grow"><b>${esc(x.name)}</b><small>${x.s ? '← ' + esc(x.s.name) + ' · ' + esc(App.className(x.s.classId)) : 'لم أجد الطالب'}${x.bad ? ` · الدرجة أكبر من ${arNum(I.max)}` : ''}</small></span><b>${GB.fmt(x.val)}</b></div>`).join('')}</div>
+    <button class="btn primary block mt" data-ok ${ok.length ? '' : 'disabled'}>${ic('check')} رصد ${arNum(ok.length)} درجة في «${I.s}»</button>`, {
+    title: 'مراجعة المطابقة', onMount: (el, close) => el.querySelector('[data-ok]').onclick = () => close(true)
+  });
+  if (!go) return false;
+  const byCls = {}; ok.forEach(x => (byCls[x.s.classId] ||= []).push(x));
+  const before = {};
+  for (const [c, arr] of Object.entries(byCls)) {
+    before[c] = GB.ov(T.id, c); const next = JSON.parse(JSON.stringify(before[c]));
+    arr.forEach(x => (next[x.s.id] ||= {})[I.k] = +(+x.val).toFixed(2));
+    await GB.setOv(T.id, c, next);
+  }
+  toast(`✓ رُصدت ${arNum(ok.length)} درجة في «${I.s}»`, 'ok', { undo: async () => { for (const [c, o] of Object.entries(before)) await GB.setOv(T.id, c, o); App.render(); } });
+  return true;
 }
