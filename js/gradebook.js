@@ -73,8 +73,9 @@ const GB = {
     };
     it.tests = ratio(R.gr.filter(g => g.kind !== 'task'), 60);
     it.tasks = ratio(R.gr.filter(g => g.kind === 'task'), 10);
+    /* المشاركة تُرصد يدويًا فقط: صفر حتى يرصدها المعلم (بطلبه، أكتوبر ٢٠٢٦) */
     { const n = R.pts.filter(x => x.type === 'participation').reduce((a, x) => a + (+x.value || 1), 0);
-      it.part = { auto: this.rnd(cl(C.partBase + n * C.partStep, 10)), why: [`الأساس ${this.fmt(C.partBase)}`, `${this.fmt(n)} مشاركة × ${this.fmt(C.partStep)}`] }; }
+      it.part = { auto: 0, why: ['لم تُرصد بعد — اضغط الدرجة لرصدها', n ? `للاستئناس: ${this.fmt(n)} مشاركة مسجلة في الحصص` : ''].filter(Boolean) }; }
     { const hw = R.hw.filter(h => !GB_TOOLS_KINDS.includes(h.kind)), op = hw.filter(h => !h.resolved).length, rs = hw.length - op;
       it.hw = { auto: this.rnd(cl(10 - op * C.hwStep - rs * C.hwResolved, 10)), why: hw.length ? [op ? `${this.fmt(op)} تقصير قائم × ${this.fmt(C.hwStep)}` : '', rs ? `${this.fmt(rs)} تقصير عولج × ${this.fmt(C.hwResolved)}` : ''].filter(Boolean) : ['لا يوجد تقصير مسجل'] }; }
     { const c = k => R.att.filter(a => a.status === k).length, tools = R.hw.filter(h => GB_TOOLS_KINDS.includes(h.kind)).length;
@@ -244,7 +245,7 @@ async function gbRulesSheet() {
   const C = GB.cfg(), T = GB.terms();
   const f = (k, l, h) => `<label class="fld gb-rule"><span>${l}${h ? `<small>${h}</small>` : ''}</span><input type="number" step="0.5" min="0" name="${k}" value="${C[k]}"></label>`;
   const r = await sheet(`<p class="muted small">التوزيع المعتمد: الاختبارات ٦٠ · المهام الأدائية ١٠ · المشاركة ١٠ · الواجبات ١٠ · الالتزام والسلوك ١٠. الاختبارات والمهام تُحسب بنسبة مجموع درجات الطالب، والبقية من سجلاته كما يلي:</p>
-    <h4 class="gb-rh">${ic('star')} المشاركة والتفاعل</h4>${f('partBase', 'الدرجة الأساسية')}${f('partStep', 'لكل مشاركة', 'حتى تكتمل ١٠')}
+    <h4 class="gb-rh">${ic('star')} المشاركة والتفاعل</h4><p class="muted small">تُرصد يدويًا: صفر لكل طالب حتى ترصدها.</p>
     <h4 class="gb-rh">${ic('book')} الواجبات المنزلية</h4>${f('hwStep', 'خصم كل تقصير قائم')}${f('hwResolved', 'خصم تقصير عولج')}
     <h4 class="gb-rh">${ic('shield')} الالتزام والانضباط والسلوك</h4>${f('late', 'خصم التأخر')}${f('escaped', 'خصم الهروب')}${f('absent', 'خصم الغياب', '٠ = لا يُخصم')}${f('tools', 'عدم إحضار الكتاب أو الدفتر')}${f('note', 'ملاحظة سلوكية', '× درجة المخالفة')}${f('positive', 'إضافة السلوك الإيجابي')}
     <h4 class="gb-rh">${ic('cal')} الفصول الدراسية</h4>${T.map((t, i) => `<div class="row gap"><label class="fld grow"><span>${esc(t.name)} — من</span><input type="date" name="from${i}" value="${t.from}"></label><label class="fld grow"><span>إلى</span><input type="date" name="to${i}" value="${t.to}"></label></div>`).join('')}
@@ -442,3 +443,16 @@ async function gbImport(T, cid) {
   toast(`✓ رُصدت ${arNum(ok.length)} درجة في «${I.s}»`, 'ok', { undo: async () => { for (const [c, o] of Object.entries(before)) await GB.setOv(T.id, c, o); App.render(); } });
   return true;
 }
+
+/* مسح كل درجات المشاركة المرصودة سابقًا مرة واحدة لتبدأ من الصفر (بطلب المعلم، ٢١ أكتوبر ٢٠٢٦) */
+async function gbPartReset() {
+  if (App.S.gbPartReset1) return;
+  for (const k of Object.keys(App.S).filter(k => k.startsWith('gbo_'))) {
+    const o = App.S[k]; if (!o || typeof o !== 'object') continue;
+    let ch = false; const n = {};
+    for (const [sid, m] of Object.entries(o)) { const c = { ...m }; if ('part' in c) { delete c.part; ch = true; } if (Object.keys(c).length) n[sid] = c; }
+    if (ch) await App.set(k, n);
+  }
+  await App.set('gbPartReset1', new Date().toISOString());
+}
+{ const _start = App.start; App.start = async function () { await _start.apply(this, arguments); try { await gbPartReset(); } catch (e) { console.warn(e); } }; }
