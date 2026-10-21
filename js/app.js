@@ -226,7 +226,7 @@ const NAV = [
   { id: 'saei', label: 'ساعي', icon: 'send', ext: 'https://eaudosoir.github.io/fasli-web/tasks/', wide: true },
   { id: 'exit', label: 'خروج', icon: 'logout', act: () => App.exit(), wide: true }
 ];
-const NAV_ROOT = { reset: 'home', photos: 'home', worksheet: 'home', remedial: 'followup', monthly: 'home', platforms: 'home', ask: 'home', seats: 'session', qbank: 'home', attention: 'followup', weekly: 'home', ideas: 'home', quiz: 'session', stars: 'home', curriculum: 'home', covers: 'home', merge: 'home', portfolio: 'home', student: 'students', more: 'home', timetable: 'home', calendar: 'home', settings: 'home', madrasati: 'home', lists: 'home', backup: 'home' };
+const NAV_ROOT = { gradebook: 'home', gbentry: 'home', reset: 'home', photos: 'home', worksheet: 'home', remedial: 'followup', monthly: 'home', platforms: 'home', ask: 'home', seats: 'session', qbank: 'home', attention: 'followup', weekly: 'home', ideas: 'home', quiz: 'session', stars: 'home', curriculum: 'home', covers: 'home', merge: 'home', portfolio: 'home', student: 'students', more: 'home', timetable: 'home', calendar: 'home', settings: 'home', madrasati: 'home', lists: 'home', backup: 'home' };
 
 /* ===== الجدول الدراسي ===== */
 const Sched = {
@@ -356,9 +356,9 @@ Screens.home = async (v) => {
     ${todayCenter({ FD, pending, care, lessons, today, pts })}
     <section><div class="sec-h"><h3>اختصارات</h3></div>
       <div class="shortcuts">
-        ${sc('session', 'checkSq', 'الحضور', 'g1')}${sc('students', 'users', 'الطلاب', 'g2')}${sc('followup', 'flag', 'المتابعة', 'g3')}${sc('reports', 'chart', 'التقارير', 'g4')}
+        ${sc('session', 'checkSq', 'الحضور', 'g1')}${sc('students', 'users', 'الطلاب', 'g2')}${sc('gradebook', 'score', 'رصد الدرجات', 'g6')}${sc('followup', 'flag', 'المتابعة', 'g3')}${sc('reports', 'chart', 'التقارير', 'g4')}
         ${sc('stars', 'trophy', 'نجوم الأسبوع', 'g6')}${sc('curriculum', 'route', 'توزيع المنهج', 'g5')}${sc('portfolio', 'folder', 'شواهد الأداء', 'g7')}${sc('timetable', 'grid', 'جدولي', 'g8')}
-        ${sc('weekly', 'send', 'رسالة الأسبوع', 'g9')}${sc('attention', 'pulse', 'يحتاجون متابعة', 'g10')}${sc('qbank', 'bank', 'بنك الأسئلة', 'g11')}${sc('platforms', 'sync', 'المزامنة', 'g12')}
+        ${sc('weekly', 'send', 'رسالة الأسبوع', 'g9')}${sc('qbank', 'bank', 'بنك الأسئلة', 'g11')}${sc('platforms', 'sync', 'المزامنة', 'g12')}
         ${sc('monthly', 'cal', 'التقرير الشهري', 'g3')}${sc('remedial', 'aid', 'الخطة العلاجية', 'g10')}${sc('worksheet', 'sheet', 'ورقة عمل', 'g5')}${sc('photos', 'camera', 'صور الشواهد', 'g7')}
       </div></section>
     <p class="foot-sign">تصميم وبرمجة: أ. عبدالله ال عواد</p>
@@ -415,6 +415,7 @@ function bindBack(v) { $$('[data-back]', v).forEach(b => b.onclick = () => App.b
 Screens.more = async (v) => {
   v.innerHTML = topbar('المزيد') + `<div class="page"><div class="menu-list">
     <button class="menu-item saei-item" data-saei><span class="mi-ic">${ic('send')}</span><span class="mi-tx"><b>ساعي</b><small>إرسال مهام المعلمين لقروبات أولياء الأمور</small></span>${ic('chev', 'mi-ch')}</button>
+    ${menuItem('gradebook', 'score', 'سجل رصد الدرجات', 'الاختبارات ٦٠ والمهام والمشاركة والواجبات والالتزام — محسوبة من سجلات الطلاب')}
     ${menuItem('platforms', 'sync', 'المزامنة مع مدرستي ونور', 'سحب الطلاب والواجبات والدرجات وتعبئة الغياب')}
     ${menuItem('ask', 'search', 'اسأل فصلي', 'بحث ذكي: «الهاربين هذا الأسبوع»، «أكثر طلاب السادس تأخرًا»')}
     ${menuItem('weekly', 'send', 'رسالة الأسبوع لأولياء الأمور', 'ملخص أداء كل طالب في رسالة واتساب جاهزة')}

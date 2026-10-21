@@ -192,7 +192,7 @@ const Remedy = {
     const d30 = ymd(addDays(new Date(), -30));
     const hw = {}; D.hw.filter(h => h.date >= d30).forEach(h => hw[h.studentId] = (hw[h.studentId] || 0) + 1);
     Object.entries(hw).forEach(([s, n]) => { if (n >= 4) ((map[s] ||= { sid: s, reasons: [] }).reasons).push(`${n} تقصير في الواجبات خلال 30 يومًا`); });
-    (await DB.all('grades')).filter(g => g.date >= d30 && +g.max && +g.score / +g.max < .5).forEach(g => ((map[g.studentId] ||= { sid: g.studentId, reasons: [] }).reasons).push(`درجة منخفضة: ${g.title || 'اختبار'} (${g.score}/${g.max})`));
+    (await DB.all('grades')).filter(g => g.date >= d30 && +g.max && g.score !== '' && g.score != null && +g.score / +g.max < .5).forEach(g => ((map[g.studentId] ||= { sid: g.studentId, reasons: [] }).reasons).push(`درجة منخفضة: ${g.title || 'اختبار'} (${g.score}/${g.max})`));
     return Object.values(map).filter(x => App.stu[x.sid] && App.stu[x.sid].active !== false && !openIds.has(x.sid))
       .map(x => ({ ...x, reasons: [...new Set(x.reasons)] })).sort((a, b) => b.reasons.length - a.reasons.length);
   },
