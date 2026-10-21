@@ -123,7 +123,7 @@ Screens.gradebook = async (v, p) => {
   const ovCount = Object.values(ov).reduce((a, o) => a + Object.keys(o || {}).length, 0);
 
   const head = `<tr><th class="gb-n">م</th><th class="gb-name">اسم الطالب</th>${GB_ITEMS.map(I => `<th class="gb-it"><div class="gb-th">
-      <button class="gb-full no-print" data-full="${I.k}" aria-label="رصد الدرجة كاملة: ${I.t}" title="رصد الدرجة كاملة">${ic('checkSq')}</button>
+      <div class="gb-th-acts no-print"><button class="gb-full" data-full="${I.k}" aria-label="رصد الدرجة كاملة: ${I.t}" title="رصد الدرجة كاملة">${ic('checkSq')}</button><button class="gb-zero" data-zero="${I.k}" aria-label="تصفير: ${I.t}" title="تصفير البند">${ic('trash')}</button></div>
       <span>${I.s}</span><small>${arNum(I.max)}</small></div></th>`).join('')}<th class="gb-tot"><div class="gb-th"><span>المجموع</span><small>${arNum(100)}</small></div></th></tr>`;
   const body = rows.map((r, i) => `<tr><td class="gb-n">${arNum(i + 1)}</td><td class="gb-name"><button data-stu="${r.s.id}">${esc(r.s.name)}</button></td>
     ${GB_ITEMS.map(I => { const x = r.it[I.k]; return `<td class="gb-c"><button class="gb-cell ${x.ov ? 'ov' : ''} ${x.val === null ? 'na' : x.val >= I.max ? 'top' : x.val < I.max / 2 ? 'lowv' : ''}" data-cell="${r.s.id}|${I.k}">${GB.fmt(x.val)}</button></td>`; }).join('')}
@@ -142,10 +142,11 @@ Screens.gradebook = async (v, p) => {
     </section>
     <div class="report print-area gb-report">
       <div class="rep-head"><img src="img/logo.png" alt=""><div><h2>سجل رصد درجات ${esc(App.S.subject)}</h2><p>${esc(App.S.school)} · ${esc(cname)} · ${esc(T.name)}</p></div></div>
-      <div class="gb-hint no-print">${ic('info')}<span>اضغط أي درجة لتعديلها أو معرفة سببها. أيقونة ${ic('checkSq')} فوق البند ترصد الدرجة كاملة لكل الطلاب.${ovCount ? ` <b>${arNum(ovCount)}</b> درجة معدّلة يدويًا (عليها نقطة ذهبية).` : ''}</span></div>
+      <div class="gb-hint no-print">${ic('info')}<span>اضغط أي درجة لتعديلها أو معرفة سببها. أيقونة ${ic('checkSq')} فوق البند ترصد الدرجة كاملة لكل الطلاب، و${ic('trash')} تصفّره.${ovCount ? ` <b>${arNum(ovCount)}</b> درجة معدّلة يدويًا (عليها نقطة ذهبية).` : ''}</span></div>
       <div class="table-wrap gb-wrap"><table class="tbl gb-tbl"><thead>${head}</thead><tbody>${body}</tbody></table></div>
       <div class="rep-sign"><span>معلم المادة: ${esc(App.S.teacherName)}</span><span>التوقيع: ..................</span><span>${hijri(new Date())}</span></div>
     </div>
+    <button class="btn danger-ghost block no-print" data-zeroall>${ic('trash')} تصفير كل البنود لطلاب ${esc(App.className(cid))}</button>
     <div class="rep-actions no-print"><button class="btn primary grow" data-print>${ic('print')} طباعة / PDF</button><button class="btn soft grow" data-xlsx>${ic('download')} Excel</button><button class="btn gold grow" data-noor>${ic('send')} تعبئة نور</button></div>
     <button class="btn ghost block no-print" data-xall>${ic('download')} Excel لكل الفصول</button>
   </div>`;
@@ -180,6 +181,25 @@ Screens.gradebook = async (v, p) => {
     toast(r === 'full' ? `✓ رُصدت ${arNum(I.max)} في «${I.s}» لكل طلاب ${esc(App.className(cid))}` : `أُرجع «${I.s}» للحساب التلقائي`, 'ok', { undo: async () => { await GB.setOv(T.id, cid, before); App.render(); } });
     App.render();
   });
+
+  /* أيقونة التصفير فوق البند، وزر تصفير السجل كله للفصل */
+  const zero = async (keys, label) => {
+    const studs = App.classStudents(cid);
+    const r = await sheet(`<div class="gb-full-box"><span class="gb-full-ic zero">${ic('trash')}</span><div><b>${label}</b><small>${esc(App.className(cid))} · ${arNum(studs.length)} طالبًا</small></div></div>
+      <button class="btn danger block" data-v="zero">${ic('trash')} تصفير (٠) لكل الطلاب</button>
+      <button class="btn soft block mt" data-v="auto">${ic('history')} إرجاع للحساب التلقائي من السجلات</button>
+      <p class="muted small mt">لا تُحذف درجات الاختبارات المرصودة ولا سجلات الطلاب؛ يتغيّر الرصد في هذا الكشف فقط، والتراجع متاح فورًا.</p>`, {
+      title: 'تصفير', onMount: (el, close) => $$('[data-v]', el).forEach(x => x.onclick = () => close(x.dataset.v))
+    });
+    if (!r) return;
+    const before = GB.ov(T.id, cid), next = JSON.parse(JSON.stringify(before));
+    studs.forEach(s => { const o = next[s.id] ||= {}; keys.forEach(k => { if (r === 'zero') o[k] = 0; else delete o[k]; }); if (!Object.keys(o).length) delete next[s.id]; });
+    await GB.setOv(T.id, cid, next);
+    toast(r === 'zero' ? `صُفّر «${label}» لطلاب ${esc(App.className(cid))}` : `أُرجع «${label}» للحساب التلقائي`, 'ok', { undo: async () => { await GB.setOv(T.id, cid, before); App.render(); } });
+    App.render();
+  };
+  $$('[data-zero]', v).forEach(b => b.onclick = () => { const I = GB_ITEMS.find(x => x.k === b.dataset.zero); zero([I.k], I.t); });
+  v.querySelector('[data-zeroall]').onclick = () => zero(GB_ITEMS.map(I => I.k), 'كل البنود');
 
   /* تعديل درجة طالب في بند */
   $$('[data-cell]', v).forEach(b => b.onclick = async () => {

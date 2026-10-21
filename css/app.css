@@ -1082,9 +1082,13 @@ body.demo .assistant-banner { top: calc(38px + env(safe-area-inset-top, 0px)); }
 .gb-tbl tr:nth-child(even) .gb-name { background: var(--pri-ll); }
 .gb-tbl .gb-name button { text-align: start; font-weight: 700; color: var(--ink); line-height: 1.5; }
 .gb-tbl .gb-n { width: 30px; color: var(--mut); }
-.gb-th { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 64px; }
+.gb-th { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 72px; }
 .gb-th span { font-size: 13px; line-height: 1.35; white-space: normal; max-width: 86px; }
 .gb-th small { font-size: 12px; background: rgba(255,255,255,.18); border-radius: 8px; padding: 0 8px; }
+.gb-th-acts { display: flex; gap: 4px; margin-bottom: 3px; }
+.gb-zero { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; background: #FDE8E8; color: var(--bad); box-shadow: 0 4px 10px -4px rgba(0,0,0,.4); }
+.gb-zero .ic { width: 18px; height: 18px; stroke-width: 2.2; } .gb-zero:active { transform: scale(.92); }
+.gb-full-ic.zero { background: #FDE8E8; color: var(--bad); }
 .gb-full { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; background: var(--gold); color: #3D2900; margin-bottom: 3px; box-shadow: 0 4px 10px -4px rgba(0,0,0,.4); }
 .gb-full .ic { width: 20px; height: 20px; stroke-width: 2.3; }
 .gb-full:active { transform: scale(.92); }
