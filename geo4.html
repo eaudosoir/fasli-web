@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>ورقة عمل مفهوم الجغرافيا</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;600;700&display=swap">
+<style>
+/* Layout: one narrow column of question cards, sticky score bar at the bottom */
+:root{
+  --bg:#f3f6f5; --card:#ffffff; --fg:#1d2b2a; --muted:#5d6f6c; --line:#d6e0dd;
+  --accent:#17736a; --accent-soft:#e2f1ee; --sand:#b9893a; --sand-soft:#f6eedf;
+  --ok:#1f8a4c; --ok-soft:#e3f4ea; --bad:#c0392b; --bad-soft:#fbe7e4;
+  --font:"Noto Naskh Arabic","Traditional Arabic","Arial",serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1716; --card:#172221; --fg:#e8efed; --muted:#9db0ac; --line:#2b3a38;
+  --accent:#4cc3b5; --accent-soft:#163633; --sand:#e0b05c; --sand-soft:#2e2717;
+  --ok:#55c98a; --ok-soft:#143323; --bad:#ef7b6e; --bad-soft:#3a1c19; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1716; --card:#172221; --fg:#e8efed; --muted:#9db0ac; --line:#2b3a38;
+  --accent:#4cc3b5; --accent-soft:#163633; --sand:#e0b05c; --sand-soft:#2e2717;
+  --ok:#55c98a; --ok-soft:#143323; --bad:#ef7b6e; --bad-soft:#3a1c19; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:18px;line-height:1.8;direction:rtl;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 110px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+header{background:var(--accent);color:#fff;border-radius:14px;padding:20px 22px;display:flex;flex-direction:column;gap:6px}
+header .eyebrow{font-size:15px;opacity:.9}
+header h1{margin:0;font-size:30px;font-weight:700;text-wrap:balance}
+header .meta{font-size:15px;opacity:.9}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:12px}
+.card h2{margin:0;font-size:21px;font-weight:700;color:var(--accent)}
+.hint{margin:0;color:var(--muted);font-size:16px}
+.student{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:520px){.student{grid-template-columns:1fr}}
+label.f{display:flex;flex-direction:column;gap:4px;font-weight:600;font-size:16px}
+input[type=text],select,textarea{font:inherit;font-size:17px;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 12px;width:100%}
+textarea{min-height:64px;resize:vertical}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:3px solid var(--sand);outline-offset:2px}
+.remember{background:var(--sand-soft);border-radius:12px;padding:12px 16px;font-weight:600}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border-radius:10px;border:1px solid var(--line);flex-wrap:wrap}
+.row .txt{flex:1 1 220px;min-width:0;font-weight:600}
+.pair{display:flex;gap:8px}
+.opt{font:inherit;font-size:16px;font-weight:600;border:1.5px solid var(--line);background:var(--card);color:var(--fg);border-radius:999px;padding:4px 16px;cursor:pointer}
+.opt[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:560px){.grid2{grid-template-columns:1fr}}
+.bank{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:2px 14px;font-weight:700;font-size:16px}
+.blank{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:10px}
+.blank select{width:auto;min-width:130px}
+.row.ok,.blank.ok{background:var(--ok-soft);border-color:var(--ok)}
+.row.bad,.blank.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fix{font-size:15px;color:var(--bad);font-weight:700;width:100%}
+.ok .fix{display:none}
+.draw{border:2px dashed var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.draw img{border-radius:8px;max-height:260px;object-fit:contain}
+.bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);
+  padding-block:12px calc(12px + env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.bar .in{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.btn{font:inherit;font-weight:700;font-size:17px;border:0;border-radius:12px;padding:8px 22px;cursor:pointer}
+.btn.main{background:var(--accent);color:#fff}
+.btn.ghost{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
+.score{margin-inline-start:auto;font-weight:700;font-size:18px}
+.result{border-radius:14px;padding:16px 20px;font-weight:700;font-size:20px;text-align:center;background:var(--ok-soft);color:var(--ok);border:1px solid var(--ok)}
+.result.mid{background:var(--sand-soft);color:var(--sand);border-color:var(--sand)}
+footer{text-align:center;color:var(--muted);font-size:15px}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">الدراسات الاجتماعية · الصف الرابع · وحدة الجغرافيا</div>
+    <h1>ورقة عمل: مفهوم الجغرافيا</h1>
+    <div class="meta">ابتدائية القادسية · ٢٤ درجة · تُصحَّح تلقائيًا</div>
+  </header>
+
+  <section class="card">
+    <div class="student">
+      <label class="f" for="sname">اسم الطالب<input type="text" id="sname" placeholder="اكتب اسمك الثلاثي"></label>
+      <label class="f" for="sclass">الفصل
+        <select id="sclass"><option value="">اختر فصلك</option><option>رابع / أ</option><option>رابع / ب</option><option>رابع / ج</option></select>
+      </label>
+    </div>
+    <div class="remember">تذكّر: الجغرافيا علم يدرس الأرض وما عليها من ظواهر طبيعية وبشرية، وعلاقة الإنسان بالبيئة.</div>
+  </section>
+
+  <section class="card">
+    <h2>السؤال الأول: صنّف الظاهرة (١٠ درجات)</h2>
+    <p class="hint">اضغط «طبيعية» إذا خلقها الله، و«بشرية» إذا صنعها الإنسان.</p>
+    <div class="grid2" id="q1"></div>
+  </section>
+
+  <section class="card">
+    <h2>السؤال الثاني: أكمل الفراغ (٥ درجات)</h2>
+    <div class="bank"><span class="chip">الأرض</span><span class="chip">الخريطة</span><span class="chip">البيئة</span><span class="chip">الوصف</span><span class="chip">البشرية</span></div>
+    <div id="q2" style="display:flex;flex-direction:column;gap:8px"></div>
+  </section>
+
+  <section class="card">
+    <h2>السؤال الثالث: صح أم خطأ؟ (٥ درجات)</h2>
+    <div id="q3" style="display:flex;flex-direction:column;gap:8px"></div>
+  </section>
+
+  <section class="card">
+    <h2>السؤال الرابع: من منطقتي عسير (٤ درجات)</h2>
+    <p class="hint">اختر الإجابة الصحيحة.</p>
+    <div id="q4" style="display:flex;flex-direction:column;gap:10px"></div>
+  </section>
+
+  <div id="result" hidden></div>
+  <footer>معلم المادة: أ. عبدالله بن سعيد آل عواد</footer>
+</div>
+
+<div class="bar"><div class="in">
+  <button class="btn main" id="check" type="button">صحّح إجاباتي</button>
+  <span class="score" id="score">التصحيح مرة واحدة فقط، راجع إجاباتك قبله</span>
+</div></div>
+
+<script>
+const ar=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
+const Q1=[["جبل","ط"],["مدينة","ب"],["بحر","ط"],["طريق","ب"],["وادٍ","ط"],["مزرعة","ب"],["سدّ","ب"],["مطر","ط"],["مدرسة","ب"],["صحراء","ط"]];
+const Q2=[["كلمة «جغرافيا» تعني وصف","الأرض"],["تدرس الجغرافيا علاقة الإنسان بـ","البيئة"],["المدن والطرق والمزارع من الظواهر","البشرية"],["من أدوات الجغرافيا: الكرة الأرضية و","الخريطة"],["«غرافيا» في كلمة جغرافيا تعني","الوصف"]];
+const WORDS=["الأرض","الخريطة","البيئة","الوصف","البشرية"];
+const Q3=[["الجبال من الظواهر الطبيعية.",true],["الطريق ظاهرة طبيعية خلقها الله.",false],["الجغرافيا تدرس الأرض فقط دون الإنسان.",false],["الإنسان يتأثر بالبيئة ويؤثر فيها.",true],["نستخدم الخريطة لمعرفة مواقع المدن.",true]];
+const ans={q1:{},q3:{}};
+
+function pair(group,i,opts,host){
+  const box=document.createElement('div');box.className='pair';
+  opts.forEach(([val,label])=>{
+    const b=document.createElement('button');b.type='button';b.className='opt';b.textContent=label;b.setAttribute('aria-pressed','false');
+    b.onclick=()=>{ans[group][i]=val;box.querySelectorAll('.opt').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));};
+    box.appendChild(b);});
+  host.appendChild(box);
+}
+const q1=document.getElementById('q1');
+Q1.forEach(([w],i)=>{const r=document.createElement('div');r.className='row';r.id='r1-'+i;
+  r.innerHTML=`<span class="txt">${ar(i+1)}. ${w}</span>`;pair('q1',i,[["ط","طبيعية"],["ب","بشرية"]],r);
+  const f=document.createElement('div');f.className='fix';r.appendChild(f);q1.appendChild(r);});
+const q2=document.getElementById('q2');
+Q2.forEach(([s],i)=>{const r=document.createElement('div');r.className='blank';r.id='r2-'+i;
+  r.innerHTML=`<span>${ar(i+1)}. ${s}</span><select id="s2-${i}"><option value="">اختر…</option>${WORDS.map(w=>`<option>${w}</option>`).join('')}</select><div class="fix"></div>`;q2.appendChild(r);});
+const q3=document.getElementById('q3');
+Q3.forEach(([s],i)=>{const r=document.createElement('div');r.className='row';r.id='r3-'+i;
+  r.innerHTML=`<span class="txt">${ar(i+1)}. ${s}</span>`;pair('q3',i,[[true,"صح ✓"],[false,"خطأ ✗"]],r);
+  const f=document.createElement('div');f.className='fix';r.appendChild(f);q3.appendChild(r);});
+
+const Q4=[["أيّ مما يلي ظاهرة طبيعية في منطقة عسير؟",["طريق العقبة","جبال السودة","مدينة أبها","سدّ وادي أبها"],1],
+  ["أيّ مما يلي ظاهرة بشرية في منطقة عسير؟",["الأمطار","جبال السودة","مدينة أبها","الضباب"],2],
+  ["من أمثلة تأثير الإنسان في بيئته:",["هطول الأمطار","تكوّن الجبال","هبوب الرياح","بناء المدرجات الزراعية على الجبال"],3],
+  ["من أمثلة تأثّر الإنسان بالبيئة:",["لبس الملابس الثقيلة في برد أبها","بناء الطرق","إنشاء المدارس","تشييد المباني"],0]];
+ans.q4={};
+const q4=document.getElementById('q4');
+Q4.forEach(([s,opts],i)=>{const r=document.createElement('div');r.className='row';r.id='r4-'+i;
+  r.innerHTML=`<span class="txt" style="flex-basis:100%">${ar(i+1)}. ${s}</span>`;
+  const box=document.createElement('div');box.className='pair';box.style.flexWrap='wrap';
+  opts.forEach((o,k)=>{const b=document.createElement('button');b.type='button';b.className='opt';b.textContent=o;b.setAttribute('aria-pressed','false');
+    b.onclick=()=>{ans.q4[i]=k;box.querySelectorAll('.opt').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));};box.appendChild(b);});
+  r.appendChild(box);const f=document.createElement('div');f.className='fix';r.appendChild(f);q4.appendChild(r);});
+
+function mark(el,ok,msg){el.classList.remove('ok','bad');el.classList.add(ok?'ok':'bad');el.querySelector('.fix').textContent=ok?'':msg;}
+let armed=false;
+document.getElementById('check').onclick=()=>{
+  const cb=document.getElementById('check');
+  if(!document.getElementById('sname').value.trim()||!document.getElementById('sclass').value){document.getElementById('score').textContent='اكتب اسمك واختر فصلك أعلى الصفحة أولًا';window.scrollTo({top:0,behavior:'smooth'});return;}
+  if(!armed){armed=true;cb.textContent='متأكد؟ اضغط مرة أخرى للتصحيح';setTimeout(()=>{if(armed&&!cb.disabled){armed=false;cb.textContent='صحّح إجاباتي';}},4000);return;}
+  let s=0;
+  Q1.forEach(([w,c],i)=>{const ok=ans.q1[i]===c;if(ok)s++;mark(document.getElementById('r1-'+i),ok,'الإجابة الصحيحة: '+(c==='ط'?'طبيعية':'بشرية'));});
+  Q2.forEach(([t,c],i)=>{const ok=document.getElementById('s2-'+i).value===c;if(ok)s++;mark(document.getElementById('r2-'+i),ok,'الإجابة الصحيحة: '+c);});
+  Q3.forEach(([t,c],i)=>{const ok=ans.q3[i]===c;if(ok)s++;mark(document.getElementById('r3-'+i),ok,'الإجابة الصحيحة: '+(c?'صح':'خطأ'));});
+  Q4.forEach(([t,o,c],i)=>{const ok=ans.q4[i]===c;if(ok)s++;mark(document.getElementById('r4-'+i),ok,'الإجابة الصحيحة: '+o[c]);});
+  const name=document.getElementById('sname').value.trim()||'بطلنا';const cls=document.getElementById('sclass').value;
+  document.getElementById('score').textContent='درجتك: '+ar(s)+' من ٢٤';
+  const r=document.getElementById('result');r.hidden=false;r.className='result'+(s<19?' mid':'');
+  r.textContent=(s===24?'ممتاز يا ':s>=19?'أحسنت يا ':'محاولة جيدة يا ')+name+(cls?' ('+cls+')':'')+' — درجتك '+ar(s)+' من ٢٤'+(s<24?'. راجع الإجابات المظللة بالأحمر.':'. أرسل صورة هذه الصفحة لمعلمك.');
+  document.querySelectorAll('button,select,input').forEach(x=>x.disabled=true);
+  cb.textContent='تم اعتماد إجاباتك';
+  const msg='ورقة عمل مفهوم الجغرافيا — '+name+' — '+cls+' — الدرجة: '+ar(s)+' من ٢٤';
+  const box=document.createElement('div');box.style.cssText='display:flex;flex-direction:column;gap:8px;align-items:center;margin-top:10px;font-size:17px';
+  const code=document.createElement('div');code.textContent=msg;code.style.cssText='background:var(--card);color:var(--fg);border:1px dashed var(--line);border-radius:10px;padding:6px 12px;user-select:all';
+  const cp=document.createElement('button');cp.type='button';cp.className='btn main';cp.textContent='أرسل نتيجتي في Teams (نسخ)';
+  const wa=document.createElement('a');wa.href='https://wa.me/966570323233?text='+encodeURIComponent(msg);wa.target='_blank';wa.rel='noopener';wa.className='btn main';wa.style.cssText='background:#1f9d55;text-decoration:none;display:inline-block';wa.textContent='أرسل نتيجتي للمعلم عبر واتساب';
+  cp.onclick=()=>{navigator.clipboard.writeText(msg).then(()=>{cp.textContent='تم النسخ، الصقها في دردشة Teams';}).catch(()=>{const rg=document.createRange();rg.selectNodeContents(code);const sl=getSelection();sl.removeAllRanges();sl.addRange(rg);cp.textContent='النص محدد، انسخه يدويًا';});};
+  box.append(code,wa,cp);r.appendChild(box);
+  r.scrollIntoView({behavior:'smooth',block:'center'});
+};
+
+</script>
+
+</body>
+</html>
