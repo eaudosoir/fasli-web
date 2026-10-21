@@ -1142,3 +1142,8 @@ body.demo .assistant-banner { top: calc(38px + env(safe-area-inset-top, 0px)); }
 .gb-imp-r.no { background: #FDE8E8; } .gb-imp-r.no small { color: var(--bad); }
 [data-theme=dark] .gb-imp-r.no { background: rgba(240,112,112,.12); }
 .gb-note { color: #9A6A12; font-weight: 700; } .gb-row .gb-note { display: block; font-size: 12.5px; }
+
+/* حصص اليوم + أقرب حصة في بطاقة واحدة */
+.day-track .now-card { box-shadow: none; border-radius: 18px; padding: 14px 16px; margin: 0 0 14px; }
+.day-track .now-card .now-big { width: 56px; height: 56px; }
+.day-track .now-card h2 { font-size: 22px; }

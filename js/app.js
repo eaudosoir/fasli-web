@@ -352,7 +352,7 @@ Screens.home = async (v) => {
         ${sc('weekly', 'send', 'رسالة الأسبوع', 'g9')}${sc('qbank', 'bank', 'بنك الأسئلة', 'g11')}${sc('platforms', 'sync', 'المزامنة', 'g12')}
         ${sc('monthly', 'cal', 'التقرير الشهري', 'g3')}${sc('remedial', 'aid', 'الخطة العلاجية', 'g10')}${sc('worksheet', 'sheet', 'ورقة عمل', 'g5')}${sc('photos', 'camera', 'صور الشواهد', 'g7')}
       </div></section>
-    <section class="card"><div class="card-h"><h3>${ic('clock')} حصص اليوم</h3><span class="muted">${lessons.length} حصص${Sched.waitsOn().length ? ` + ${Sched.waitsOn().length} انتظار` : ''}</span></div><div class="timeline">${timeline}</div></section>
+    <section class="card day-track">${nowCard}<div class="card-h"><h3>${ic('clock')} حصص اليوم</h3><span class="muted">${lessons.length} حصص${Sched.waitsOn().length ? ` + ${Sched.waitsOn().length} انتظار` : ''}</span></div><div class="timeline">${timeline}</div></section>
     <section><div class="sec-h"><h3>ملخص اليوم</h3></div>
       <div class="stats">
         ${stat('الحصص', lessons.length + Sched.waitsOn().length, 'clock', 'c1')}${stat('الغياب', cnt('absent'), 'x', 'c2')}${stat('المتأخرون', cnt('late'), 'timer', 'c3')}
@@ -360,7 +360,6 @@ Screens.home = async (v) => {
       </div></section>
     ${Merge.host() ? `<button class="merge-card" data-go="merge">${ic('merge')}<div><b>اليوم خميس الدمج: الصفوف في فصل ${SECTIONS[Merge.host()]}</b><small>عند فتح الحصة يظهر لك كل طلاب الصف</small></div>${ic('chev')}</button>` : ''}
     ${todayCenter({ FD, pending, care, lessons, today, pts })}
-    ${nowCard}
     <p class="foot-sign">تصميم وبرمجة: أ. عبدالله ال عواد</p>
   </div>
   <button class="ideas-fab" data-go="ideas" aria-label="أفكار التطبيق">${ic('bulb')}${(S.appIdeas || []).filter(x => !x.done).length ? `<i>${(S.appIdeas || []).filter(x => !x.done).length}</i>` : ''}<span>أفكاري</span></button>`;
