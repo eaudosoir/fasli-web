@@ -11,7 +11,7 @@ const GB_ITEMS = [
   { k: 'hw', t: 'الواجبات المنزلية', s: 'الواجبات', max: 10, ic: 'book' },
   { k: 'disc', t: 'الالتزام والانضباط والسلوك التعليمي', s: 'الالتزام والسلوك', max: 10, ic: 'shield' }
 ];
-const GB_RULES = { partBase: 6, partStep: 0.5, hwStep: 1, hwResolved: 0.5, tools: 0.5, late: 0.5, escaped: 2, absent: 0, note: 1, positive: 0.5, round: 0.5 };
+const GB_RULES = { partBase: 0, partStep: 0.5, hwStep: 1, hwResolved: 0.5, tools: 0.5, late: 0.5, escaped: 2, absent: 0, note: 1, positive: 0.5, round: 0.5 };
 const GB_TERMS = [
   { id: 't1', name: 'الفصل الدراسي الأول', from: '2026-08-23', to: '2027-01-16' },
   { id: 't2', name: 'الفصل الدراسي الثاني', from: '2027-01-17', to: '2027-07-15' }
@@ -73,9 +73,9 @@ const GB = {
     };
     it.tests = ratio(R.gr.filter(g => g.kind !== 'task'), 60);
     it.tasks = ratio(R.gr.filter(g => g.kind === 'task'), 10);
-    /* المشاركة تُرصد يدويًا فقط: صفر حتى يرصدها المعلم (بطلبه، أكتوبر ٢٠٢٦) */
-    { const n = R.pts.filter(x => x.type === 'participation').reduce((a, x) => a + (+x.value || 1), 0);
-      it.part = { auto: 0, why: ['لم تُرصد بعد — اضغط الدرجة لرصدها', n ? `للاستئناس: ${this.fmt(n)} مشاركة مسجلة في الحصص` : ''].filter(Boolean) }; }
+    /* المشاركة آلية من سجلات الحصص، وتُحتسب من تاريخ بدء العدّ (gbPartFrom) فقط */
+    { const from = App.S.gbPartFrom || '', n = R.pts.filter(x => x.type === 'participation' && (!from || x.date >= from)).reduce((a, x) => a + (+x.value || 1), 0);
+      it.part = { auto: this.rnd(cl(C.partBase + n * C.partStep, 10)), why: [C.partBase ? `الأساس ${this.fmt(C.partBase)}` : '', `${this.fmt(n)} مشاركة × ${this.fmt(C.partStep)}`, from ? `تُحتسب المشاركات من ${shortDate(from)}` : ''].filter(Boolean) }; }
     { const hw = R.hw.filter(h => !GB_TOOLS_KINDS.includes(h.kind)), op = hw.filter(h => !h.resolved).length, rs = hw.length - op;
       it.hw = { auto: this.rnd(cl(10 - op * C.hwStep - rs * C.hwResolved, 10)), why: hw.length ? [op ? `${this.fmt(op)} تقصير قائم × ${this.fmt(C.hwStep)}` : '', rs ? `${this.fmt(rs)} تقصير عولج × ${this.fmt(C.hwResolved)}` : ''].filter(Boolean) : ['لا يوجد تقصير مسجل'] }; }
     { const c = k => R.att.filter(a => a.status === k).length, tools = R.hw.filter(h => GB_TOOLS_KINDS.includes(h.kind)).length;
@@ -245,7 +245,7 @@ async function gbRulesSheet() {
   const C = GB.cfg(), T = GB.terms();
   const f = (k, l, h) => `<label class="fld gb-rule"><span>${l}${h ? `<small>${h}</small>` : ''}</span><input type="number" step="0.5" min="0" name="${k}" value="${C[k]}"></label>`;
   const r = await sheet(`<p class="muted small">التوزيع المعتمد: الاختبارات ٦٠ · المهام الأدائية ١٠ · المشاركة ١٠ · الواجبات ١٠ · الالتزام والسلوك ١٠. الاختبارات والمهام تُحسب بنسبة مجموع درجات الطالب، والبقية من سجلاته كما يلي:</p>
-    <h4 class="gb-rh">${ic('star')} المشاركة والتفاعل</h4><p class="muted small">تُرصد يدويًا: صفر لكل طالب حتى ترصدها.</p>
+    <h4 class="gb-rh">${ic('star')} المشاركة والتفاعل</h4>${f('partBase', 'الدرجة الأساسية')}${f('partStep', 'لكل مشاركة', 'حتى تكتمل ١٠')}<label class="fld gb-rule"><span>تُحتسب المشاركات من تاريخ<small>فارغ = من بداية الفصل الدراسي</small></span><input type="date" name="partFrom" value="${App.S.gbPartFrom || ''}"></label>
     <h4 class="gb-rh">${ic('book')} الواجبات المنزلية</h4>${f('hwStep', 'خصم كل تقصير قائم')}${f('hwResolved', 'خصم تقصير عولج')}
     <h4 class="gb-rh">${ic('shield')} الالتزام والانضباط والسلوك</h4>${f('late', 'خصم التأخر')}${f('escaped', 'خصم الهروب')}${f('absent', 'خصم الغياب', '٠ = لا يُخصم')}${f('tools', 'عدم إحضار الكتاب أو الدفتر')}${f('note', 'ملاحظة سلوكية', '× درجة المخالفة')}${f('positive', 'إضافة السلوك الإيجابي')}
     <h4 class="gb-rh">${ic('cal')} الفصول الدراسية</h4>${T.map((t, i) => `<div class="row gap"><label class="fld grow"><span>${esc(t.name)} — من</span><input type="date" name="from${i}" value="${t.from}"></label><label class="fld grow"><span>إلى</span><input type="date" name="to${i}" value="${t.to}"></label></div>`).join('')}
@@ -255,13 +255,13 @@ async function gbRulesSheet() {
       el.querySelector('[data-def]').onclick = () => close('def');
       el.querySelector('[data-ok]').onclick = () => {
         const o = {}; Object.keys(GB_RULES).forEach(k => { const x = el.querySelector(`[name=${k}]`); if (x && x.value !== '' && !isNaN(+x.value)) o[k] = +x.value; });
-        close({ rules: o, terms: T.map((t, i) => ({ ...t, from: el.querySelector(`[name=from${i}]`).value || t.from, to: el.querySelector(`[name=to${i}]`).value || t.to })) });
+        close({ partFrom: el.querySelector('[name=partFrom]').value, rules: o, terms: T.map((t, i) => ({ ...t, from: el.querySelector(`[name=from${i}]`).value || t.from, to: el.querySelector(`[name=to${i}]`).value || t.to })) });
       };
     }
   });
   if (!r) return;
   if (r === 'def') { await App.set('gbRules', {}); await App.set('gbTerms', null); }
-  else { await App.set('gbRules', r.rules); await App.set('gbTerms', r.terms); }
+  else { await App.set('gbRules', r.rules); await App.set('gbTerms', r.terms); await App.set('gbPartFrom', r.partFrom || ''); }
   toast('✓ حُفظت القواعد وأُعيد الحساب', 'ok'); App.render();
 }
 
@@ -455,4 +455,11 @@ async function gbPartReset() {
   }
   await App.set('gbPartReset1', new Date().toISOString());
 }
-{ const _start = App.start; App.start = async function () { await _start.apply(this, arguments); try { await gbPartReset(); } catch (e) { console.warn(e); } }; }
+/* بدء عدّ المشاركة من الصفر اعتبارًا من ٢١ أكتوبر ٢٠٢٦ مع بقاء الرصد الآلي (بطلب المعلم) */
+async function gbPartFromToday() {
+  if (App.S.gbPartReset2) return;
+  if (!App.S.gbPartFrom) await App.set('gbPartFrom', '2026-10-21');
+  if (App.S.gbRules && 'partBase' in App.S.gbRules) await App.set('gbRules', { ...App.S.gbRules, partBase: 0 });
+  await App.set('gbPartReset2', new Date().toISOString());
+}
+{ const _start = App.start; App.start = async function () { await _start.apply(this, arguments); try { await gbPartReset(); await gbPartFromToday(); } catch (e) { console.warn(e); } }; }
