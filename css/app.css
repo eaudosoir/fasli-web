@@ -1151,3 +1151,17 @@ body.demo .assistant-banner { top: calc(38px + env(safe-area-inset-top, 0px)); }
 /* الرئيسية: الاختصارات تبدأ تحت الشريط الكحلي لا فوقه */
 .hero.hero-home { padding-bottom: 26px; }
 .page.home { margin-top: 16px; }
+
+/* الاختصارات: ٦ فوق و٦ تحت على كل الشاشات */
+.home-sc .shortcuts { grid-template-columns: repeat(6, 1fr); }
+@media (max-width: 600px) {
+  .home-sc .shortcuts { gap: 6px; }
+  .home-sc .shortcut { padding: 10px 2px 8px; border-radius: 14px; font-size: 11px; line-height: 1.35; gap: 5px; }
+  .home-sc .shortcut span { width: 36px; height: 36px; border-radius: 12px; }
+  .home-sc .shortcut span .ic { width: 19px; height: 19px; }
+}
+@media (max-width: 380px) {
+  .home-sc .shortcuts { gap: 4px; }
+  .home-sc .shortcut { font-size: 10px; }
+  .home-sc .shortcut span { width: 32px; height: 32px; }
+}
