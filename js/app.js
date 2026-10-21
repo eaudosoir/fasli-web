@@ -345,7 +345,13 @@ Screens.home = async (v) => {
       <p>${dayName(now)} · ${hijri(now)} · ${greg(now)}</p></div>
   </header>
   <div class="page home">
-    ${nowCard}
+    <section class="card home-sc"><div class="card-h"><h3>${ic('grid')} اختصارات</h3></div>
+      <div class="shortcuts">
+        ${sc('session', 'checkSq', 'الحضور', 'g1')}${sc('students', 'users', 'الطلاب', 'g2')}${sc('gradebook', 'score', 'رصد الدرجات', 'g6')}${sc('followup', 'flag', 'المتابعة', 'g3')}${sc('reports', 'chart', 'التقارير', 'g4')}
+        ${sc('stars', 'trophy', 'نجوم الأسبوع', 'g6')}${sc('curriculum', 'route', 'توزيع المنهج', 'g5')}${sc('portfolio', 'folder', 'شواهد الأداء', 'g7')}${sc('timetable', 'grid', 'جدولي', 'g8')}
+        ${sc('weekly', 'send', 'رسالة الأسبوع', 'g9')}${sc('qbank', 'bank', 'بنك الأسئلة', 'g11')}${sc('platforms', 'sync', 'المزامنة', 'g12')}
+        ${sc('monthly', 'cal', 'التقرير الشهري', 'g3')}${sc('remedial', 'aid', 'الخطة العلاجية', 'g10')}${sc('worksheet', 'sheet', 'ورقة عمل', 'g5')}${sc('photos', 'camera', 'صور الشواهد', 'g7')}
+      </div></section>
     <section class="card"><div class="card-h"><h3>${ic('clock')} حصص اليوم</h3><span class="muted">${lessons.length} حصص${Sched.waitsOn().length ? ` + ${Sched.waitsOn().length} انتظار` : ''}</span></div><div class="timeline">${timeline}</div></section>
     <section><div class="sec-h"><h3>ملخص اليوم</h3></div>
       <div class="stats">
@@ -354,13 +360,7 @@ Screens.home = async (v) => {
       </div></section>
     ${Merge.host() ? `<button class="merge-card" data-go="merge">${ic('merge')}<div><b>اليوم خميس الدمج: الصفوف في فصل ${SECTIONS[Merge.host()]}</b><small>عند فتح الحصة يظهر لك كل طلاب الصف</small></div>${ic('chev')}</button>` : ''}
     ${todayCenter({ FD, pending, care, lessons, today, pts })}
-    <section><div class="sec-h"><h3>اختصارات</h3></div>
-      <div class="shortcuts">
-        ${sc('session', 'checkSq', 'الحضور', 'g1')}${sc('students', 'users', 'الطلاب', 'g2')}${sc('gradebook', 'score', 'رصد الدرجات', 'g6')}${sc('followup', 'flag', 'المتابعة', 'g3')}${sc('reports', 'chart', 'التقارير', 'g4')}
-        ${sc('stars', 'trophy', 'نجوم الأسبوع', 'g6')}${sc('curriculum', 'route', 'توزيع المنهج', 'g5')}${sc('portfolio', 'folder', 'شواهد الأداء', 'g7')}${sc('timetable', 'grid', 'جدولي', 'g8')}
-        ${sc('weekly', 'send', 'رسالة الأسبوع', 'g9')}${sc('qbank', 'bank', 'بنك الأسئلة', 'g11')}${sc('platforms', 'sync', 'المزامنة', 'g12')}
-        ${sc('monthly', 'cal', 'التقرير الشهري', 'g3')}${sc('remedial', 'aid', 'الخطة العلاجية', 'g10')}${sc('worksheet', 'sheet', 'ورقة عمل', 'g5')}${sc('photos', 'camera', 'صور الشواهد', 'g7')}
-      </div></section>
+    ${nowCard}
     <p class="foot-sign">تصميم وبرمجة: أ. عبدالله ال عواد</p>
   </div>
   <button class="ideas-fab" data-go="ideas" aria-label="أفكار التطبيق">${ic('bulb')}${(S.appIdeas || []).filter(x => !x.done).length ? `<i>${(S.appIdeas || []).filter(x => !x.done).length}</i>` : ''}<span>أفكاري</span></button>`;
