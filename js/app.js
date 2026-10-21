@@ -338,7 +338,7 @@ Screens.home = async (v) => {
   }).join('') : `<div class="muted pad">${di < 0 ? 'إجازة نهاية الأسبوع 🌿' : 'لا توجد حصص لك اليوم'}</div>`;
 
   v.innerHTML = `
-  <header class="hero">
+  <header class="hero hero-home">
     <div class="hero-top"><div class="brand"><img class="brand-wm" src="img/brand-white.png" alt="فصلي"></div>
       <div class="row"><button class="icon-btn light priv-btn ${S.privacy ? 'on' : ''}" data-priv aria-label="وضع الخصوصية">${ic(S.privacy ? 'lock' : 'eye')}</button><button class="icon-btn light" data-go="ask" aria-label="اسأل فصلي">${ic('search')}</button><button class="icon-btn light" data-go="calendar" aria-label="التقويم">${ic('cal')}</button><button class="icon-btn light" data-go="more" aria-label="المزيد">${ic('grid')}</button></div></div>
     <div class="hero-greet"><h1>${greet}، ${esc(teacherFirst ? 'أ. ' + teacherFirst : '')}</h1>

@@ -1147,3 +1147,7 @@ body.demo .assistant-banner { top: calc(38px + env(safe-area-inset-top, 0px)); }
 .day-track .now-card { box-shadow: none; border-radius: 18px; padding: 14px 16px; margin: 0 0 14px; }
 .day-track .now-card .now-big { width: 56px; height: 56px; }
 .day-track .now-card h2 { font-size: 22px; }
+
+/* الرئيسية: الاختصارات تبدأ تحت الشريط الكحلي لا فوقه */
+.hero.hero-home { padding-bottom: 26px; }
+.page.home { margin-top: 16px; }
