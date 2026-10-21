@@ -454,7 +454,7 @@ em.s { background: var(--ok); } em.a { background: var(--bad); } em.h { backgrou
   .hero { padding-inline: 32px; border-radius: 0 0 40px 40px; }
   .hero-greet, .hero-top { max-width: 980px; margin-inline: auto; }
   .stats { grid-template-columns: repeat(6, 1fr); }
-  .shortcuts { grid-template-columns: repeat(8, 1fr); }
+  .shortcuts { grid-template-columns: repeat(6, 1fr); }
   .att-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .stu-list { display: grid; grid-template-columns: 1fr 1fr; }
   .tap-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }

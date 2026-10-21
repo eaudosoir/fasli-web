@@ -347,10 +347,9 @@ Screens.home = async (v) => {
   <div class="page home">
     <section class="card home-sc"><div class="card-h"><h3>${ic('grid')} اختصارات</h3></div>
       <div class="shortcuts">
-        ${sc('gradebook', 'score', 'رصد الدرجات', 'g6')}
-        ${sc('stars', 'trophy', 'نجوم الأسبوع', 'g6')}${sc('curriculum', 'route', 'توزيع المنهج', 'g5')}${sc('portfolio', 'folder', 'شواهد الأداء', 'g7')}${sc('timetable', 'grid', 'جدولي', 'g8')}
-        ${sc('weekly', 'send', 'رسالة الأسبوع', 'g9')}${sc('qbank', 'bank', 'بنك الأسئلة', 'g11')}${sc('platforms', 'sync', 'المزامنة', 'g12')}
-        ${sc('monthly', 'cal', 'التقرير الشهري', 'g3')}${sc('remedial', 'aid', 'الخطة العلاجية', 'g10')}${sc('worksheet', 'sheet', 'ورقة عمل', 'g5')}${sc('photos', 'camera', 'صور الشواهد', 'g7')}
+        ${sc('gradebook', 'score', 'رصد الدرجات', 'g6')}${sc('timetable', 'grid', 'جدولي', 'g8')}${sc('curriculum', 'route', 'توزيع المنهج', 'g5')}${sc('qbank', 'bank', 'بنك الأسئلة', 'g11')}
+        ${sc('worksheet', 'sheet', 'ورقة عمل', 'g2')}${sc('remedial', 'aid', 'الخطة العلاجية', 'g10')}${sc('weekly', 'send', 'رسالة الأسبوع', 'g9')}${sc('stars', 'trophy', 'نجوم الأسبوع', 'g4')}
+        ${sc('monthly', 'cal', 'التقرير الشهري', 'g3')}${sc('portfolio', 'folder', 'شواهد الأداء', 'g7')}${sc('photos', 'camera', 'صور الشواهد', 'g1')}${sc('platforms', 'sync', 'المزامنة', 'g12')}
       </div></section>
     <section class="card day-track">${nowCard}<div class="card-h"><h3>${ic('clock')} حصص اليوم</h3><span class="muted">${lessons.length} حصص${Sched.waitsOn().length ? ` + ${Sched.waitsOn().length} انتظار` : ''}</span></div><div class="timeline">${timeline}</div></section>
     <section><div class="sec-h"><h3>ملخص اليوم</h3></div>

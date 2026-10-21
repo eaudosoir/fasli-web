@@ -1,5 +1,5 @@
 /* فصلي — العمل بدون إنترنت على الآيفون والمتصفح */
-const VERSION = 'fasli-web-202610212149';
+const VERSION = 'fasli-web-202610212152';
 const CORE = [
   './', 'index.html', 'manifest.webmanifest', 'css/app.css',
   'img/brand-white.png', 'img/brand-navy.png', 'img/logo.png', 'img/icon-192.png', 'img/icon-512.png', 'img/icon-512-solid.png', 'img/apple-touch-icon.png',
