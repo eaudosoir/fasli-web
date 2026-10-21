@@ -1141,3 +1141,4 @@ body.demo .assistant-banner { top: calc(38px + env(safe-area-inset-top, 0px)); }
 .gb-imp-r small { display: block; color: var(--mut); font-size: 12.5px; } .gb-imp-r > b { font-size: 17px; color: var(--pri); }
 .gb-imp-r.no { background: #FDE8E8; } .gb-imp-r.no small { color: var(--bad); }
 [data-theme=dark] .gb-imp-r.no { background: rgba(240,112,112,.12); }
+.gb-note { color: #9A6A12; font-weight: 700; } .gb-row .gb-note { display: block; font-size: 12.5px; }

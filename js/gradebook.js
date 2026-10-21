@@ -283,7 +283,7 @@ Screens.gbentry = async (v, p) => {
       ${A && !A.own ? `<p class="muted small">مستورد من ${esc(A.source)} — تستطيع تعديل الدرجات هنا.</p>` : ''}
     </section>
     <div class="gb-entry-bar"><button class="btn gold grow" data-allfull>${ic('checkSq')} الدرجة كاملة للجميع</button><button class="btn ghost" data-clear>مسح</button></div>
-    <div class="gb-list">${studs.map((s, i) => `<div class="gb-row ${rec[s.id]?.absent ? 'abs' : ''}" data-sid="${s.id}"><span class="gb-i">${arNum(i + 1)}</span><b class="grow">${esc(s.name)}</b>
+    <div class="gb-list">${studs.map((s, i) => `<div class="gb-row ${rec[s.id]?.absent ? 'abs' : ''}" data-sid="${s.id}"><span class="gb-i">${arNum(i + 1)}</span><b class="grow">${esc(s.name)}${rec[s.id]?.note ? `<small class="gb-note">${esc(rec[s.id].note)}</small>` : ''}</b>
       <button class="gb-abs" data-abs aria-label="غائب عن الاختبار">غ</button>
       <input type="number" inputmode="decimal" step="0.5" min="0" enterkeyhint="next" value="${val(s.id)}" aria-label="درجة ${esc(s.name)}"></div>`).join('')}</div>
     <div class="sticky-foot"><span class="muted" data-cnt></span><button class="btn primary" data-save>${ic('check')} حفظ الرصد</button></div>
