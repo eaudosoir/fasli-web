@@ -49,6 +49,19 @@ const GB = {
     }).sort((a, b) => a.date.localeCompare(b.date));
   },
 
+  /* من لم يختبر: لكل اختبار أو مهمة محتسبة، الطلاب بلا درجة (غائب أو لم يُرصد) */
+  missing(AS, cid) {
+    const studs = App.classStudents(cid), out = [];
+    AS.filter(a => !a.excluded).forEach(a => {
+      const by = {}; a.recs.forEach(r => by[r.studentId] = r);
+      studs.forEach(s => {
+        const r = by[s.id], ok = r && r.score !== '' && r.score !== null && !isNaN(+r.score);
+        if (!ok) out.push({ s, a, rec: r || null, absent: !!r?.absent });
+      });
+    });
+    return out;
+  },
+
   /* تحميل كل ما يلزم الحساب مرة واحدة ثم فهرسته حسب الطالب */
   async load(T) {
     const D = await Follow.load(), grades = await DB.all('grades');
@@ -118,6 +131,8 @@ Screens.gradebook = async (v, p) => {
   if (App.S.gbLastClass !== cid) App.set('gbLastClass', cid);
   const { X, ov, rows } = await GB.sheetRows(cid, T);
   const AS = GB.assessments(X.grades, cid, T);
+  const MS = GB.missing(AS, cid), missBy = {};
+  MS.forEach(m => ((missBy[m.s.id] ||= {})[m.a.kind === 'task' ? 'tasks' : 'tests'] ||= []).push(m.a.title));
   const cname = App.cls[cid]?.full || App.className(cid);
   const done = rows.filter(r => r.full), avg = done.length ? done.reduce((a, r) => a + r.total, 0) / done.length : null;
   const fullCnt = done.filter(r => r.total >= 100).length, low = done.filter(r => r.total < 50).length;
@@ -127,7 +142,7 @@ Screens.gradebook = async (v, p) => {
       <div class="gb-th-acts no-print"><button class="gb-full" data-full="${I.k}" aria-label="رصد الدرجة كاملة: ${I.t}" title="رصد الدرجة كاملة">${ic('checkSq')}</button><button class="gb-zero" data-zero="${I.k}" aria-label="تصفير: ${I.t}" title="تصفير البند">${ic('trash')}</button></div>
       <span>${I.s}</span><small>${arNum(I.max)}</small></div></th>`).join('')}<th class="gb-tot"><div class="gb-th"><span>المجموع</span><small>${arNum(100)}</small></div></th></tr>`;
   const body = rows.map((r, i) => `<tr><td class="gb-n">${arNum(i + 1)}</td><td class="gb-name"><button data-stu="${r.s.id}">${esc(r.s.name)}</button></td>
-    ${GB_ITEMS.map(I => { const x = r.it[I.k]; return `<td class="gb-c"><button class="gb-cell ${x.ov ? 'ov' : ''} ${x.val === null ? 'na' : x.val >= I.max ? 'top' : x.val < I.max / 2 ? 'lowv' : ''}" data-cell="${r.s.id}|${I.k}">${GB.fmt(x.val)}</button></td>`; }).join('')}
+    ${GB_ITEMS.map(I => { const x = r.it[I.k], mi = missBy[r.s.id]?.[I.k]; return `<td class="gb-c"><button class="gb-cell ${x.ov ? 'ov' : ''} ${mi ? 'miss' : ''} ${x.val === null ? 'na' : x.val >= I.max ? 'top' : x.val < I.max / 2 ? 'lowv' : ''}" data-cell="${r.s.id}|${I.k}"${mi ? ` title="لم يدخل: ${esc(mi.join('، '))}"` : ''}>${GB.fmt(x.val)}</button></td>`; }).join('')}
     <td class="gb-tot"><b class="${r.full ? (r.total < 50 ? 'lowv' : '') : 'part'}">${GB.fmt(r.total)}</b></td></tr>`).join('');
 
   v.innerHTML = topbar('سجل رصد الدرجات', { actions: `<button class="icon-btn" data-rules aria-label="قواعد الحساب">${ic('settings')}</button><button class="icon-btn" data-print aria-label="طباعة">${ic('print')}</button>` }) + `<div class="page gb-page">
@@ -141,6 +156,7 @@ Screens.gradebook = async (v, p) => {
           <span class="gb-a-st"><b>${GB.fmt(a.avg === null ? null : GB.rnd(a.avg))}</b><small>${arNum(a.done)}/${arNum(App.classStudents(cid).length)}</small></span></button></div>`).join('')}</div>`
         : `<p class="muted small mt">لم تُرصد اختبارات لهذا الفصل في ${esc(T.name)}. أضف اختبارًا أو مهمة أدائية، أو استورد نتائج مدرستي من «المزامنة».</p>`}
     </section>
+    ${AS.some(a => !a.excluded) ? gbMissCard(MS) : ''}
     <div class="report print-area gb-report">
       <div class="rep-head"><img src="img/logo.png" alt=""><div><h2>سجل رصد درجات ${esc(App.S.subject)}</h2><p>${esc(App.S.school)} · ${esc(cname)} · ${esc(T.name)}</p></div></div>
       <div class="gb-hint no-print">${ic('info')}<span>اضغط أي درجة لتعديلها أو معرفة سببها. أيقونة ${ic('checkSq')} فوق البند ترصد الدرجة كاملة لكل الطلاب، و${ic('trash')} تصفّره.${ovCount ? ` <b>${arNum(ovCount)}</b> درجة معدّلة يدويًا (عليها نقطة ذهبية).` : ''}</span></div>
@@ -205,6 +221,10 @@ Screens.gradebook = async (v, p) => {
 
   v.querySelector('[data-imp]').onclick = async () => { if (await gbImport(T, cid)) App.render(); };
 
+  /* لم يختبروا: اختبار بديل لكل طالب */
+  $$('[data-mk]', v).forEach(b => b.onclick = async () => { const m = MS[+b.dataset.mk]; if (m && await gbMakeupSheet(m, cid)) App.render(); });
+  v.querySelector('[data-miss-toggle]')?.addEventListener('click', () => v.querySelector('.gb-miss').classList.toggle('open'));
+
   /* تعديل درجة طالب في بند */
   $$('[data-cell]', v).forEach(b => b.onclick = async () => {
     const [sid, k] = b.dataset.cell.split('|'), row = rows.find(r => r.s.id === sid);
@@ -212,6 +232,47 @@ Screens.gradebook = async (v, p) => {
   });
 };
 const XLSX_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+
+/* بطاقة «لم يختبروا»: الطالب ← الاختبارات التي فاتته، وكل واحد يُرصد له اختبار بديل */
+function gbMissCard(MS) {
+  if (!MS.length) return `<section class="card no-print gb-miss ok"><div class="card-h"><h3>${ic('check')} لم يختبروا</h3><span class="pill ok">الكل اختبر</span></div><p class="muted small">كل طلاب الفصل لهم درجات في كل الاختبارات والمهام المحتسبة.</p></section>`;
+  const by = new Map(); MS.forEach((m, i) => { if (!by.has(m.s.id)) by.set(m.s.id, { s: m.s, list: [] }); by.get(m.s.id).list.push({ ...m, i }); });
+  const studs = [...by.values()], abs = MS.filter(m => m.absent).length;
+  return `<section class="card no-print gb-miss ${studs.length > 4 ? '' : 'open'}">
+    <button class="card-h gb-miss-h" data-miss-toggle><h3>${ic('alert')} لم يختبروا</h3><span class="pill bad">${arNum(studs.length)} ${studs.length === 1 ? 'طالب' : studs.length === 2 ? 'طالبان' : 'طلاب'}</span>${ic('chev', 'gb-miss-ch')}</button>
+    <p class="muted small">${MS.length === 1 ? 'اختبار واحد فائت' : MS.length === 2 ? 'اختباران فائتان' : `${arNum(MS.length)} ${MS.length <= 10 ? 'اختبارات فائتة' : 'اختبارًا فائتًا'}`}${abs ? ` · منها ${arNum(abs)} غياب مسجّل` : ''}. اضغط الاختبار لرصد درجة الاختبار البديل.</p>
+    <div class="gb-miss-list">${studs.map(x => `<div class="gb-miss-row"><button class="gb-miss-name" data-stu="${x.s.id}">${esc(x.s.name)}</button>
+      <div class="gb-miss-chips">${x.list.map(m => `<button class="gb-mk ${m.absent ? 'abs' : ''}" data-mk="${m.i}"><b>${esc(m.a.title)}</b><small>${m.absent ? 'غائب' : 'لم يُرصد'} · ${shortDate(m.a.date)}</small></button>`).join('')}</div></div>`).join('')}</div>
+  </section>`;
+}
+async function gbMakeupSheet(m, cid) {
+  const { s, a, rec } = m;
+  return sheet(`<div class="who"><b>${esc(s.name)}</b><small>${esc(a.title)} · من ${arNum(a.max)} · ${shortDate(a.date)}</small></div>
+    <p class="muted small">${m.absent ? 'سُجّل غائبًا عن هذا الاختبار.' : 'لم تُرصد له درجة في هذا الاختبار.'} ارصد درجة الاختبار البديل، وتدخل في السجل مباشرة.</p>
+    <div class="row gap"><label class="fld grow"><span>درجة الاختبار البديل</span><input type="number" inputmode="decimal" step="0.5" min="0" max="${a.max}" name="v"></label>
+      <label class="fld grow"><span>تاريخ الاختبار البديل</span><input type="date" name="d" value="${ymd()}"></label></div>
+    <button class="btn primary block" data-ok>${ic('check')} حفظ الدرجة</button>
+    ${m.absent ? '' : `<button class="btn ghost block mt" data-abs>تسجيله غائبًا عن الاختبار</button>`}`, {
+    title: 'اختبار بديل', onMount: (el, close) => {
+      const inp = el.querySelector('[name=v]'); setTimeout(() => inp.focus(), 250);
+      const now = new Date().toISOString();
+      const base = rec || { id: `${a.recs[0]?.assessId || 'gr' + uid()}|${s.id}`, studentId: s.id, classId: cid, source: a.own ? 'سجل الدرجات' : a.source, assessId: a.recs[0]?.assessId || null, kind: a.recs[0]?.kind || a.kind, at: now };
+      const keep = { title: a.title, max: a.max, date: a.date }; // نفس العنوان والتاريخ حتى يبقى ضمن الاختبار نفسه
+      el.querySelector('[data-ok]').onclick = async () => {
+        const v = inp.value.trim();
+        if (v === '' || isNaN(+v) || +v < 0 || +v > a.max) return toast(`اكتب درجة بين ٠ و${arNum(a.max)}`, 'bad');
+        const r = { ...base, ...keep, score: +v, makeup: el.querySelector('[name=d]').value || ymd(), updatedAt: now }; delete r.absent;
+        await DB.put('grades', r);
+        toast(`✓ رُصد الاختبار البديل لـ ${esc(s.name)}`, 'ok', { undo: async () => { if (rec) await DB.put('grades', rec); else await DB.del('grades', r.id); App.render(); } });
+        close(true);
+      };
+      el.querySelector('[data-abs]')?.addEventListener('click', async () => {
+        await DB.put('grades', { ...base, ...keep, score: '', absent: true, updatedAt: now });
+        toast('سُجّل غائبًا', 'ok'); close(true);
+      });
+    }
+  });
+}
 
 async function gbCellSheet(s, k, x, T, cid) {
   const I = GB_ITEMS.find(i => i.k === k);
@@ -284,7 +345,7 @@ Screens.gbentry = async (v, p) => {
       ${A && !A.own ? `<p class="muted small">مستورد من ${esc(A.source)} — تستطيع تعديل الدرجات هنا.</p>` : ''}
     </section>
     <div class="gb-entry-bar"><button class="btn gold grow" data-allfull>${ic('checkSq')} الدرجة كاملة للجميع</button><button class="btn ghost" data-clear>مسح</button></div>
-    <div class="gb-list">${studs.map((s, i) => `<div class="gb-row ${rec[s.id]?.absent ? 'abs' : ''}" data-sid="${s.id}"><span class="gb-i">${arNum(i + 1)}</span><b class="grow">${esc(s.name)}${rec[s.id]?.note ? `<small class="gb-note">${esc(rec[s.id].note)}</small>` : ''}</b>
+    <div class="gb-list">${studs.map((s, i) => `<div class="gb-row ${rec[s.id]?.absent ? 'abs' : ''}" data-sid="${s.id}"><span class="gb-i">${arNum(i + 1)}</span><b class="grow">${esc(s.name)}${rec[s.id]?.note ? `<small class="gb-note">${esc(rec[s.id].note)}</small>` : ''}${rec[s.id]?.makeup ? `<small class="gb-note">اختبار بديل ${shortDate(rec[s.id].makeup)}</small>` : ''}</b>
       <button class="gb-abs" data-abs aria-label="غائب عن الاختبار">غ</button>
       <input type="number" inputmode="decimal" step="0.5" min="0" enterkeyhint="next" value="${val(s.id)}" aria-label="درجة ${esc(s.name)}"></div>`).join('')}</div>
     <div class="sticky-foot"><span class="muted" data-cnt></span><button class="btn primary" data-save>${ic('check')} حفظ الرصد</button></div>

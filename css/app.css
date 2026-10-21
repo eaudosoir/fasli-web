@@ -1165,3 +1165,16 @@ body.demo .assistant-banner { top: calc(38px + env(safe-area-inset-top, 0px)); }
   .home-sc .shortcut { font-size: 10px; }
   .home-sc .shortcut span { width: 32px; height: 32px; }
 }
+/* ===== لم يختبروا ===== */
+.gb-miss { border: 1.5px solid #F1C3BD; } .gb-miss.ok { border-color: #BFE3CF; }
+.gb-miss-h { width: 100%; background: none; border: 0; padding: 0; cursor: pointer; color: inherit; font: inherit; } .gb-miss-h h3 { flex: 1; text-align: start; }
+.gb-miss-h .gb-miss-ch { transition: transform .2s; transform: rotate(90deg); } .gb-miss.open .gb-miss-h .gb-miss-ch { transform: rotate(-90deg); }
+.gb-miss-list { display: none; flex-direction: column; gap: 8px; margin-top: 8px; } .gb-miss.open .gb-miss-list { display: flex; }
+.gb-miss-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 14px; background: var(--bg); }
+.gb-miss-name { flex: 1 1 160px; text-align: start; background: none; border: 0; padding: 0; font: inherit; font-weight: 700; color: var(--ink); cursor: pointer; }
+.gb-miss-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.gb-mk { display: flex; flex-direction: column; align-items: flex-start; padding: 5px 10px; border-radius: 12px; border: 1.5px solid #F1C3BD; background: #FFF6F4; color: #7A1F1A; font: inherit; cursor: pointer; line-height: 1.5; }
+.gb-mk b { font-size: 13px; } .gb-mk small { font-size: 11.5px; opacity: .8; } .gb-mk.abs { border-color: #E9B44C; background: #FFF8E6; color: #6B4B00; }
+.gb-cell.miss::before { content: ''; position: absolute; top: 2px; inset-inline-start: 2px; width: 7px; height: 7px; border-radius: 50%; background: var(--bad); }
+@media print { .gb-cell.miss::before { display: none; } }
+[data-theme=dark] .gb-mk { background: rgba(240,112,112,.1); color: #F4B4AE; } [data-theme=dark] .gb-mk.abs { background: rgba(233,180,76,.12); color: #F3DC94; }
