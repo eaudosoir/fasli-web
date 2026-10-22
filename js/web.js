@@ -48,3 +48,51 @@ document.addEventListener('DOMContentLoaded', () => setTimeout(() => webWelcome(
 /* النسخ التلقائي اليومي خاص بتطبيق الأندرويد؛ يُخفى في الويب ويغني عنه زر «حفظ نسخة الآن» */
 const _backupScreen = Screens.backup;
 Screens.backup = async v => { await _backupScreen(v); if (!Native.has()) v.querySelector('[data-auto]')?.closest('section')?.remove(); };
+
+/* ===== واتساب على الكمبيوتر: بلا صفحة «دردشة على واتساب» الوسيطة =====
+   في الجوال يفتح wa.me التطبيق مباشرة. في الكمبيوتر يفتح صفحة وسيطة كل مرة، فنحوّل الرابط
+   إلى تطبيق واتساب للكمبيوتر (whatsapp://) أو إلى واتساب ويب في تبويب واحد يُعاد استخدامه. */
+const WA = {
+  desktop: () => !/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) && !(navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1),
+  mode: () => App.S.waDesktop || '',
+  parse(url) {
+    const m = String(url).match(/^https:\/\/wa\.me\/(\d*)\/?(?:\?text=(.*))?$/);
+    return m ? { phone: m[1] || '', text: m[2] || '' } : null;
+  },
+  build(x, mode) {
+    const q = `${x.phone ? `phone=${x.phone}&` : ''}text=${x.text}`;
+    return mode === 'app' ? `whatsapp://send?${q}` : `https://web.whatsapp.com/send?${q}`;
+  },
+  async choose() {
+    const r = await choose('كيف تفتح واتساب على هذا الكمبيوتر؟', [
+      { value: 'app', label: 'تطبيق واتساب للكمبيوتر', sub: 'يفتح المحادثة مباشرة في التطبيق المثبّت (أنصح به)', icon: ic('wa') },
+      { value: 'web', label: 'واتساب ويب في المتصفح', sub: 'في تبويب واحد يُعاد استخدامه لكل رسالة', icon: ic('screen') }
+    ]);
+    if (r) { await App.set('waDesktop', r); toast(r === 'app' ? 'سيفتح تطبيق واتساب مباشرة — اضغط الزر مرة أخرى' : 'سيفتح واتساب ويب مباشرة — اضغط الزر مرة أخرى', 'ok'); }
+    return r;
+  }
+};
+{
+  const open0 = Native.open.bind(Native);
+  Native.open = url => {
+    const x = !Native.has() && WA.desktop() ? WA.parse(url) : null;
+    if (!x) return open0(url);
+    const mode = WA.mode();
+    if (!mode) { WA.choose(); return; } // نافذة الاختيار تفصل اللمسة، لذلك يُطلب الضغط مرة أخرى في أول مرة فقط
+    if (mode === 'app') { location.href = WA.build(x, 'app'); return; }
+    window.open(WA.build(x, 'web'), 'fasli-whatsapp');
+  };
+}
+/* خيار في الإعدادات لتغيير الطريقة */
+{
+  const _set = Screens.settings;
+  Screens.settings = async v => {
+    await _set(v);
+    if (Native.has() || !WA.desktop()) return;
+    const m = WA.mode();
+    v.querySelector('.page')?.insertAdjacentHTML('beforeend', `<section class="card"><div class="card-h"><h3>${ic('wa')} واتساب على الكمبيوتر</h3></div>
+      <div class="chips" data-wa>${[['app', 'تطبيق واتساب للكمبيوتر'], ['web', 'واتساب ويب']].map(([k, t]) => `<button type="button" class="chip ${m === k ? 'on' : ''}" data-v="${k}">${t}</button>`).join('')}</div>
+      <p class="muted small">تُفتح الرسائل مباشرة دون صفحة «دردشة على واتساب».</p></section>`);
+    $$('[data-wa] .chip', v).forEach(c => c.onclick = async () => { await App.set('waDesktop', c.dataset.v); toast('✓ حُفظ', 'ok'); App.render(); });
+  };
+}
