@@ -37,7 +37,7 @@ const GB = {
   /* تجميع الاختبارات والمهام لفصل في فترة */
   assessments(grades, cid, T) {
     const ids = new Set(App.classStudents(cid).map(s => s.id)), map = {};
-    grades.filter(g => this.isScore(g) && ids.has(g.studentId) && g.date >= T.from && g.date <= T.to).forEach(g => {
+    grades.filter(g => this.isScore(g) && g.kind !== 'ws' && ids.has(g.studentId) && g.date >= T.from && g.date <= T.to).forEach(g => {
       const k = this.assessKey(g);
       const a = map[k] ||= { key: k, title: g.title || 'اختبار', kind: g.kind === 'task' ? 'task' : 'test', max: +g.max, date: g.date, source: g.source || 'مدرستي', own: !!g.assessId, recs: [] };
       a.recs.push(g);
@@ -84,11 +84,19 @@ const GB = {
       const s = sc.reduce((a, g) => a + +g.score, 0), m = sc.reduce((a, g) => a + +g.max, 0);
       return { auto: this.rnd(cl(s / m * max, max)), why: [...sc.map(g => `${g.title || 'اختبار'}: ${this.fmt(+g.score)} من ${this.fmt(+g.max)}`), `المجموع ${this.fmt(s)} من ${this.fmt(m)} ← نسبته من ${this.fmt(max)}`] };
     };
-    it.tests = ratio(R.gr.filter(g => g.kind !== 'task'), 60);
+    it.tests = ratio(R.gr.filter(g => g.kind !== 'task' && g.kind !== 'ws'), 60);
     it.tasks = ratio(R.gr.filter(g => g.kind === 'task'), 10);
     /* المشاركة آلية من سجلات الحصص، وتُحتسب من تاريخ بدء العدّ (gbPartFrom) فقط */
     { const from = App.S.gbPartFrom || '', n = R.pts.filter(x => x.type === 'participation' && (!from || x.date >= from)).reduce((a, x) => a + (+x.value || 1), 0);
       it.part = { auto: this.rnd(cl(C.partBase + n * C.partStep, 10)), why: [C.partBase ? `الأساس ${this.fmt(C.partBase)}` : '', `${this.fmt(n)} مشاركة × ${this.fmt(C.partStep)}`, from ? `تُحتسب المشاركات من ${shortDate(from)}` : ''].filter(Boolean) }; }
+    /* أوراق العمل الإلكترونية: نصف درجة المشاركة (من ١٠) = متوسط أوراق العمل، ومن لم يحل ورقة أُغلقت تُحسب له صفرًا */
+    { const cid = App.stu[sid]?.classId, now = Date.now(), recs = R.gr.filter(g => g.kind === 'ws'), by = {}; recs.forEach(g => by[g.assessId] = g);
+      const W = Object.entries(App.S.wsSent || {}).filter(([i, x]) => x.cid === cid && x.date >= X.T.from && x.date <= X.T.to && (by[i] || new Date(x.until).getTime() <= now));
+      if (W.length) {
+        const avg = W.reduce((a, [i]) => a + (by[i] ? +by[i].score / +by[i].max : 0), 0) / W.length * 10, a0 = it.part.auto;
+        it.part.auto = this.rnd(cl(a0 * 0.5 + avg * 0.5, 10));
+        it.part.why.push(`المشاركة الصفية ${this.fmt(a0)} من ١٠ × نصف`, `أوراق العمل: حلّ ${this.fmt(W.filter(([i]) => by[i]).length)} من ${this.fmt(W.length)}، متوسطها ${this.fmt(Math.round(avg * 10) / 10)} من ١٠ × نصف`);
+      } }
     { const hw = R.hw.filter(h => !GB_TOOLS_KINDS.includes(h.kind)), op = hw.filter(h => !h.resolved).length, rs = hw.length - op;
       it.hw = { auto: this.rnd(cl(10 - op * C.hwStep - rs * C.hwResolved, 10)), why: hw.length ? [op ? `${this.fmt(op)} تقصير قائم × ${this.fmt(C.hwStep)}` : '', rs ? `${this.fmt(rs)} تقصير عولج × ${this.fmt(C.hwResolved)}` : ''].filter(Boolean) : ['لا يوجد تقصير مسجل'] }; }
     { const c = k => R.att.filter(a => a.status === k).length, tools = R.hw.filter(h => GB_TOOLS_KINDS.includes(h.kind)).length;

@@ -1199,3 +1199,11 @@ body.demo .assistant-banner { top: calc(38px + env(safe-area-inset-top, 0px)); }
 .sig-prev:not([src]) { display: none; }
 /* حتى الإطلاق الرسمي: لا يظهر شعار التطبيق في أي شيء يراه الطلاب أو أولياء الأمور (المطبوعات، ورقة العمل، شاشة العرض) */
 .rep-head img[src$="logo.png"], .pm-head img[src$="logo.png"], .ws-page img[src$="logo.png"], .ws-head img[src$="logo.png"] { display: none !important; }
+
+/* رسائل الدروس وأوراق العمل */
+.ls-card .bc-bar { margin: 6px 0; }
+.ls-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-top: 1px solid var(--line, #E5E7EB); }
+.ls-item:first-of-type { border-top: 0; }
+.ls-row { display: flex; flex-direction: column; align-items: flex-start; gap: 0; width: 100%; padding: 8px 10px; border: 0; border-radius: 12px; background: transparent; color: inherit; font: inherit; text-align: start; cursor: pointer; line-height: 1.6; }
+.ls-row small { color: var(--muted, #6B7280); font-size: 12.5px; font-weight: 400; }
+.ls-card .ls-row { background: var(--pri-ll, #EEF3FA); margin-top: 6px; }

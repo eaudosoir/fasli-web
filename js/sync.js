@@ -83,6 +83,17 @@ const Sync = (() => {
     if (status === 429 || e.status === 'RESOURCE_EXHAUSTED') throw new Error('تجاوزت الحد اليومي المجاني، تُستأنف المزامنة غدًا');
     throw new Error(e.message || `خطأ في الخادم (${status})`);
   }
+  /* طلب عام لـ Firestore (لأوراق العمل): أي طريقة ومسار بمعاملات، بالرمز أو بدونه */
+  async function req(method, path, body, authed = true) {
+    const headers = { 'Content-Type': 'application/json' };
+    if (authed) headers.Authorization = 'Bearer ' + await token();
+    let r;
+    try { r = await fetch(`${C.fsBase}/v1/projects/${C.projectId}/databases/(default)/documents${path}${path.includes('?') ? '&' : '?'}key=${C.apiKey}`, { method, headers, body: body ? JSON.stringify(body) : undefined }); }
+    catch (e) { throw new Error('لا يوجد اتصال بالإنترنت'); }
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) { const e = new Error((Array.isArray(j) ? j[0] : j)?.error?.message || `خطأ في الخادم (${r.status})`); e.status = r.status; throw e; }
+    return j;
+  }
   const root = () => `projects/${C.projectId}/databases/(default)/documents/users/${auth.uid}`;
   const query = (since, limit, op = 'GREATER_THAN_OR_EQUAL') => fs(`/users/${auth.uid}:runQuery`, {
     structuredQuery: {
@@ -268,7 +279,7 @@ const Sync = (() => {
     configured, start, run, signIn, signOut, resetPassword, link, cloudState, badge,
     on: () => !!auth?.linkedAt,
     // لبوابة الطالب: نفس الاتصال والرمز، دون المساس بالمزامنة
-    portalApi: { post, fs, uid: () => auth?.uid || null, cfg: C, AuthError },
+    portalApi: { post, fs, req, uid: () => auth?.uid || null, cfg: C, AuthError },
     status: () => ({ email: auth?.email || '', linked: !!auth?.linkedAt, expired: !!auth?.expired, pending: Object.keys(queue).length, lastOk: ls.get(LS_ST, {})?.lastOk || null, busy, err: lastErr })
   };
 })();
