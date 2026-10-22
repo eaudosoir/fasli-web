@@ -1178,3 +1178,17 @@ body.demo .assistant-banner { top: calc(38px + env(safe-area-inset-top, 0px)); }
 .gb-cell.miss::before { content: ''; position: absolute; top: 2px; inset-inline-start: 2px; width: 7px; height: 7px; border-radius: 50%; background: var(--bad); }
 @media print { .gb-cell.miss::before { display: none; } }
 [data-theme=dark] .gb-mk { background: rgba(240,112,112,.1); color: #F4B4AE; } [data-theme=dark] .gb-mk.abs { background: rgba(233,180,76,.12); color: #F3DC94; }
+/* ===== رسالة جماعية للفصل ===== */
+.ses-head .bc-btn { flex: none; white-space: nowrap; }
+.bc-bar { display: flex; align-items: center; gap: 12px; width: 100%; margin: 4px 0 10px; padding: 12px 14px; border-radius: 16px; border: 1.5px solid #BDE7CC; background: linear-gradient(135deg, #F1FBF4, #E3F6EA); color: #0F5A3F; font: inherit; text-align: start; cursor: pointer; }
+.bc-bar > .ic:first-child { width: 26px; height: 26px; color: #1FA855; } .bc-bar span { display: flex; flex-direction: column; line-height: 1.6; } .bc-bar small { color: #3D7A5C; font-size: 12.5px; }
+[data-theme=dark] .bc-bar { background: rgba(31,168,85,.12); border-color: rgba(31,168,85,.35); color: #BDEFD0; } [data-theme=dark] .bc-bar small { color: #9CCFB2; }
+.bc-ways { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.bc-ways .btn { display: flex; flex-direction: column; align-items: center; gap: 2px; line-height: 1.5; } .bc-ways .btn small { font-size: 12px; opacity: .85; font-weight: 400; }
+.bc-prev { margin: 4px 0; } .bc-prev summary { cursor: pointer; color: var(--mut); font-size: 13.5px; }
+.bc-msg { margin-top: 8px; padding: 10px 12px; border-radius: 12px 0 12px 12px; background: #DCF8C6; color: #1B2630; white-space: pre-wrap; line-height: 1.9; font-size: 14px; }
+.bc-list { display: flex; flex-direction: column; gap: 6px; max-height: 60vh; overflow: auto; }
+.bc-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 12px; background: var(--bg); }
+.bc-row.done { opacity: .6; } .bc-row.done .btn { background: var(--ok); }
+.bc-n { min-width: 24px; color: var(--mut); text-align: center; }
+.bc-bar.sm { padding: 9px 14px; margin: 10px 0; } .bc-bar.sm > .ic:first-child { width: 22px; height: 22px; }

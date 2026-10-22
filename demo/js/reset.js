@@ -8,7 +8,7 @@ const RESET_KINDS = [
   { k: 'hw', t: 'تقصير الواجبات', ic: 'book', stores: ['homework'] },
   { k: 'notes', t: 'الملاحظات والسلوك', ic: 'note', stores: ['notes'] },
   { k: 'ct', t: 'سجل التواصل مع أولياء الأمور', ic: 'phone', stores: ['contacts'] },
-  { k: 'gr', t: 'الدرجات ومستوردات مدرستي', ic: 'chart', stores: ['grades', 'imports'] },
+  { k: 'gr', t: 'الدرجات وسجل الرصد ومستوردات مدرستي', ic: 'chart', stores: ['grades', 'imports'] },
   { k: 'rem', t: 'الخطط العلاجية', ic: 'aid', stores: ['remedial'] },
   { k: 'ph', t: 'صور الشواهد', ic: 'camera', stores: ['photos'] },
   { k: 'curr', t: 'إنجاز دروس توزيع المنهج', ic: 'route', settings: ['lessonDone'] },
@@ -50,6 +50,9 @@ const Reset = {
         Object.keys(ld).forEach(cid => { if (sc.cls && !sc.cls.includes(cid)) return; if (!sc.before) delete ld[cid]; else Object.keys(ld[cid]).forEach(w => { if (ld[cid][w] < sc.before) delete ld[cid][w]; }); });
         await App.set('lessonDone', ld);
         if (!sc.cls && !sc.before) await App.set('currBase', Curr.weekOf().n || 0);
+      }
+      if (K.k === 'gr' && !sc.before) { /* التعديلات اليدوية في سجل رصد الدرجات */
+        for (const k of Object.keys(App.S).filter(k => k.startsWith('gbo_') && (!sc.cls || sc.cls.some(c => k.endsWith('_' + c))))) { await DB.del('settings', k); delete App.S[k]; }
       }
       if (K.k === 'misc' && !sc.cls) {
         const keep = (o) => Object.fromEntries(Object.entries(o || {}).filter(([k]) => sc.before && k >= sc.before));

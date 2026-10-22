@@ -226,7 +226,7 @@ const NAV = [
   { id: 'saei', label: 'ساعي', icon: 'send', ext: 'https://eaudosoir.github.io/fasli-web/tasks/', wide: true },
   { id: 'exit', label: 'خروج', icon: 'logout', act: () => App.exit(), wide: true }
 ];
-const NAV_ROOT = { reset: 'home', photos: 'home', worksheet: 'home', remedial: 'followup', monthly: 'home', platforms: 'home', ask: 'home', seats: 'session', qbank: 'home', attention: 'followup', weekly: 'home', ideas: 'home', quiz: 'session', stars: 'home', curriculum: 'home', covers: 'home', merge: 'home', portfolio: 'home', student: 'students', more: 'home', timetable: 'home', calendar: 'home', settings: 'home', madrasati: 'home', lists: 'home', backup: 'home' };
+const NAV_ROOT = { gradebook: 'home', gbentry: 'home', reset: 'home', photos: 'home', worksheet: 'home', remedial: 'followup', monthly: 'home', platforms: 'home', ask: 'home', seats: 'session', qbank: 'home', attention: 'followup', weekly: 'home', ideas: 'home', quiz: 'session', stars: 'home', curriculum: 'home', covers: 'home', merge: 'home', portfolio: 'home', student: 'students', more: 'home', timetable: 'home', calendar: 'home', settings: 'home', madrasati: 'home', lists: 'home', backup: 'home' };
 
 /* ===== الجدول الدراسي ===== */
 const Sched = {
@@ -338,15 +338,20 @@ Screens.home = async (v) => {
   }).join('') : `<div class="muted pad">${di < 0 ? 'إجازة نهاية الأسبوع 🌿' : 'لا توجد حصص لك اليوم'}</div>`;
 
   v.innerHTML = `
-  <header class="hero">
+  <header class="hero hero-home">
     <div class="hero-top"><div class="brand"><img class="brand-wm" src="img/brand-white.png" alt="فصلي"></div>
       <div class="row"><button class="icon-btn light priv-btn ${S.privacy ? 'on' : ''}" data-priv aria-label="وضع الخصوصية">${ic(S.privacy ? 'lock' : 'eye')}</button><button class="icon-btn light" data-go="ask" aria-label="اسأل فصلي">${ic('search')}</button><button class="icon-btn light" data-go="calendar" aria-label="التقويم">${ic('cal')}</button><button class="icon-btn light" data-go="more" aria-label="المزيد">${ic('grid')}</button></div></div>
     <div class="hero-greet"><h1>${greet}، ${esc(teacherFirst ? 'أ. ' + teacherFirst : '')}</h1>
       <p>${dayName(now)} · ${hijri(now)} · ${greg(now)}</p></div>
   </header>
   <div class="page home">
-    ${nowCard}
-    <section class="card"><div class="card-h"><h3>${ic('clock')} حصص اليوم</h3><span class="muted">${lessons.length} حصص${Sched.waitsOn().length ? ` + ${Sched.waitsOn().length} انتظار` : ''}</span></div><div class="timeline">${timeline}</div></section>
+    <section class="card home-sc"><div class="card-h"><h3>${ic('grid')} اختصارات</h3></div>
+      <div class="shortcuts">
+        ${sc('gradebook', 'score', 'رصد الدرجات', 'g6')}${sc('timetable', 'grid', 'جدولي', 'g8')}${sc('curriculum', 'route', 'توزيع المنهج', 'g5')}${sc('qbank', 'bank', 'بنك الأسئلة', 'g11')}
+        ${sc('worksheet', 'sheet', 'ورقة عمل', 'g2')}${sc('remedial', 'aid', 'الخطة العلاجية', 'g10')}${sc('weekly', 'send', 'رسالة الأسبوع', 'g9')}${sc('stars', 'trophy', 'نجوم الأسبوع', 'g4')}
+        ${sc('monthly', 'cal', 'التقرير الشهري', 'g3')}${sc('portfolio', 'folder', 'شواهد الأداء', 'g7')}${sc('photos', 'camera', 'صور الشواهد', 'g1')}${sc('platforms', 'sync', 'المزامنة', 'g12')}
+      </div></section>
+    <section class="card day-track">${nowCard}<div class="card-h"><h3>${ic('clock')} حصص اليوم</h3><span class="muted">${lessons.length} حصص${Sched.waitsOn().length ? ` + ${Sched.waitsOn().length} انتظار` : ''}</span></div><div class="timeline">${timeline}</div></section>
     <section><div class="sec-h"><h3>ملخص اليوم</h3></div>
       <div class="stats">
         ${stat('الحصص', lessons.length + Sched.waitsOn().length, 'clock', 'c1')}${stat('الغياب', cnt('absent'), 'x', 'c2')}${stat('المتأخرون', cnt('late'), 'timer', 'c3')}
@@ -354,13 +359,6 @@ Screens.home = async (v) => {
       </div></section>
     ${Merge.host() ? `<button class="merge-card" data-go="merge">${ic('merge')}<div><b>اليوم خميس الدمج: الصفوف في فصل ${SECTIONS[Merge.host()]}</b><small>عند فتح الحصة يظهر لك كل طلاب الصف</small></div>${ic('chev')}</button>` : ''}
     ${todayCenter({ FD, pending, care, lessons, today, pts })}
-    <section><div class="sec-h"><h3>اختصارات</h3></div>
-      <div class="shortcuts">
-        ${sc('session', 'checkSq', 'الحضور', 'g1')}${sc('students', 'users', 'الطلاب', 'g2')}${sc('followup', 'flag', 'المتابعة', 'g3')}${sc('reports', 'chart', 'التقارير', 'g4')}
-        ${sc('stars', 'trophy', 'نجوم الأسبوع', 'g6')}${sc('curriculum', 'route', 'توزيع المنهج', 'g5')}${sc('portfolio', 'folder', 'شواهد الأداء', 'g7')}${sc('timetable', 'grid', 'جدولي', 'g8')}
-        ${sc('weekly', 'send', 'رسالة الأسبوع', 'g9')}${sc('attention', 'pulse', 'يحتاجون متابعة', 'g10')}${sc('qbank', 'bank', 'بنك الأسئلة', 'g11')}${sc('platforms', 'sync', 'المزامنة', 'g12')}
-        ${sc('monthly', 'cal', 'التقرير الشهري', 'g3')}${sc('remedial', 'aid', 'الخطة العلاجية', 'g10')}${sc('worksheet', 'sheet', 'ورقة عمل', 'g5')}${sc('photos', 'camera', 'صور الشواهد', 'g7')}
-      </div></section>
     <p class="foot-sign">تصميم وبرمجة: أ. عبدالله ال عواد</p>
   </div>
   <button class="ideas-fab" data-go="ideas" aria-label="أفكار التطبيق">${ic('bulb')}${(S.appIdeas || []).filter(x => !x.done).length ? `<i>${(S.appIdeas || []).filter(x => !x.done).length}</i>` : ''}<span>أفكاري</span></button>`;
@@ -415,6 +413,7 @@ function bindBack(v) { $$('[data-back]', v).forEach(b => b.onclick = () => App.b
 Screens.more = async (v) => {
   v.innerHTML = topbar('المزيد') + `<div class="page"><div class="menu-list">
     <button class="menu-item saei-item" data-saei><span class="mi-ic">${ic('send')}</span><span class="mi-tx"><b>ساعي</b><small>إرسال مهام المعلمين لقروبات أولياء الأمور</small></span>${ic('chev', 'mi-ch')}</button>
+    ${menuItem('gradebook', 'score', 'سجل رصد الدرجات', 'الاختبارات ٦٠ والمهام والمشاركة والواجبات والالتزام — محسوبة من سجلات الطلاب')}
     ${menuItem('platforms', 'sync', 'المزامنة مع مدرستي ونور', 'سحب الطلاب والواجبات والدرجات وتعبئة الغياب')}
     ${menuItem('ask', 'search', 'اسأل فصلي', 'بحث ذكي: «الهاربين هذا الأسبوع»، «أكثر طلاب السادس تأخرًا»')}
     ${menuItem('weekly', 'send', 'رسالة الأسبوع لأولياء الأمور', 'ملخص أداء كل طالب في رسالة واتساب جاهزة')}

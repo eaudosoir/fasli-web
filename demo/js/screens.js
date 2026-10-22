@@ -191,7 +191,7 @@ Screens.student = async (v, p) => {
   const grades = await DB.byIndex('grades', 'studentId', s.id);
   const nc = (await Follow.needsContact(D)).find(x => x.sid === s.id);
 
-  const tabs = [['story', 'القصة الدراسية'], ['att', 'الحضور'], ['hw', 'الواجبات'], ['part', 'المشاركة'], ['notes', 'الملاحظات'], ['contact', 'التواصل'], ['grades', 'الاختبارات']];
+  const tabs = [['story', 'القصة الدراسية'], ['att', 'الحضور'], ['hw', 'الواجبات'], ['part', 'المشاركة'], ['notes', 'الملاحظات'], ['contact', 'التواصل'], ['grades', 'الدرجات']];
   let body = '';
   const empty = t => `<div class="empty sm">${t}</div>`;
   if (tab === 'story') {
@@ -221,7 +221,7 @@ Screens.student = async (v, p) => {
   } else if (tab === 'contact') {
     body = `<div class="row gap mb"><button class="btn soft grow" data-new="contact">${ic('plus')} تسجيل تواصل</button><button class="btn wa grow" data-new="msg">${ic('wa')} رسالة</button></div>` + (contacts.length ? `<div class="rec-list">${contacts.sort((a, b) => b.date.localeCompare(a.date)).map(c => `<div class="rec"><span class="rec-ic">${ic(c.channel === 'واتساب' ? 'wa' : 'phone')}</span><div><b>${esc(c.with)} — ${esc(c.reason)}</b><small>${shortDate(c.date)} · ${esc(c.channel)}${c.result ? ' · ' + esc(c.result) : ''}</small></div><button class="icon-btn sm" data-del-rec="contacts|${c.id}" aria-label="حذف">${ic('trash')}</button></div>`).join('')}</div>` : empty('لم يُسجل أي تواصل بعد'));
   } else if (tab === 'grades') {
-    body = grades.length ? `<div class="rec-list">${grades.sort((a, b) => b.date.localeCompare(a.date)).map(g => `<div class="rec"><span class="rec-ic">${ic('school')}</span><div class="grow"><b>${esc(g.title)}</b><small>${shortDate(g.date)} · ${esc(g.source || 'مدرستي')}</small></div><b class="grade">${esc(g.score)}${g.max ? '/' + esc(g.max) : ''}</b><button class="icon-btn sm" data-del-rec="grades|${g.id}" aria-label="حذف">${ic('trash')}</button></div>`).join('')}</div>` : empty('تظهر هنا نتائج الاختبارات المستوردة من منصة مدرستي');
+    body = (await gbStudentCard(s)) + (grades.length ? `<div class="rec-list">${grades.sort((a, b) => b.date.localeCompare(a.date)).map(g => `<div class="rec"><span class="rec-ic">${ic('school')}</span><div class="grow"><b>${esc(g.title)}</b><small>${shortDate(g.date)} · ${esc(g.source || 'مدرستي')}${g.note ? ` · <span class="gb-note">${esc(g.note)}</span>` : ''}</small></div><b class="grade">${esc(g.score)}${g.max ? '/' + esc(g.max) : ''}</b><button class="icon-btn sm" data-del-rec="grades|${g.id}" aria-label="حذف">${ic('trash')}</button></div>`).join('')}</div>` : empty('تظهر هنا درجات الاختبارات والمهام الأدائية المرصودة في السجل أو المستوردة من مدرستي'));
   }
 
   v.innerHTML = topbar('ملف الطالب', { actions: `<button class="icon-btn" data-edit aria-label="تعديل">${ic('edit')}</button>` }) + `
@@ -246,6 +246,7 @@ Screens.student = async (v, p) => {
     <div class="tab-body">${body}</div>
   </div>`;
   bindBack(v);
+  $$('[data-gb],[data-gbk]', v).forEach(b => b.onclick = () => App.go('gradebook', { classId: s.classId }));
   const re = () => App.render();
   $$('[data-tab]', v).forEach(b => b.onclick = () => { App.stack[App.stack.length - 1].params = { ...p, tab: b.dataset.tab }; App.render(); });
   $$('[data-edit]', v).forEach(b => b.onclick = async () => { const r = await studentForm(s); if (r === 'deleted') App.back(); else if (r) re(); });

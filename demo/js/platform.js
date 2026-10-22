@@ -68,7 +68,7 @@ const PlatformSync = {
   showFill(r) {
     sheet(`<div class="rep-tiles sm"><div><b>${r.done.length}</b><small>عُبّئ</small></div><div><b>${r.missing.length}</b><small>لم أجده</small></div></div>
       ${r.missing.length ? `<p class="muted small">لم أجد هؤلاء في الصفحة — عبّئهم يدويًا:</p><ul class="pt-miss">${r.missing.map(n => `<li>${esc(n)}</li>`).join('')}</ul>` : `<p class="center">${ic('check')} عُبّئ الجميع — تأكد أنك ضغطت «حفظ» في المنصة</p>`}
-      <button class="btn primary block" data-close>تم</button>`, { title: 'نتيجة تعبئة الغياب' });
+      <button class="btn primary block" data-close>تم</button>`, { title: r.mode === 'grades' ? 'نتيجة تعبئة الدرجات' : 'نتيجة تعبئة الغياب' });
   }
 };
 
