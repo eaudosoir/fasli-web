@@ -22,9 +22,29 @@ function bcText(k, cid) {
     thanks: `أشكر لكم متابعتكم واهتمامكم بأبنائكم، وأسعد بتعاونكم الدائم معي في مادة ${sub}.`
   }[k] || '';
 }
+/* تنظيف النص الملصوق: حذف التحية واسم الطالب المكررين (نضيفهما نحن باسم كل طالب)، وحذف الرموز التالفة */
+function bcClean(body) {
+  let lines = String(body || '').replace(/\uFFFD/g, '').split('\n');
+  const head = l => /^\s*(السلام عليكم|ولي أمر الطالب|ولي امر الطالب|أولياء الأمور|اولياء الامور|أولياء أمور)/.test(l.replace(/^[^\p{L}]+/u, ''));
+  // التحية قد تتكرر في أول النص أو بعد سطر عنوان مثل «*تنبيه عاجل*»
+  for (let i = 0; i < Math.min(lines.length, 6); i++) if (head(lines[i])) { lines.splice(i, 1); i--; }
+  return lines.join('\n').replace(/^\s*\n+/, '').replace(/\n{3,}/g, '\n\n').trim();
+}
 function bcCompose(body, name) {
-  const S = App.S;
-  return `السلام عليكم ورحمة الله وبركاته\n${name ? `ولي أمر الطالب/ ${name} المحترم\n` : 'أولياء الأمور الكرام\n'}\n${body.trim()}\n\nمعلم ${S.subject || 'المادة'}/ ${S.teacherName || ''}\n${S.school || ''}`;
+  const S = App.S, b = bcClean(body);
+  const signed = /معلمكم|معلم المادة|معلم الدراسات|معلم ال/.test(b.split('\n').slice(-3).join(' '));
+  return `السلام عليكم ورحمة الله وبركاته\n${name ? `ولي أمر الطالب/ ${name} المحترم\n` : 'أولياء الأمور الكرام\n'}\n${b}${signed ? '' : `\n\nمعلم ${S.subject || 'المادة'}/ ${S.teacherName || ''}\n${S.school || ''}`}`;
+}
+
+/* أي رابط في رسالة واتساب: الأرقام العربية (٠-٩) داخل الرابط تُحوَّل إلى إنجليزية وإلا لا يعمل الرابط */
+const fixLinks = s => String(s).replace(/(https?:\/\/|www\.)[^\s]+/gi, u => u.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/\uFFFD/g, '');
+{
+  const open0 = Native.open.bind(Native);
+  Native.open = url => {
+    const m = String(url).match(/^(https:\/\/wa\.me\/\d*\/?\?text=)(.*)$/);
+    if (m) { try { url = m[1] + encodeURIComponent(fixLinks(decodeURIComponent(m[2]))); } catch (e) { } }
+    return open0(url);
+  };
 }
 
 async function classBroadcast(cid) {
@@ -41,7 +61,7 @@ async function classBroadcast(cid) {
     title: 'رسالة جماعية', onMount: (el, close) => {
       bindChips(el); bindMic(el);
       const ta = el.querySelector('[name=body]'), prev = el.querySelector('[data-prev]');
-      const upd = () => { prev.textContent = bcCompose(ta.value || '…', ''); };
+      const upd = () => { prev.textContent = fixLinks(bcCompose(ta.value || '…', '')); };
       const setK = k => { ta.value = bcText(k, cid); upd(); };
       $$('[data-chips="k"] .chip', el).forEach(c => c.addEventListener('click', () => setTimeout(() => setK(chipVal(el, 'k')), 0)));
       ta.oninput = upd; upd();

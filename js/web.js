@@ -57,7 +57,10 @@ const WA = {
   mode: () => App.S.waDesktop || '',
   parse(url) {
     const m = String(url).match(/^https:\/\/wa\.me\/(\d*)\/?(?:\?text=(.*))?$/);
-    return m ? { phone: m[1] || '', text: m[2] || '' } : null;
+    if (!m) return null;
+    let text = m[2] || '';
+    try { if (typeof fixLinks === 'function') text = encodeURIComponent(fixLinks(decodeURIComponent(text))); } catch (e) { }
+    return { phone: m[1] || '', text };
   },
   build(x, mode) {
     const q = `${x.phone ? `phone=${x.phone}&` : ''}text=${x.text}`;
