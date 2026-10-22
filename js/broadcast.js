@@ -59,7 +59,8 @@ async function classBroadcast(cid) {
     <label class="switch"><input type="checkbox" name="plain" ${App.S.bcPlain ? 'checked' : ''}><span></span> النص فقط كما كتبته (بدون تحية واسم الطالب والتوقيع)</label>
     <details class="bc-prev"><summary>معاينة الرسالة</summary><div class="bc-msg" data-prev></div></details>
     <div class="bc-ways">
-      <button class="btn wa block" data-way="group">${ic('users')} إلى قروب الفصل<small>تختار قروب ${esc(cname)} من واتساب</small></button>
+      <button class="btn wa block" data-way="group">${ic('users')} إرسال دفعة واحدة<small>تختار في واتساب قروب ${esc(cname)} أو «قائمة البث» فتصل للجميع</small></button>
+      ${withPh.length ? `<button class="btn ghost block" data-way="vcf">${ic('download')} أرقام أولياء أمور ${esc(cname)} لجهات الاتصال<small>مرة واحدة لإنشاء «قائمة بث» للفصل في واتساب</small></button>` : ''}
       <button class="btn soft block" data-way="each" ${withPh.length ? '' : 'disabled'}>${ic('send')} لكل ولي أمر باسم ابنه<small>${withPh.length ? `${arNum(withPh.length)} ولي أمر — رسالة لكل واحد` : 'لا توجد أرقام — استورد ملف نور'}</small></button>
     </div>`, {
     title: 'رسالة جماعية', onMount: (el, close) => {
@@ -72,6 +73,7 @@ async function classBroadcast(cid) {
       $$('[data-chips="k"] .chip', el).forEach(c => c.addEventListener('click', () => setTimeout(() => setK(chipVal(el, 'k')), 0)));
       ta.oninput = upd; upd();
       $$('[data-way]', el).forEach(b => b.onclick = () => {
+        if (b.dataset.way === 'vcf') return bcVcf(cid, withPh);
         const body = ta.value.trim();
         if (!body) { ta.focus(); return toast('اكتب نص الرسالة', 'bad'); }
         const kind = BC_KINDS.find(x => x.k === chipVal(el, 'k'))?.t || 'عامة';
@@ -130,4 +132,20 @@ async function bcEach(cid, r, list) {
     v.querySelector('.class-chips')?.insertAdjacentHTML('afterend', `<button class="bc-bar" data-bc>${ic('wa')}<span class="grow"><b>رسالة جماعية لأولياء أمور ${esc(App.className(cid))}</b><small>إلى قروب الفصل أو لكل ولي أمر باسم ابنه</small></span>${ic('chev')}</button>`);
     v.querySelector('[data-bc]').onclick = () => classBroadcast(cid);
   };
+}
+
+/* ملف جهات اتصال (vcf) بأرقام أولياء أمور الفصل: يُستورد في الجوال ثم تُنشأ منه «قائمة بث» في واتساب
+   (رسالة واحدة تصل لكل ولي أمر على حدة؛ يشترط واتساب أن يكون رقم المعلم محفوظًا عندهم) */
+function bcVcf(cid, list) {
+  const cname = App.className(cid);
+  const v = list.map(s => ['BEGIN:VCARD', 'VERSION:3.0', `FN:ولي أمر ${s.name} - ${cname}`, `N:ولي أمر ${s.name} - ${cname};;;;`, `ORG:${App.S.school || ''}`, `TEL;TYPE=CELL:+${phoneIntl(s.guardianPhone)}`, 'END:VCARD'].join('\r\n')).join('\r\n');
+  Native.saveFile(`أولياء-أمور-${cname.replace(/\s+/g, '-')}.vcf`, new Blob([v], { type: 'text/vcard' }), 'text/vcard');
+  sheet(`<div class="who">${ic('users')} <b>قائمة بث لفصل ${esc(cname)}</b><small>${arNum(list.length)} ولي أمر</small></div>
+    <ol class="ios-steps">
+      <li>افتح الملف الذي حُفظ في الجوال واختر «إضافة/استيراد» إلى جهات الاتصال</li>
+      <li>في واتساب: النقاط الثلاث ← <b>«بث جديد»</b> (في الآيفون: الدردشات ← قوائم البث)</li>
+      <li>اختر أولياء أمور ${esc(cname)} (اكتب «${esc(cname)}» في البحث) وسمّها «${esc(cname)}»</li>
+    </ol>
+    <p class="muted small">بعدها اضغط «إرسال دفعة واحدة» واختر قائمة البث: تصل الرسالة لكل ولي أمر في محادثته الخاصة. يشترط واتساب أن يكون رقمك محفوظًا عند ولي الأمر، وإلا فالأنسب قروب الفصل.</p>
+    <button class="btn primary block" data-close>فهمت</button>`, { title: 'إرسال لأولياء الأمور دفعة واحدة' });
 }
