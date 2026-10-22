@@ -115,9 +115,27 @@ let cur=-1,total=0,res=[];
 function bar(){
   $('#bar').innerHTML=STAGES.map((_,i)=>`<i class="${i<cur?'on':i===cur?'cur':''}"></i>`).join('');
 }
-function start(){
+const WINDOWS=[["2026-10-22T07:00:00+03:00", "2026-10-22T07:45:00+03:00", "ب"], ["2026-10-22T09:15:00+03:00", "2026-10-22T10:00:00+03:00", "أ"]];
+const winMs=w=>[Date.parse(w[0]),Date.parse(w[1])];
+const bypass=()=>{try{return sessionStorage.getItem('bp')==='1'}catch(e){return false}};
+const openSecs=t=>bypass()?['أ','ب','ج']:WINDOWS.filter(w=>{const [a,b]=winMs(w);return t>=a&&t<b}).map(w=>w[2]);
+async function nowMs(){
+  try{const r=await fetch(location.href.split('#')[0].split('?')[0]+'?t='+Date.now(),{method:'HEAD',cache:'no-store'});const d=r.headers.get('date');if(d&&!isNaN(Date.parse(d)))return Date.parse(d)}catch(e){}
+  return Date.now();
+}
+const hm=ms=>new Date(ms).toLocaleTimeString('ar-SA',{hour:'numeric',minute:'2-digit',timeZone:'Asia/Riyadh'});
+function showClosed(t){
+  cur=-1;bar();
+  const nx=WINDOWS.filter(w=>Date.parse(w[0])>t);
+  const msg=nx.length?'هذه المراجعة تعمل في وقت حصة كل فصل فقط: '+nx.map(w=>'فصل <b>'+w[2]+'</b> الساعة <b>'+hm(Date.parse(w[0]))+'</b>').join('، ')+'.':'انتهى وقت هذه المراجعة، فهي تعمل في وقت الحصة فقط.';
+  $('#app').innerHTML='<div class="card hero"><div class="big">⏰</div><h2>المراجعة مغلقة الآن</h2><p>'+msg+'</p><p>اسأل معلمك إن كنت تحتاج إلى فتحها.</p></div>';
+}
+async function start(){
   const d=lsGet();
   if(d)return showDone(d,false);
+  $('#app').innerHTML='<div class="card hero"><p>جارٍ التحميل…</p></div>';
+  const t=await nowMs(),secs=openSecs(t);
+  if(!secs.length)return showClosed(t);
   cur=-1;total=0;res=[];bar();
   $('#app').innerHTML=`<div class="card hero">
    <div class="big">🏰</div>
@@ -127,14 +145,16 @@ function start(){
     <label class="fl">اسمك الثلاثي<input id="nm" type="text" autocomplete="name" placeholder="اكتب اسمك هنا"></label>
     <div class="row2">
      <label class="fl">الصف<select id="gr"><option>سادس</option></select></label>
-     <label class="fl">الفصل<select id="sc"><option>أ</option><option>ب</option><option>ج</option></select></label>
+     <label class="fl">الفصل<select id="sc">${secs.map(x=>'<option>'+x+'</option>').join('')}</select></label>
     </div>
     <div id="waerr" class="fb no" hidden></div>
     <button class="btn" onclick="begin()">ابدأ الرحلة</button></div>`;
 }
-function begin(){
+async function begin(){
   const nm=$('#nm').value.trim().replace(/\s+/g,' '),er=$('#waerr');
   if(nm.split(' ').length<2){er.hidden=false;er.textContent='اكتب اسمك كاملاً (الاسم الأول واسم الأب على الأقل) قبل البدء.';return}
+  const t=await nowMs();
+  if(!openSecs(t).includes($('#sc').value))return showClosed(t);
   who={name:nm,gr:$('#gr').value,sc:$('#sc').value};
   next();
 }
@@ -231,7 +251,7 @@ const TEACHER_WA='966570323233',KEY='saudi2-review-done';
 let who={},doneMem=null;
 const lsGet=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'null')||doneMem}catch(e){return doneMem}};
 const lsSet=v=>{doneMem=v;try{localStorage.setItem(KEY,JSON.stringify(v))}catch(e){}};
-try{if(/[?&]reset\b/.test(location.search)){localStorage.removeItem(KEY);history.replaceState(null,'',location.pathname)}}catch(e){}
+try{if(/[?&]reset\b/.test(location.search)){localStorage.removeItem(KEY);sessionStorage.setItem('bp','1');history.replaceState(null,'',location.pathname)}}catch(e){}
 const grade=()=>Math.round(total/(STAGES.length*10)*4)/2;
 const fmt=g=>ar(String(g)).replace('.','٫');
 function msgOf(d){return `السلام عليكم أستاذ عبدالله\nالطالب: ${d.name}\nالصف: ${d.gr} / ${d.sc}\nنتيجة مراجعة درس تأسيس الدولة السعودية الثانية\nالدرجة: ${fmt(d.grade)} من ${ar(2)}\n(نقاط اللعبة: ${ar(d.total)} من ${ar(STAGES.length*10)})`}
