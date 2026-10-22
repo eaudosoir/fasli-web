@@ -92,7 +92,7 @@ async function perfEvidence(from, to) {
     strategies: [`${u('quiz')} مسابقة حصة`, `${u('groups')} تعلّم تعاوني (مجموعات)`, `${u('wheel')} عجلة الأسماء`, `${u('timer')} أنشطة موقوتة`],
     results: [...(rem.length ? [`${rem.length} خطة علاجية فردية${remDone.length ? ` — أُنجز ${remDone.length} وتحسّن ${studAr(remUp.length)}` : ''}`] : []), `${pts.reduce((a, b) => a + (b.value || 1), 0)} نقطة مشاركة وتحفيز`, `${u('cert')} شهادة تميّز`, `${hw.filter(h => h.resolved).length} حالة واجبات عولجت من ${hw.length}`],
     plan: [`${doneWeeks} درس أسبوعي أُنجز حسب توزيع المنهج`, ...App.classes.filter(c => App.classStudents(c.id).length).map(c => `${c.name}: ${Curr.status(c.id).label}`).slice(0, 9)],
-    tech: [`تطبيق «فصلي» لإدارة الصف والحضور الرقمي`, `${imports.length} تقرير مستورد من منصة مدرستي`, `تقارير PDF و Excel إلكترونية`],
+    tech: [`تطبيق رقمي من تصميمي لإدارة الصف والحضور`, `${imports.length} تقرير مستورد من منصة مدرستي`, `تقارير PDF و Excel إلكترونية`],
     env: [`${pts.filter(p => p.type === 'positive').length} تعزيز لسلوك إيجابي`, `نجوم الأسبوع وأوسمة الطلاب`],
     class: [`نسبة الحضور ${pct}% في ${att.length} سجل`, `${notes.length} ملاحظة سلوكية/تعليمية، عولج منها ${notes.filter(n => n.resolved).length}`, `غياب ${cnt('absent')} · تأخر ${cnt('late')} · هروب ${cnt('escaped')}`],
     analysis: [...(rem.length ? [`${studAr(new Set(rem.map(r => r.studentId)).size)}: شُخّصت مستوياتهم ووُضعت لهم خطط علاجية`] : []), `تقارير متابعة: الأكثر غيابًا، المقصرون، الأكثر مشاركة`, `${(await Follow.needsContact(D)).length} حالة رُصدت تحتاج تواصلًا`],

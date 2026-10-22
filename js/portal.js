@@ -174,7 +174,7 @@ Screens.portal = async (v, p) => {
   const total = Object.keys(Portal.cfg().accounts).length;
 
   const card = s => { const a = Portal.account(s.id); return `<div class="pt-card">
-      <div class="pt-top"><img src="img/brand-navy.png" alt="فصلي"><span>بوابة الطالب</span></div>
+      <div class="pt-top"><span>${esc(App.S.school || '')}</span><span>بوابة الطالب</span></div>
       <b class="pt-name">${esc(s.name)}</b>
       <small class="pt-cls">${esc(App.className(cid))} · ${esc(App.S.subject || 'الدراسات الاجتماعية')}</small>
       <div class="pt-cred"><div><small>معرّف الدخول</small><code>${a.id}</code></div><div><small>كلمة المرور</small><code>${a.pass}</code></div></div>

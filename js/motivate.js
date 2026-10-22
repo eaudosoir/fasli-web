@@ -74,7 +74,7 @@ async function drawCertificate({ name, cls, reason, date }) {
   // زوايا ذهبية
   x.fillStyle = '#D9A33A';
   [[76, 76], [W - 76, 76], [76, H - 76], [W - 76, H - 76]].forEach(([a, b]) => { x.save(); x.translate(a, b); x.rotate(Math.PI / 4); x.fillRect(-16, -16, 32, 32); x.restore(); });
-  try { const img = new Image(); img.src = 'img/brand-navy.png'; await img.decode(); const bw = 300, bh = bw * img.naturalHeight / img.naturalWidth; x.drawImage(img, W / 2 - bw / 2, 110, bw, bh); } catch (e) { }
+  // بلا شعار التطبيق حتى إطلاقه رسميًا (بطلب المعلم)
   x.fillStyle = '#7A6A4A'; x.font = F(600, 30); x.fillText('المملكة العربية السعودية · وزارة التعليم · ' + (App.S.school || ''), W / 2, 305);
   x.fillStyle = '#16316E'; x.font = F(700, 96); x.fillText('شهادة تميّز', W / 2, 425);
   x.fillStyle = '#3A4A52'; x.font = F(600, 38); x.fillText(`يسرّ معلم ${App.S.subject || ''} أن يمنح الطالب`, W / 2, 515);

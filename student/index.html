@@ -6,11 +6,11 @@
 <meta name="theme-color" content="#16316E">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="بوابة فصلي">
+<meta name="apple-mobile-web-app-title" content="بوابة الطالب">
 <meta name="robots" content="noindex">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<title>بوابة الطالب — فصلي</title>
+<title>بوابة الطالب — الدراسات الاجتماعية</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;600;700&display=swap">
 <style>
@@ -23,6 +23,7 @@ button, input { font: inherit; color: inherit; }
 .hero { background: linear-gradient(160deg, #223F86, var(--navy2)); color: #fff; padding: calc(28px + env(safe-area-inset-top)) 16px 64px; text-align: center; border-radius: 0 0 28px 28px; }
 .hero img { width: 150px; height: auto; display: block; margin: 0 auto 8px; filter: drop-shadow(0 8px 20px rgba(0,0,0,.35)); }
 .hero p { color: #F6D27A; font-size: 15px; }
+.hero-t { font-size: 30px; font-weight: 700; margin-bottom: 4px; }
 .wrap { max-width: 520px; margin: -44px auto 0; padding: 0 16px 32px; display: flex; flex-direction: column; gap: 14px; }
 .card { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 18px; box-shadow: 0 10px 28px -18px rgba(20,33,61,.45); }
 h1 { font-size: 22px; line-height: 1.5; } h2 { font-size: 17px; margin-bottom: 10px; }
@@ -57,7 +58,7 @@ input:focus { outline: 3px solid var(--gold-l); border-color: var(--gold); }
 </style>
 </head>
 <body>
-<header class="hero"><img src="brand-white.png" alt="فصلي"><p>بوابة الطالب</p></header>
+<header class="hero"><h1 class="hero-t">بوابة الطالب</h1><p>الدراسات الاجتماعية · ابتدائية القادسية</p></header>
 <main class="wrap">
 
   <section class="card" id="login">
@@ -74,7 +75,7 @@ input:focus { outline: 3px solid var(--gold-l); border-color: var(--gold); }
 
   <div id="view" hidden></div>
 
-  <p class="foot">بطاقة الطالب خاصة به وحده، ولا يراها غيره.<br>فصلي — إدارة صفك بسهولة</p>
+  <p class="foot">بطاقة الطالب خاصة به وحده، ولا يراها غيره.</p>
 </main>
 
 <script src="config.js"></script>

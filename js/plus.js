@@ -319,7 +319,7 @@ async function drawMonthly(s, m, from, to, comment) {
   x.fillStyle = '#FBF8F1'; x.fillRect(0, 0, W, H);
   const g = x.createLinearGradient(0, 0, W, 330); g.addColorStop(0, '#223F86'); g.addColorStop(1, '#0B1F4D'); x.fillStyle = g; x.fillRect(0, 0, W, 330);
   x.fillStyle = '#D9A33A'; x.fillRect(0, 330, W, 8);
-  try { const img = new Image(); img.src = 'img/brand-white.png'; await img.decode(); const bw = 250, bh = bw * img.naturalHeight / img.naturalWidth; x.drawImage(img, 70, 165 - bh / 2, bw, bh); } catch (e) { }
+  // بلا شعار التطبيق حتى إطلاقه رسميًا (بطلب المعلم)
   x.textAlign = 'right'; x.fillStyle = '#F6D27A'; x.font = F(700, 30); x.fillText(App.S.school || '', W - 80, 100);
   x.fillStyle = '#fff'; x.font = F(700, 60); x.fillText('تقرير الأداء الشهري', W - 80, 175);
   x.fillStyle = '#C9D3EC'; x.font = F(600, 26); x.fillText(`مادة ${App.S.subject} · ${hijri(parseYmd(from))} — ${hijri(parseYmd(to))}`, W - 80, 230);

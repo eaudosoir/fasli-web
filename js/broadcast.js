@@ -189,10 +189,7 @@ const Sig = {
     g.fillStyle = '#FFFFFF'; g.font = font(700, 66); g.fillText(S.teacherName || 'معلم المادة', W - 100, 185);
     g.fillStyle = '#DCE4F5'; g.font = font(700, 36); g.fillText(`معلم ${S.subject || 'المادة'}`, W - 100, 262);
     g.fillStyle = '#B9C6E4'; g.font = font(400, 32); g.fillText(S.school || '', W - 100, 318);
-    try {
-      const img = await new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = 'img/brand-white.png'; });
-      const h = 120, w = img.width / img.height * h; g.drawImage(img, 70, (H - h) / 2, w, h);
-    } catch (e) { }
+    // بلا أي شعار للتطبيق: التوقيع يحمل بيانات المعلم فقط
     return new Promise(ok => c.toBlob(ok, 'image/png'));
   },
   /* قروب الفصل: الصورة + النص معًا */

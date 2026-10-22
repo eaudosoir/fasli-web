@@ -1197,3 +1197,5 @@ body.demo .assistant-banner { top: calc(38px + env(safe-area-inset-top, 0px)); }
 .bc-sig-note { display: flex; gap: 8px; align-items: flex-start; padding: 8px 10px; border-radius: 12px; background: #FFF8E6; color: #6B4B00; font-size: 13px; line-height: 1.8; } .bc-sig-note .ic { flex: none; width: 18px; height: 18px; margin-top: 3px; }
 .sig-prev { display: block; width: 100%; max-width: 520px; margin: 4px auto 10px; border-radius: 14px; box-shadow: var(--sh); }
 .sig-prev:not([src]) { display: none; }
+/* حتى الإطلاق الرسمي: لا يظهر شعار التطبيق في أي شيء يراه الطلاب أو أولياء الأمور (المطبوعات، ورقة العمل، شاشة العرض) */
+.rep-head img[src$="logo.png"], .pm-head img[src$="logo.png"], .ws-page img[src$="logo.png"], .ws-head img[src$="logo.png"] { display: none !important; }
