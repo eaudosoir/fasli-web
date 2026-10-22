@@ -1192,3 +1192,8 @@ body.demo .assistant-banner { top: calc(38px + env(safe-area-inset-top, 0px)); }
 .bc-row.done { opacity: .6; } .bc-row.done .btn { background: var(--ok); }
 .bc-n { min-width: 24px; color: var(--mut); text-align: center; }
 .bc-bar.sm { padding: 9px 14px; margin: 10px 0; } .bc-bar.sm > .ic:first-child { width: 22px; height: 22px; }
+.bc-sig-sw { align-items: center; } .bc-sig-th { height: 30px; border-radius: 6px; margin-inline-start: auto; box-shadow: var(--sh); }
+.bc-sig-th:not([src]) { display: none; }
+.bc-sig-note { display: flex; gap: 8px; align-items: flex-start; padding: 8px 10px; border-radius: 12px; background: #FFF8E6; color: #6B4B00; font-size: 13px; line-height: 1.8; } .bc-sig-note .ic { flex: none; width: 18px; height: 18px; margin-top: 3px; }
+.sig-prev { display: block; width: 100%; max-width: 520px; margin: 4px auto 10px; border-radius: 14px; box-shadow: var(--sh); }
+.sig-prev:not([src]) { display: none; }

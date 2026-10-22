@@ -57,6 +57,7 @@ async function classBroadcast(cid) {
     <span class="lbl">نوع الرسالة</span><div class="chips" data-chips="k">${BC_KINDS.map((x, i) => `<button type="button" class="chip ${x.k === 'general' ? 'on' : ''}" data-v="${x.k}">${x.t}</button>`).join('')}</div>
     <label class="fld"><span>نص الرسالة</span><div class="voice-fld"><textarea name="body" rows="5" placeholder="اكتب رسالتك لأولياء أمور ${esc(cname)}…"></textarea>${micBtn('[name=body]')}</div></label>
     <label class="switch"><input type="checkbox" name="plain" ${App.S.bcPlain ? 'checked' : ''}><span></span> النص فقط كما كتبته (بدون تحية واسم الطالب والتوقيع)</label>
+    <label class="switch bc-sig-sw"><input type="checkbox" name="sig" ${App.S.sigOn !== false ? 'checked' : ''}><span></span> إرفاق توقيعي المصوّر <img class="bc-sig-th" data-sigth alt=""></label>
     <details class="bc-prev"><summary>معاينة الرسالة</summary><div class="bc-msg" data-prev></div></details>
     <div class="bc-ways">
       <button class="btn wa block" data-way="group">${ic('users')} إرسال دفعة واحدة<small>تختار في واتساب قروب ${esc(cname)} أو «قائمة البث» فتصل للجميع</small></button>
@@ -72,18 +73,26 @@ async function classBroadcast(cid) {
       const setK = k => { ta.value = bcText(k, cid); upd(); };
       $$('[data-chips="k"] .chip', el).forEach(c => c.addEventListener('click', () => setTimeout(() => setK(chipVal(el, 'k')), 0)));
       ta.oninput = upd; upd();
+      const sw = el.querySelector('[name=sig]'), th = el.querySelector('[data-sigth]');
+      let sigFile = null; Sig.file().then(f => { sigFile = f; th.src = URL.createObjectURL(f); }).catch(() => { });
+      sw.onchange = () => App.set('sigOn', sw.checked);
       $$('[data-way]', el).forEach(b => b.onclick = () => {
         if (b.dataset.way === 'vcf') return bcVcf(cid, withPh);
         const body = ta.value.trim();
         if (!body) { ta.focus(); return toast('اكتب نص الرسالة', 'bad'); }
         const kind = BC_KINDS.find(x => x.k === chipVal(el, 'k'))?.t || 'عامة';
-        if (b.dataset.way === 'group') Native.open(`https://wa.me/?text=${encodeURIComponent(bcCompose(body, ''))}`); // داخل اللمسة نفسها
-        close({ way: b.dataset.way, body, kind });
+        const useSig = sw.checked && sigFile;
+        if (b.dataset.way === 'group') {
+          const text = fixLinks(bcCompose(body, ''));
+          if (useSig) Sig.sendGroup(text, sigFile); // داخل اللمسة نفسها (مشاركة الصورة مع النص)
+          else Native.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
+        }
+        close({ way: b.dataset.way, body, kind, sig: useSig ? sigFile : null });
       });
     }
   });
   if (!r) return;
-  if (r.way === 'group') { await App.set('lastBroadcast', { cid, at: new Date().toISOString(), kind: r.kind }); return toast(`اختر قروب ${esc(cname)} في واتساب ثم أرسل`, 'ok'); }
+  if (r.way === 'group') { await App.set('lastBroadcast', { cid, at: new Date().toISOString(), kind: r.kind }); if (!r.sig) toast(`اختر قروب ${esc(cname)} في واتساب ثم أرسل`, 'ok'); return; }
   return bcEach(cid, r, withPh);
 }
 
@@ -92,11 +101,13 @@ async function bcEach(cid, r, list) {
   const sent = new Set();
   await sheet(`<div class="who">${ic('send')} <b>${esc(App.className(cid))} — ${esc(r.kind)}</b><small data-bc-cnt>أُرسلت ٠ من ${arNum(list.length)}</small></div>
     <p class="muted small">اضغط «إرسال» لكل طالب: يفتح واتساب برسالة باسمه، أرسلها ثم ارجع لفصلي وأكمل التالي.</p>
+    ${r.sig ? (Sig.desktop() ? `<p class="bc-sig-note">${ic('info')} التوقيع المصوّر منسوخ: في كل محادثة اضغط <b>Ctrl+V</b> قبل الإرسال فتُرفق الصورة.</p>` : `<p class="bc-sig-note">${ic('info')} في الجوال لا يمكن إرفاق صورة برسالة موجهة لرقم محدد؛ التوقيع المصوّر يُرفق في «إرسال دفعة واحدة».</p>`) : ''}
     <div class="bc-list">${list.map((s, i) => `<div class="bc-row" data-i="${i}"><span class="bc-n">${arNum(i + 1)}</span><b class="grow">${esc(s.name)}</b><button class="btn sm wa" data-send="${i}">${ic('wa')} إرسال</button></div>`).join('')}</div>`, {
     title: 'إرسال لكل ولي أمر', wide: true, onMount: (el) => {
       const cnt = el.querySelector('[data-bc-cnt]');
       $$('[data-send]', el).forEach(b => b.onclick = async () => {
         const i = +b.dataset.send, s = list[i];
+        if (r.sig && Sig.desktop() && !sent.size) Sig.copy(r.sig);
         Native.open(`https://wa.me/${phoneIntl(s.guardianPhone)}?text=${encodeURIComponent(bcCompose(r.body, s.name))}`);
         if (!sent.has(s.id)) {
           sent.add(s.id);
@@ -148,4 +159,86 @@ function bcVcf(cid, list) {
     </ol>
     <p class="muted small">بعدها اضغط «إرسال دفعة واحدة» واختر قائمة البث: تصل الرسالة لكل ولي أمر في محادثته الخاصة. يشترط واتساب أن يكون رقمك محفوظًا عند ولي الأمر، وإلا فالأنسب قروب الفصل.</p>
     <button class="btn primary block" data-close>فهمت</button>`, { title: 'إرسال لأولياء الأمور دفعة واحدة' });
+}
+
+/* ===== التوقيع المصوّر =====
+   صورة يرفعها المعلم، أو بطاقة جاهزة تُرسم من بياناته (الاسم، المادة، المدرسة) بخط النسخ.
+   واتساب لا يقبل الصور عبر الروابط، لذلك تُرسل الصورة مع النص بقائمة المشاركة في الجوال،
+   وفي الكمبيوتر تُنسخ الصورة ثم تُلصق (Ctrl+V) في المحادثة. */
+const Sig = {
+  desktop: () => !/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) && !(navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1),
+  _cache: null,
+  async file() {
+    const key = (App.S.sigImg || '') + '|' + App.S.teacherName + App.S.subject + App.S.school;
+    if (this._cache?.key === key) return this._cache.f;
+    const blob = App.S.sigImg ? await (await fetch(App.S.sigImg)).blob() : await this.draw();
+    const f = new File([blob], 'توقيع-المعلم.png', { type: blob.type || 'image/png' });
+    this._cache = { key, f }; return f;
+  },
+  async draw() {
+    const S = App.S, W = 1080, H = 400, c = document.createElement('canvas'); c.width = W; c.height = H;
+    const g = c.getContext('2d');
+    try { await Promise.all(['700 60px "FasliNaskh"', '700 60px "Noto Naskh Arabic"', '400 30px "Noto Naskh Arabic"'].map(f => document.fonts.load(f))); } catch (e) { }
+    const font = (w, s) => `${w} ${s}px "FasliNaskh", "Noto Naskh Arabic", serif`;
+    const bg = g.createLinearGradient(0, 0, W, H); bg.addColorStop(0, '#0B1F4D'); bg.addColorStop(1, '#183A80');
+    g.fillStyle = bg; g.beginPath(); g.roundRect ? g.roundRect(0, 0, W, H, 36) : g.rect(0, 0, W, H); g.fill();
+    g.fillStyle = 'rgba(255,255,255,.05)'; g.beginPath(); g.arc(W - 60, H + 40, 260, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#C9A227'; g.fillRect(W - 70, 70, 8, H - 140);
+    g.direction = 'rtl'; g.textAlign = 'right'; g.textBaseline = 'middle';
+    g.fillStyle = '#F3DC94'; g.font = font(400, 32); g.fillText('مع خالص التحية والتقدير', W - 100, 100);
+    g.fillStyle = '#FFFFFF'; g.font = font(700, 66); g.fillText(S.teacherName || 'معلم المادة', W - 100, 185);
+    g.fillStyle = '#DCE4F5'; g.font = font(700, 36); g.fillText(`معلم ${S.subject || 'المادة'}`, W - 100, 262);
+    g.fillStyle = '#B9C6E4'; g.font = font(400, 32); g.fillText(S.school || '', W - 100, 318);
+    try {
+      const img = await new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = 'img/brand-white.png'; });
+      const h = 120, w = img.width / img.height * h; g.drawImage(img, 70, (H - h) / 2, w, h);
+    } catch (e) { }
+    return new Promise(ok => c.toBlob(ok, 'image/png'));
+  },
+  /* قروب الفصل: الصورة + النص معًا */
+  sendGroup(text, file) {
+    const data = { files: [file], text };
+    if (!this.desktop() && navigator.canShare?.(data)) {
+      navigator.share(data).catch(e => { if (e.name !== 'AbortError') Native.open(`https://wa.me/?text=${encodeURIComponent(text)}`); });
+      return;
+    }
+    this.copy(file);
+    Native.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
+    toast('التوقيع المصوّر منسوخ: اختر القروب ثم اضغط Ctrl+V لإرفاقه قبل الإرسال', 'ok');
+  },
+  copy(file) {
+    try {
+      if (navigator.clipboard?.write && window.ClipboardItem) return navigator.clipboard.write([new ClipboardItem({ [file.type || 'image/png']: file })]).catch(() => Native.saveFile(file.name, file, file.type));
+    } catch (e) { }
+    Native.saveFile(file.name, file, file.type);
+  },
+  async upload() {
+    const f = await pickFile('image/*'); if (!f) return false;
+    const url = URL.createObjectURL(f);
+    const img = await new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = url; }).catch(() => null);
+    if (!img) return toast('تعذر فتح الصورة', 'bad'), false;
+    const k = Math.min(1, 1200 / Math.max(img.width, img.height)), c = document.createElement('canvas');
+    c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    URL.revokeObjectURL(url);
+    await App.set('sigImg', c.toDataURL(f.type === 'image/jpeg' ? 'image/jpeg' : 'image/png', .88));
+    return true;
+  }
+};
+
+/* إعدادات التوقيع المصوّر */
+{
+  const _set = Screens.settings;
+  Screens.settings = async v => {
+    await _set(v);
+    v.querySelector('.page')?.insertAdjacentHTML('beforeend', `<section class="card"><div class="card-h"><h3>${ic('edit')} التوقيع المصوّر في رسائل واتساب</h3></div>
+      <img class="sig-prev" data-sigprev alt="التوقيع">
+      <label class="switch"><input type="checkbox" data-sigon ${App.S.sigOn !== false ? 'checked' : ''}><span></span> إرفاقه في الرسائل الجماعية</label>
+      <div class="row gap"><button class="btn soft grow" data-sigup>${ic('upload')} رفع صورة توقيعي</button>${App.S.sigImg ? `<button class="btn ghost grow" data-sigdef>التصميم الجاهز</button>` : ''}</div>
+      <p class="muted small">التصميم الجاهز يُكتب من اسمك ومادتك ومدرستك في الإعدادات أعلاه.</p></section>`);
+    Sig.file().then(f => { const im = v.querySelector('[data-sigprev]'); if (im) im.src = URL.createObjectURL(f); });
+    v.querySelector('[data-sigon]').onchange = e => App.set('sigOn', e.target.checked);
+    v.querySelector('[data-sigup]').onclick = async () => { if (await Sig.upload()) { toast('✓ حُفظ توقيعك', 'ok'); App.render(); } };
+    v.querySelector('[data-sigdef]')?.addEventListener('click', async () => { await App.set('sigImg', ''); App.render(); });
+  };
 }
