@@ -3,6 +3,7 @@
 'use strict';
 
 const BC_KINDS = [
+  { k: 'link', t: 'تعبئة رابط' },
   { k: 'general', t: 'عامة' },
   { k: 'hw', t: 'تذكير بواجب' },
   { k: 'test', t: 'تذكير باختبار' },
@@ -14,6 +15,7 @@ const BC_KINDS = [
 function bcText(k, cid) {
   const les = (typeof Curr !== 'undefined' && Curr.lesson(cid)) || null, sub = App.S.subject || 'الدراسات الاجتماعية';
   return {
+    link: 'الله يجزاك خير، كرمًا تعبّي الرابط هذا، ضروري الليلة:\n',
     general: '',
     hw: `نود تذكيركم بواجب مادة ${sub}: \nنأمل متابعة ابنكم في حله وإحضاره في الحصة القادمة.`,
     test: `نود إحاطتكم بموعد اختبار قصير في مادة ${sub} يوم ______ في درس: ${les?.title || '______'}.\nنأمل مساعدة ابنكم في المراجعة والاستعداد.`,
@@ -30,7 +32,8 @@ function bcClean(body) {
   for (let i = 0; i < Math.min(lines.length, 6); i++) if (head(lines[i])) { lines.splice(i, 1); i--; }
   return lines.join('\n').replace(/^\s*\n+/, '').replace(/\n{3,}/g, '\n\n').trim();
 }
-function bcCompose(body, name) {
+function bcCompose(body, name, plain = App.S.bcPlain) {
+  if (plain) return String(body || '').replace(/\uFFFD/g, '').trim(); // النص كما كتبه المعلم بلا تحية ولا توقيع
   const S = App.S, b = bcClean(body);
   const signed = /معلمكم|معلم المادة|معلم الدراسات|معلم ال/.test(b.split('\n').slice(-3).join(' '));
   return `السلام عليكم ورحمة الله وبركاته\n${name ? `ولي أمر الطالب/ ${name} المحترم\n` : 'أولياء الأمور الكرام\n'}\n${b}${signed ? '' : `\n\nمعلم ${S.subject || 'المادة'}/ ${S.teacherName || ''}\n${S.school || ''}`}`;
@@ -51,8 +54,9 @@ async function classBroadcast(cid) {
   const studs = App.classStudents(cid), withPh = studs.filter(s => phoneIntl(s.guardianPhone).length >= 11);
   const cname = App.className(cid);
   const r = await sheet(`<div class="who">${ic('wa')} <b>رسالة جماعية — ${esc(cname)}</b><small>${arNum(studs.length)} طالبًا · ${arNum(withPh.length)} لهم رقم ولي أمر</small></div>
-    <span class="lbl">نوع الرسالة</span><div class="chips" data-chips="k">${BC_KINDS.map((x, i) => `<button type="button" class="chip ${i ? '' : 'on'}" data-v="${x.k}">${x.t}</button>`).join('')}</div>
+    <span class="lbl">نوع الرسالة</span><div class="chips" data-chips="k">${BC_KINDS.map((x, i) => `<button type="button" class="chip ${x.k === 'general' ? 'on' : ''}" data-v="${x.k}">${x.t}</button>`).join('')}</div>
     <label class="fld"><span>نص الرسالة</span><div class="voice-fld"><textarea name="body" rows="5" placeholder="اكتب رسالتك لأولياء أمور ${esc(cname)}…"></textarea>${micBtn('[name=body]')}</div></label>
+    <label class="switch"><input type="checkbox" name="plain" ${App.S.bcPlain ? 'checked' : ''}><span></span> النص فقط كما كتبته (بدون تحية واسم الطالب والتوقيع)</label>
     <details class="bc-prev"><summary>معاينة الرسالة</summary><div class="bc-msg" data-prev></div></details>
     <div class="bc-ways">
       <button class="btn wa block" data-way="group">${ic('users')} إلى قروب الفصل<small>تختار قروب ${esc(cname)} من واتساب</small></button>
@@ -61,7 +65,9 @@ async function classBroadcast(cid) {
     title: 'رسالة جماعية', onMount: (el, close) => {
       bindChips(el); bindMic(el);
       const ta = el.querySelector('[name=body]'), prev = el.querySelector('[data-prev]');
-      const upd = () => { prev.textContent = fixLinks(bcCompose(ta.value || '…', '')); };
+      const pl = el.querySelector('[name=plain]');
+      const upd = () => { prev.textContent = fixLinks(bcCompose(ta.value || '…', '', pl.checked)); };
+      pl.onchange = () => { App.set('bcPlain', pl.checked); upd(); };
       const setK = k => { ta.value = bcText(k, cid); upd(); };
       $$('[data-chips="k"] .chip', el).forEach(c => c.addEventListener('click', () => setTimeout(() => setK(chipVal(el, 'k')), 0)));
       ta.oninput = upd; upd();
