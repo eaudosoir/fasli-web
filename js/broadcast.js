@@ -203,11 +203,12 @@ const Sig = {
     Native.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
     toast('التوقيع المصوّر منسوخ: اختر القروب ثم اضغط Ctrl+V لإرفاقه قبل الإرسال', 'ok');
   },
-  copy(file) {
+  copy(file, quiet = false) {
+    const fb = () => { if (!quiet) Native.saveFile(file.name, file, file.type); };
     try {
-      if (navigator.clipboard?.write && window.ClipboardItem) return navigator.clipboard.write([new ClipboardItem({ [file.type || 'image/png']: file })]).catch(() => Native.saveFile(file.name, file, file.type));
+      if (navigator.clipboard?.write && window.ClipboardItem) return navigator.clipboard.write([new ClipboardItem({ [file.type || 'image/png']: file })]).catch(fb);
     } catch (e) { }
-    Native.saveFile(file.name, file, file.type);
+    fb();
   },
   async upload() {
     const f = await pickFile('image/*'); if (!f) return false;
@@ -238,4 +239,25 @@ const Sig = {
     v.querySelector('[data-sigup]').onclick = async () => { if (await Sig.upload()) { toast('✓ حُفظ توقيعك', 'ok'); App.render(); } };
     v.querySelector('[data-sigdef]')?.addEventListener('click', async () => { await App.set('sigImg', ''); App.render(); });
   };
+}
+
+/* التوقيع في نهاية كل رسالة واتساب من فصلي (بطلب المعلم):
+   في الكمبيوتر تُنسخ صورة التوقيع تلقائيًا مع كل رسالة فيلصقها بـ Ctrl+V قبل الإرسال.
+   (في الجوال واتساب لا يقبل صورة في رسالة موجهة لرقم محدد؛ تُرفق في «إرسال دفعة واحدة») */
+{
+  let sigReady = null;
+  const warm = () => { if (App.S.sigOn !== false) Sig.file().then(f => sigReady = f).catch(() => { }); };
+  // يُركَّب بعد تحميل كل الملفات ليكون الغلاف الخارجي لكل فتح لواتساب
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(warm, 3000);
+    const open1 = Native.open.bind(Native);
+    Native.open = url => {
+      const isWa = /^https:\/\/wa\.me\//.test(String(url));
+      if (isWa && App.S.sigOn !== false && Sig.desktop() && !Native.has()) {
+        if (sigReady) { Sig.copy(sigReady, true); setTimeout(() => toast('اضغط Ctrl+V في المحادثة لإرفاق توقيعك ثم أرسل', 'ok'), 400); }
+        warm();
+      }
+      return open1(url);
+    };
+  });
 }
