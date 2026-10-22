@@ -40,6 +40,12 @@ header small{opacity:.9;font-size:15px}
 .sum li{margin:6px 0}
 footer{text-align:center;margin-top:26px;font-size:15px;color:#6b6a5f}
 .score{float:left;background:var(--gold);color:#fff;border-radius:20px;padding:0 14px;font-size:17px}
+.gradebox{display:inline-block;background:var(--gold);color:#fff;border-radius:16px;padding:6px 22px;margin-top:6px;font-size:24px}
+.fl{display:flex;flex-direction:column;gap:4px;margin-top:10px;font-size:17px}
+.fl input,.fl select{font-size:19px;padding:10px;border:2px solid #d8d2c0;border-radius:12px;background:#fff;color:var(--ink)}
+.fl input:focus,.fl select:focus{outline:3px solid #fff0c8;border-color:var(--gold)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn.wa{background:#1fa855;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:16px}
 </style>
 </head>
 <body>
@@ -204,6 +210,17 @@ mcq(s){
 }
 };
 
+
+const TEACHER_WA='966570323233';
+const grade=()=>Math.round(total/(STAGES.length*10)*4)/2;
+const fmt=g=>ar(String(g)).replace('.','٫');
+function sendWA(){
+  const nm=$('#nm').value.trim(),er=$('#waerr');
+  if(nm.split(/\s+/).length<2){er.hidden=false;er.textContent='اكتب اسمك كاملاً (الاسم الأول واسم الأب على الأقل) قبل الإرسال.';return}
+  er.hidden=true;
+  const t=`السلام عليكم أستاذ عبدالله\nالطالب: ${nm}\nالصف: ${$('#gr').value} / ${$('#sc').value}\nنتيجة مراجعة درس تأسيس الدولة السعودية الثانية\nالدرجة: ${fmt(grade())} من ${ar(2)}\n(نقاط اللعبة: ${ar(total)} من ${ar(STAGES.length*10)})`;
+  window.location.href='https://wa.me/'+TEACHER_WA+'?text='+encodeURIComponent(t);
+}
 function end(){
   const pct=total/(STAGES.length*10);
   const [title,emo]=pct>=.9?['حارس الدولة الأمين','🏆']:pct>=.7?['فارس من فرسان الرياض','🥇']:pct>=.5?['مرابط على الثغور','🥈']:['مستكشف يحتاج مراجعة','📚'];
@@ -211,7 +228,17 @@ function end(){
   $('#app').innerHTML=`<div class="card hero">
    <div class="big">${emo}</div><h2>${title}</h2>
    <div class="stars" style="color:var(--gold)">${stars}</div>
-   <p>مجموع نقاطك: ${ar(total)} من ${ar(STAGES.length*10)}</p></div>
+   <p>مجموع نقاطك: ${ar(total)} من ${ar(STAGES.length*10)}</p>
+   <div class="gradebox">درجتك: <b>${fmt(grade())}</b> من ${ar(2)}</div></div>
+   <div class="card"><h2>أرسل نتيجتك لمعلمك</h2>
+    <label class="fl">اسمك الثلاثي<input id="nm" type="text" autocomplete="name" placeholder="اكتب اسمك هنا"></label>
+    <div class="row2">
+     <label class="fl">الصف<select id="gr"><option>رابع</option><option>خامس</option><option>سادس</option></select></label>
+     <label class="fl">الفصل<select id="sc"><option>أ</option><option>ب</option><option>ج</option><option>د</option><option>هـ</option></select></label>
+    </div>
+    <button class="btn wa" onclick="sendWA()"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><path d="M16 3a13 13 0 0 0-11.200 19.600L3 29l6.600-1.700A13 13 0 1 0 16 3z" fill="none" stroke="#fff" stroke-width="2.200" stroke-linejoin="round"/><path fill="#fff" d="M11.300 9.600c-.6.600-.9 1.400-.6 2.600.8 3.200 3.800 6.400 7.200 7.700 1.100.4 2.200.1 2.900-.7l.6-.9c.2-.3.100-.7-.2-.9l-2.300-1.400c-.3-.2-.7-.1-.9.100l-.7.800c-1.500-.6-2.700-1.800-3.300-3.300l.8-.8c.2-.2.300-.6.100-.9l-1.300-2.300c-.2-.3-.6-.4-.9-.2z"/></svg> أرسل نتيجتي للمعلم عبر واتساب</button>
+    <div id="waerr" class="fb no" hidden></div>
+   </div>
    <div class="card"><h2>خلاصة الدرس</h2><ul class="sum">
     <li>بعد سقوط الدرعية دُمّرت المدينة وانتشرت الفوضى بغياب الدولة.</li>
     <li>نجا الإمام تركي بن عبدالله وبعد سبع سنوات أعاد تأسيس الدولة عام ١٢٤٠هـ.</li>
