@@ -57,7 +57,7 @@ async function classBroadcast(cid) {
     <span class="lbl">نوع الرسالة</span><div class="chips" data-chips="k">${BC_KINDS.map((x, i) => `<button type="button" class="chip ${x.k === 'general' ? 'on' : ''}" data-v="${x.k}">${x.t}</button>`).join('')}</div>
     <label class="fld"><span>نص الرسالة</span><div class="voice-fld"><textarea name="body" rows="5" placeholder="اكتب رسالتك لأولياء أمور ${esc(cname)}…"></textarea>${micBtn('[name=body]')}</div></label>
     <label class="switch"><input type="checkbox" name="plain" ${App.S.bcPlain ? 'checked' : ''}><span></span> النص فقط كما كتبته (بدون تحية واسم الطالب والتوقيع)</label>
-    <label class="switch bc-sig-sw"><input type="checkbox" name="sig" ${App.S.sigOn !== false ? 'checked' : ''}><span></span> إرفاق توقيعي المصوّر <img class="bc-sig-th" data-sigth alt=""></label>
+    <label class="switch bc-sig-sw"><input type="checkbox" name="sig" ${App.S.sigOn === true ? 'checked' : ''}><span></span> إرفاق توقيعي المصوّر <img class="bc-sig-th" data-sigth alt=""></label>
     <details class="bc-prev"><summary>معاينة الرسالة</summary><div class="bc-msg" data-prev></div></details>
     <div class="bc-ways">
       <button class="btn wa block" data-way="group">${ic('users')} إرسال دفعة واحدة<small>تختار في واتساب قروب ${esc(cname)} أو «قائمة البث» فتصل للجميع</small></button>
@@ -231,7 +231,7 @@ const Sig = {
     await _set(v);
     v.querySelector('.page')?.insertAdjacentHTML('beforeend', `<section class="card"><div class="card-h"><h3>${ic('edit')} التوقيع المصوّر في رسائل واتساب</h3></div>
       <img class="sig-prev" data-sigprev alt="التوقيع">
-      <label class="switch"><input type="checkbox" data-sigon ${App.S.sigOn !== false ? 'checked' : ''}><span></span> إرفاقه في الرسائل الجماعية</label>
+      <label class="switch"><input type="checkbox" data-sigon ${App.S.sigOn === true ? 'checked' : ''}><span></span> إرفاقه في الرسائل الجماعية</label>
       <div class="row gap"><button class="btn soft grow" data-sigup>${ic('upload')} رفع صورة توقيعي</button>${App.S.sigImg ? `<button class="btn ghost grow" data-sigdef>التصميم الجاهز</button>` : ''}</div>
       <p class="muted small">التصميم الجاهز يُكتب من اسمك ومادتك ومدرستك في الإعدادات أعلاه.</p></section>`);
     Sig.file().then(f => { const im = v.querySelector('[data-sigprev]'); if (im) im.src = URL.createObjectURL(f); });
@@ -239,25 +239,4 @@ const Sig = {
     v.querySelector('[data-sigup]').onclick = async () => { if (await Sig.upload()) { toast('✓ حُفظ توقيعك', 'ok'); App.render(); } };
     v.querySelector('[data-sigdef]')?.addEventListener('click', async () => { await App.set('sigImg', ''); App.render(); });
   };
-}
-
-/* التوقيع في نهاية كل رسالة واتساب من فصلي (بطلب المعلم):
-   في الكمبيوتر تُنسخ صورة التوقيع تلقائيًا مع كل رسالة فيلصقها بـ Ctrl+V قبل الإرسال.
-   (في الجوال واتساب لا يقبل صورة في رسالة موجهة لرقم محدد؛ تُرفق في «إرسال دفعة واحدة») */
-{
-  let sigReady = null;
-  const warm = () => { if (App.S.sigOn !== false) Sig.file().then(f => sigReady = f).catch(() => { }); };
-  // يُركَّب بعد تحميل كل الملفات ليكون الغلاف الخارجي لكل فتح لواتساب
-  document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(warm, 3000);
-    const open1 = Native.open.bind(Native);
-    Native.open = url => {
-      const isWa = /^https:\/\/wa\.me\//.test(String(url));
-      if (isWa && App.S.sigOn !== false && Sig.desktop() && !Native.has()) {
-        if (sigReady) { Sig.copy(sigReady, true); setTimeout(() => toast('اضغط Ctrl+V في المحادثة لإرفاق توقيعك ثم أرسل', 'ok'), 400); }
-        warm();
-      }
-      return open1(url);
-    };
-  });
 }
