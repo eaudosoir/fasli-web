@@ -45,6 +45,7 @@ footer{text-align:center;margin-top:26px;font-size:15px;color:#6b6a5f}
 .fl input,.fl select{font-size:19px;padding:10px;border:2px solid #d8d2c0;border-radius:12px;background:#fff;color:var(--ink)}
 .fl input:focus,.fl select:focus{outline:3px solid #fff0c8;border-color:var(--gold)}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn.teams{background:#5059c9;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:10px}
 .btn.wa{background:#1fa855;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:16px}
 </style>
 </head>
@@ -190,11 +191,13 @@ const lsSet=v=>{doneMem=v;try{localStorage.setItem(KEY,JSON.stringify(v))}catch(
 try{if(/[?&]reset\b/.test(location.search)){localStorage.removeItem(KEY);history.replaceState(null,'',location.pathname)}}catch(e){}
 const grade=()=>Math.round(total/(STAGES.length*10)*4)/2;
 const fmt=g=>ar(String(g)).replace('.','٫');
-function waUrl(d){
-  const t=`السلام عليكم أستاذ عبدالله\nالطالب: ${d.name}\nالصف: ${d.gr} / ${d.sc}\nنتيجة مراجعة درس مفهوم الجغرافيا (رابع)\nالدرجة: ${fmt(d.grade)} من ${ar(2)}\n(نقاط اللعبة: ${ar(d.total)} من ${ar(STAGES.length*10)})`;
-  return 'https://wa.me/'+TEACHER_WA+'?text='+encodeURIComponent(t);
-}
+function msgOf(d){return `السلام عليكم أستاذ عبدالله\nالطالب: ${d.name}\nالصف: ${d.gr} / ${d.sc}\nنتيجة مراجعة درس مفهوم الجغرافيا (رابع)\nالدرجة: ${fmt(d.grade)} من ${ar(2)}\n(نقاط اللعبة: ${ar(d.total)} من ${ar(STAGES.length*10)})`}
+const TEAMS_ID='t627832@asrb.moe.gov.sa';
+const waUrl=d=>'https://wa.me/'+TEACHER_WA+'?text='+encodeURIComponent(msgOf(d));
+const teamsUrl=d=>'https://teams.microsoft.com/l/chat/0/0?users='+encodeURIComponent(TEAMS_ID)+'&message='+encodeURIComponent(msgOf(d));
 function sendWA(){const d=lsGet();if(d)window.location.href=waUrl(d)}
+function sendTeams(){const d=lsGet();if(d)window.location.href=teamsUrl(d)}
+const TEAMS_ICON='<svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><rect x="3" y="3" width="26" height="26" rx="6" fill="none" stroke="#fff" stroke-width="2.200"/><path d="M9 11h14v3h-5.500v10h-3V14H9z" fill="#fff"/></svg>';
 const WA_ICON='<svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><path d="M16 3a13 13 0 0 0-11.200 19.600L3 29l6.600-1.700A13 13 0 1 0 16 3z" fill="none" stroke="#fff" stroke-width="2.200" stroke-linejoin="round"/><path fill="#fff" d="M11.300 9.600c-.6.600-.9 1.400-.6 2.600.8 3.200 3.800 6.400 7.200 7.700 1.100.4 2.200.1 2.900-.7l.6-.9c.2-.3.100-.7-.2-.9l-2.300-1.400c-.3-.2-.7-.1-.9.100l-.7.800c-1.500-.6-2.700-1.800-3.300-3.300l.8-.8c.2-.2.300-.6.100-.9l-1.300-2.300c-.2-.3-.6-.4-.9-.2z"/></svg>';
 function showDone(d,auto){
   cur=STAGES.length;bar();
@@ -208,8 +211,9 @@ function showDone(d,auto){
    <p>مجموع نقاطك: ${ar(d.total)} من ${ar(STAGES.length*10)}</p>
    <div class="gradebox">درجتك: <b>${fmt(d.grade)}</b> من ${ar(2)}</div></div>
    <div class="card"><h2>إرسال النتيجة إلى المعلم</h2>
-    <p>${auto?'جارٍ فتح واتساب لإرسال نتيجتك… اضغط «إرسال» داخل المحادثة.':'أنهيت هذه المراجعة من قبل، ولا يمكن إعادة اللعب.'} إن لم تُرسَل رسالتك فاضغط الزر التالي.</p>
-    <button class="btn wa" onclick="sendWA()">${WA_ICON} أرسل نتيجتي للمعلم عبر واتساب</button></div>
+    <p>${auto?'جارٍ فتح واتساب لإرسال نتيجتك… اضغط «إرسال» داخل المحادثة.':'أنهيت هذه المراجعة من قبل، ولا يمكن إعادة اللعب.'} إن لم تُرسَل رسالتك فاختر أحد الزرين التاليين: واتساب أو Teams.</p>
+    <button class="btn wa" onclick="sendWA()">${WA_ICON} أرسل نتيجتي للمعلم عبر واتساب</button>
+    <button class="btn teams" onclick="sendTeams()">${TEAMS_ICON} أرسل نتيجتي للمعلم عبر Teams</button></div>
    <div class="card"><h2>خلاصة الدرس</h2><ul class="sum">
     <li>الجغرافيا تهتم بالكرة الأرضية وما يحدث على سطحها من ظواهر طبيعية وبشرية وتفاعل بينها.</li>
     <li>الجغرافي يدرس مظاهر الأرض وطبيعتها وسكانها.</li>
