@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>حماة الوطن</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--g:#1b6b4a;--g2:#e6f3ec;--r:#a8404a;--r2:#fbeaec;--gold:#d9a441;--ink:#23323a;--bg:#f6f1e6}
+*{box-sizing:border-box;font-family:'Noto Naskh Arabic','Traditional Arabic',serif;font-weight:700}
+body{margin:0;background:var(--bg);color:var(--ink);min-height:100vh;font-size:19px;line-height:1.9}
+.wrap{max-width:760px;margin:0 auto;padding:14px 14px 40px}
+header{background:var(--g);color:#fff;border-radius:0 0 26px 26px;padding:16px 18px 14px;text-align:center;box-shadow:0 4px 14px #0003}
+header h1{margin:0;font-size:26px}
+header small{opacity:.9;font-size:15px}
+.bar{display:flex;gap:6px;margin:14px 0}
+.bar i{flex:1;height:12px;border-radius:8px;background:#d8d2c0;transition:.4s}
+.bar i.on{background:var(--gold)}
+.bar i.cur{background:var(--r)}
+.card{background:#fff;border-radius:20px;padding:20px;box-shadow:0 3px 12px #0001;margin-top:12px}
+.card h2{margin:0 0 6px;color:var(--g);font-size:24px}
+.q{background:var(--g2);border-radius:14px;padding:10px 14px;margin:10px 0}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:12px 16px;margin:8px 0;font-size:19px;background:var(--g);color:#fff;cursor:pointer;transition:.15s}
+.btn:active{transform:scale(.97)}
+.btn.alt{background:var(--r)}
+.opt{display:block;width:100%;text-align:right;border:2px solid #d8d2c0;background:#fff;border-radius:14px;padding:10px 14px;margin:8px 0;font-size:18px;cursor:pointer;transition:.15s;color:var(--ink)}
+.opt.sel{border-color:var(--gold);background:#fff6e0}
+.opt.ok{border-color:var(--g);background:var(--g2)}
+.opt.no{border-color:var(--r);background:var(--r2)}
+.opt:disabled{cursor:default}
+.badge{display:inline-block;background:var(--g);color:#fff;border-radius:50%;width:30px;height:30px;line-height:30px;text-align:center;margin-left:8px;font-size:16px}
+.shake{animation:sh .35s}
+@keyframes sh{25%{transform:translateX(8px)}75%{transform:translateX(-8px)}}
+.cols{display:grid;grid-template-columns:1fr 1.4fr;gap:10px}
+.fb{margin-top:8px;padding:10px 14px;border-radius:12px}
+.fb.ok{background:var(--g2);color:var(--g)}.fb.no{background:var(--r2);color:var(--r)}
+.hero{text-align:center}
+.hero .big{font-size:64px;line-height:1.2}
+.stars{font-size:38px;letter-spacing:6px}
+.sum li{margin:6px 0}
+footer{text-align:center;margin-top:26px;font-size:15px;color:#6b6a5f}
+.score{float:left;background:var(--gold);color:#fff;border-radius:20px;padding:0 14px;font-size:17px}
+.gradebox{display:inline-block;background:var(--gold);color:#fff;border-radius:16px;padding:6px 22px;margin-top:6px;font-size:24px}
+.fl{display:flex;flex-direction:column;gap:4px;margin-top:10px;font-size:17px}
+.fl input,.fl select{font-size:19px;padding:10px;border:2px solid #d8d2c0;border-radius:12px;background:#fff;color:var(--ink)}
+.fl input:focus,.fl select:focus{outline:3px solid #fff0c8;border-color:var(--gold)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn.wa{background:#1fa855;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:16px}
+</style>
+</head>
+<body>
+<header>
+  <h1>حماة الوطن</h1>
+  <small>الدرس التاسع — الأمن (الصف الخامس)</small>
+</header>
+<div class="wrap">
+  <div class="bar" id="bar"></div>
+  <div id="app"></div>
+  <footer>تصميم وبرمجة: أ. عبدالله ال عواد</footer>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const ar=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+
+const STAGES=[{"t": "المرحلة الأولى: رتّب محاور الدرس", "ic": "📚", "type": "order", "q": "اضغط على المحاور بالترتيب الذي وردت به في الدرس.", "items": ["تعريف الأمن: الطمأنينة والاستقرار", "من نتائج الأمن: الاستقرار والرخاء والنعمة", "من أعمال رجل الأمن", "المواطن مسؤول الأمن الأول", "كيف نحافظ على نعمة الأمن؟"]}, {"t": "المرحلة الثانية: صواب أم خطأ؟", "ic": "⚡", "type": "tf", "q": "احكم على كل عبارة بسرعة.", "items": [["الأمن هو الطمأنينة والاستقرار الذي نشعر به في وطننا.", true, "صحيح، وهو يوفر البيئة الملائمة للتنمية والرخاء."], ["يستطيع المواطن أن يؤمّن نفسه وأسرته دون الحاجة إلى رجال الأمن.", false, "الصحيح: لا يستطيع منفرداً، فرجال الأمن يحمون الجميع."], ["من نتائج الأمن: الاستقرار والرخاء والنعمة.", true, "صحيح، بفضل الله ثم بجهود قادتنا ورجال الأمن."], ["المواطن الصالح هو خط الدفاع الأول لوطنه.", true, "صحيح، فهو مسؤول الأمن الأول بشعوره بالمسؤولية."], ["من أعمال رجل الأمن مواجهة الإرهاب والتضحية لأجل الوطن.", true, "صحيح، ومنها أيضاً بثّ الطمأنينة في نفوس الناس."], ["تداول الشائعات والفيديوهات السلبية عن المجتمع يحافظ على أمن الوطن.", false, "الصحيح: هو من الأعمال التي تضر بأمن الوطن."]]}, {"t": "المرحلة الثالثة: طابق المعنى", "ic": "🧩", "type": "match", "q": "اضغط على المصطلح ثم على ما يناسبه.", "pairs": [["الأمن", "الطمأنينة والاستقرار الذي نشعر به في وطننا"], ["المواطن الصالح", "خط الدفاع الأول لوطنه"], ["الالتزام", "بالنظام وتجنب مخالفته"], ["المساندة", "لجهود أجهزة الأمن وتطبيق تعليماتهم"], ["المسؤولية", "في الإبلاغ عن المجرمين والمساعدة على حفظ الأمن"]]}, {"t": "المرحلة الرابعة: ما يضر بالأمن", "ic": "🔍", "type": "multi", "q": "اختر فقط الأعمال التي تضر بأمن الوطن.", "opts": [["تداول الرسائل والصور والشائعات السلبية عن المجتمع", 1], ["التسول لدعم الإرهاب المحلي والعالمي", 1], ["الخيانة والتواصل مع جهات خارجية ضد الوطن", 1], ["الاتصال بالرقم ٩٩٠ للإبلاغ عن أعمال تضر بالوطن", 0], ["مساعدة رجال الأمن وتجنب عرقلة أعمالهم", 0], ["الالتزام بالنظام وتجنب مخالفته", 0]]}, {"t": "المرحلة الأخيرة: تحدي حماة الوطن", "ic": "🛡️", "type": "mcq", "q": "اختر الإجابة الصحيحة.", "items": [{"q": "ما الأمن؟", "o": ["الطمأنينة والاستقرار الذي نشعر به في وطننا", "كثرة الأسواق والمحلات", "الابتعاد عن المدرسة"], "a": 0, "e": "هذا تعريف الأمن في الدرس."}, {"q": "من مسؤول الأمن الأول في الوطن؟", "o": ["المواطن الصالح", "رجل الأمن وحده", "السائح الزائر"], "a": 0, "e": "المواطن هو خط الدفاع الأول، ويساعد رجال الأمن."}, {"q": "ما الرقم الذي نتصل به للإبلاغ عن إرهابيين أو أعمال تضر بالوطن؟", "o": ["١١١", "٩٩٠", "٥٥٥"], "a": 1, "e": "ذكر الكتاب الاتصال بالرقم ٩٩٠ للإبلاغ."}, {"q": "أي مما يلي من صور «الالتزام» للمحافظة على الأمن؟", "o": ["الالتزام بالنظام وتجنب مخالفته", "تجاهل تعليمات رجال الأمن", "عرقلة أعمالهم الميدانية"], "a": 0, "e": "الالتزام بالنظام وتجنب مخالفته من طرق المحافظة على نعمة الأمن."}, {"q": "من نتائج الأمن:", "o": ["الاستقرار والرخاء والنعمة", "الخوف والقلق", "تعطل التنمية"], "a": 0, "e": "الأمن يجلب الاستقرار والرخاء والنعمة."}]}];
+
+let cur=-1,total=0,res=[];
+
+function bar(){
+  $('#bar').innerHTML=STAGES.map((_,i)=>`<i class="${i<cur?'on':i===cur?'cur':''}"></i>`).join('');
+}
+function start(){
+  const d=lsGet();
+  if(d)return showDone(d,false);
+  cur=-1;total=0;res=[];bar();
+  $('#app').innerHTML=`<div class="card hero">
+   <div class="big">🛡️</div>
+   <h2>من يحفظ نعمة الأمن؟</h2>
+   <p>ستمرّ في خمس مراحل تتعرف فيها على الأمن ودورك في المحافظة عليه. للمراجعة <b>محاولة واحدة فقط</b>، وعند انتهائها تُرسل درجتك إلى معلمك تلقائياً عبر واتساب.</p></div>
+   <div class="card"><h2>بيانات الطالب</h2>
+    <label class="fl">اسمك الثلاثي<input id="nm" type="text" autocomplete="name" placeholder="اكتب اسمك هنا"></label>
+    <div class="row2">
+     <label class="fl">الصف<select id="gr"><option>خامس</option></select></label>
+     <label class="fl">الفصل<select id="sc"><option>أ</option><option>ب</option><option>ج</option></select></label>
+    </div>
+    <div id="waerr" class="fb no" hidden></div>
+    <button class="btn" onclick="begin()">ابدأ الرحلة</button></div>`;
+}
+function begin(){
+  const nm=$('#nm').value.trim().replace(/\s+/g,' '),er=$('#waerr');
+  if(nm.split(' ').length<2){er.hidden=false;er.textContent='اكتب اسمك كاملاً (الاسم الأول واسم الأب على الأقل) قبل البدء.';return}
+  who={name:nm,gr:$('#gr').value,sc:$('#sc').value};
+  next();
+}
+function next(){
+  cur++;bar();
+  if(cur>=STAGES.length)return end();
+  const s=STAGES[cur];
+  $('#app').innerHTML=`<div class="card"><span class="score">النقاط: ${ar(total)}</span>
+   <h2>${s.ic} ${s.t}</h2><div class="q">${s.q}</div><div id="game"></div></div>`;
+  G[s.type](s);
+}
+function finish(mist){
+  const sc=Math.max(2,10-2*mist);total+=sc;res.push(sc);
+  $('#game').innerHTML=`<div class="fb ok">أنجزت المرحلة! حصلت على ${ar(sc)} من ${ar(10)} نقاط.</div>
+   <button class="btn" onclick="next()">${cur===STAGES.length-1?'اعرض النتيجة':'المرحلة التالية'}</button>`;
+}
+
+const G={
+order(s){
+  let n=0,m=0;
+  const items=shuffle(s.items.map((t,i)=>({t,i})));
+  $('#game').innerHTML=items.map(o=>`<button class="opt" data-i="${o.i}">${o.t}</button>`).join('');
+  document.querySelectorAll('#game .opt').forEach(b=>b.onclick=()=>{
+    if(b.disabled)return;
+    if(+b.dataset.i===n){n++;b.disabled=true;b.classList.add('ok');b.innerHTML=`<span class="badge">${ar(n)}</span>`+b.innerHTML;
+      if(n===items.length)setTimeout(()=>finish(m),500)}
+    else{m++;b.classList.add('no','shake');setTimeout(()=>b.classList.remove('no','shake'),400)}
+  });
+},
+tf(s){
+  let k=0,m=0;
+  const show=()=>{
+    const [t]=s.items[k];
+    $('#game').innerHTML=`<p>${ar(k+1)} / ${ar(s.items.length)}</p><div class="q" style="background:#fff6e0">${t}</div>
+     <button class="btn" id="t">صواب ✔</button><button class="btn alt" id="f">خطأ ✘</button><div id="fb"></div>`;
+    const ans=v=>{
+      const ok=v===s.items[k][1];if(!ok)m++;
+      $('#t').disabled=$('#f').disabled=true;
+      $('#fb').innerHTML=`<div class="fb ${ok?'ok':'no'}">${ok?'إجابة صحيحة. ':'إجابة غير صحيحة. '}${s.items[k][2]}</div>
+       <button class="btn" id="nx">${k===s.items.length-1?'إنهاء':'التالي'}</button>`;
+      $('#nx').onclick=()=>{k++;k<s.items.length?show():finish(Math.ceil(m/2))};
+    };
+    $('#t').onclick=()=>ans(true);$('#f').onclick=()=>ans(false);
+  };show();
+},
+match(s){
+  let sel=null,done=0,m=0;
+  const L=shuffle(s.pairs.map((p,i)=>({t:p[0],i}))),R=shuffle(s.pairs.map((p,i)=>({t:p[1],i})));
+  $('#game').innerHTML=`<div class="cols"><div>${L.map(o=>`<button class="opt L" data-i="${o.i}">${o.t}</button>`).join('')}</div>
+   <div>${R.map(o=>`<button class="opt R" data-i="${o.i}">${o.t}</button>`).join('')}</div></div>`;
+  document.querySelectorAll('.L').forEach(b=>b.onclick=()=>{
+    if(b.disabled)return;document.querySelectorAll('.L').forEach(x=>x.classList.remove('sel'));
+    sel=b;b.classList.add('sel')});
+  document.querySelectorAll('.R').forEach(b=>b.onclick=()=>{
+    if(b.disabled||!sel)return;
+    if(sel.dataset.i===b.dataset.i){sel.disabled=b.disabled=true;sel.classList.remove('sel');sel.classList.add('ok');b.classList.add('ok');sel=null;done++;
+      if(done===s.pairs.length)setTimeout(()=>finish(m),500)}
+    else{m++;b.classList.add('no','shake');setTimeout(()=>b.classList.remove('no','shake'),400)}
+  });
+},
+multi(s){
+  let m=0;const O=shuffle(s.opts);
+  $('#game').innerHTML=O.map((o,i)=>`<button class="opt" data-c="${o[1]}">${o[0]}</button>`).join('')+
+   `<button class="btn" id="chk">تحقق من إجابتي</button><div id="fb"></div>`;
+  document.querySelectorAll('#game .opt').forEach(b=>b.onclick=()=>b.classList.toggle('sel'));
+  $('#chk').onclick=()=>{
+    const bs=[...document.querySelectorAll('#game .opt')];
+    if(bs.every(b=>b.classList.contains('sel')===(b.dataset.c==='1'))){
+      bs.forEach(b=>{b.disabled=true;if(b.dataset.c==='1')b.classList.add('ok')});
+      $('#chk').remove();finish(m);
+    }else{m++;$('#fb').innerHTML='<div class="fb no">راجع إجابتك: بعض الاختيارات غير صحيحة أو ناقصة. حاول مرة أخرى.</div>'}
+  };
+},
+mcq(s){
+  let k=0,m=0;
+  const show=()=>{
+    const it=s.items[k];
+    $('#game').innerHTML=`<p>${ar(k+1)} / ${ar(s.items.length)}</p><div class="q" style="background:#fff6e0">${it.q}</div>`+
+     it.o.map((t,i)=>`<button class="opt" data-i="${i}">${t}</button>`).join('')+`<div id="fb"></div>`;
+    document.querySelectorAll('#game .opt').forEach(b=>b.onclick=()=>{
+      const ok=+b.dataset.i===it.a;if(!ok)m++;
+      document.querySelectorAll('#game .opt').forEach(x=>{x.disabled=true;if(+x.dataset.i===it.a)x.classList.add('ok')});
+      if(!ok)b.classList.add('no');
+      $('#fb').innerHTML=`<div class="fb ${ok?'ok':'no'}">${ok?'أحسنت! ':'ليست الإجابة الصحيحة. '}${it.e}</div>
+       <button class="btn" id="nx">${k===s.items.length-1?'إنهاء':'التالي'}</button>`;
+      $('#nx').onclick=()=>{k++;k<s.items.length?show():finish(Math.ceil(m/2))};
+    });
+  };show();
+}
+};
+
+
+const TEACHER_WA='966570323233',KEY='security5-review-done';
+let who={},doneMem=null;
+const lsGet=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'null')||doneMem}catch(e){return doneMem}};
+const lsSet=v=>{doneMem=v;try{localStorage.setItem(KEY,JSON.stringify(v))}catch(e){}};
+try{if(/[?&]reset\b/.test(location.search)){localStorage.removeItem(KEY);history.replaceState(null,'',location.pathname)}}catch(e){}
+const grade=()=>Math.round(total/(STAGES.length*10)*4)/2;
+const fmt=g=>ar(String(g)).replace('.','٫');
+function waUrl(d){
+  const t=`السلام عليكم أستاذ عبدالله\nالطالب: ${d.name}\nالصف: ${d.gr} / ${d.sc}\nنتيجة مراجعة درس الأمن (خامس)\nالدرجة: ${fmt(d.grade)} من ${ar(2)}\n(نقاط اللعبة: ${ar(d.total)} من ${ar(STAGES.length*10)})`;
+  return 'https://wa.me/'+TEACHER_WA+'?text='+encodeURIComponent(t);
+}
+function sendWA(){const d=lsGet();if(d)window.location.href=waUrl(d)}
+const WA_ICON='<svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><path d="M16 3a13 13 0 0 0-11.200 19.600L3 29l6.600-1.700A13 13 0 1 0 16 3z" fill="none" stroke="#fff" stroke-width="2.200" stroke-linejoin="round"/><path fill="#fff" d="M11.300 9.600c-.6.600-.9 1.400-.6 2.600.8 3.200 3.800 6.400 7.200 7.700 1.100.4 2.200.1 2.900-.7l.6-.9c.2-.3.100-.7-.2-.9l-2.300-1.400c-.3-.2-.7-.1-.9.100l-.7.800c-1.500-.6-2.700-1.800-3.300-3.300l.8-.8c.2-.2.300-.6.100-.9l-1.300-2.300c-.2-.3-.6-.4-.9-.2z"/></svg>';
+function showDone(d,auto){
+  cur=STAGES.length;bar();
+  const pct=d.total/(STAGES.length*10);
+  const [title,emo]=pct>=.9?['حارس الأمن الأمين','🏆']:pct>=.7?['مواطن صالح مسؤول','🥇']:pct>=.5?['مساند لرجال الأمن','🥈']:['يحتاج إلى مراجعة','📚'];
+  const k=Math.round(pct*5),stars='★'.repeat(k)+'☆'.repeat(5-k);
+  $('#app').innerHTML=`<div class="card hero">
+   <div class="big">${emo}</div><h2>${title}</h2>
+   <div class="stars" style="color:var(--gold)">${stars}</div>
+   <p>${d.name} — ${d.gr} / ${d.sc}</p>
+   <p>مجموع نقاطك: ${ar(d.total)} من ${ar(STAGES.length*10)}</p>
+   <div class="gradebox">درجتك: <b>${fmt(d.grade)}</b> من ${ar(2)}</div></div>
+   <div class="card"><h2>إرسال النتيجة إلى المعلم</h2>
+    <p>${auto?'جارٍ فتح واتساب لإرسال نتيجتك… اضغط «إرسال» داخل المحادثة.':'أنهيت هذه المراجعة من قبل، ولا يمكن إعادة اللعب.'} إن لم تُرسَل رسالتك فاضغط الزر التالي.</p>
+    <button class="btn wa" onclick="sendWA()">${WA_ICON} أرسل نتيجتي للمعلم عبر واتساب</button></div>
+   <div class="card"><h2>خلاصة الدرس</h2><ul class="sum">
+    <li>الأمن هو الطمأنينة والاستقرار الذي نشعر به في وطننا، ويوفر البيئة الملائمة للتنمية والرخاء.</li>
+    <li>من نتائج الأمن: الاستقرار والرخاء والنعمة.</li>
+    <li>من أعمال رجل الأمن: تحقيق الأمن وضبطه، وحماية المواطنين والمقيمين والزائرين، ومواجهة الإرهاب، والتضحية لأجل الوطن.</li>
+    <li>المواطن مسؤول الأمن الأول، وهو خط الدفاع الأول عن وطنه.</li>
+    <li>نحافظ على نعمة الأمن بالالتزام والمساندة والمسؤولية.</li>
+    <li>للإبلاغ عن أعمال تضر بالوطن نتصل بالرقم ٩٩٠.</li>
+   </ul></div>`;
+  if(auto)setTimeout(sendWA,1500);
+}
+function end(){
+  const d={name:who.name,gr:who.gr,sc:who.sc,total,grade:grade()};
+  lsSet(d);
+  showDone(d,true);
+}
+start();
+</script>
+</body>
+</html>
