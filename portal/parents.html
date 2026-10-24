@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>بوابة ابتدائية القادسية</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap">
+<style>
+/* Layout: banner with school identity, two login cards side by side (stacked on phones), result below; print shows only the notice sheet. */
+:root {
+  --bg: #f3f6f8; --paper: #ffffff; --ink: #11323f; --ink-soft: #52707d;
+  --navy: #14566b; --navy-ink: #ffffff; --soft: #e1eef3; --line: #d3e0e6;
+  --accent: #e8812b; --accent-ink: #ffffff; --bad-bg: #fbe5e3; --bad-ink: #9b1c1c;
+  --font: "Noto Naskh Arabic", "Amiri", "Traditional Arabic", serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b1a21; --paper: #10252e; --ink: #dcebf1; --ink-soft: #9fbcc8;
+    --navy: #3aa0c2; --navy-ink: #06141a; --soft: #16343f; --line: #25444f;
+    --accent: #f0903c; --accent-ink: #1b0d00; --bad-bg: #3a1a1a; --bad-ink: #ffb4b4; color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-weight: 700; font-size: 20px; line-height: 1.8; padding-bottom: 30px; }
+button, input { font-family: inherit; font-weight: 700; font-size: 1em; color: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+[hidden] { display: none !important; }
+.hero { background: linear-gradient(90deg, #0f3e50, #14566b); color: #fff; border-bottom: 5px solid var(--accent); padding: 18px max(16px, env(safe-area-inset-right, 0px)) 18px max(16px, env(safe-area-inset-left, 0px)); padding-top: calc(18px + env(safe-area-inset-top, 0px)); position: relative; overflow: hidden; }
+.hero .bg { position: absolute; inset: 0; background: url("assets/building.jpg") left center / cover no-repeat; opacity: .35; -webkit-mask-image: linear-gradient(to right, #000, transparent 70%); mask-image: linear-gradient(to right, #000, transparent 70%); }
+.hero-in { position: relative; max-width: 980px; margin: 0 auto; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.hero img { height: 84px; width: auto; }
+.hero h1 { margin: 0; font-size: 34px; line-height: 1.4; }
+.hero p { margin: 0; font-size: 18px; opacity: .92; }
+.wrap { max-width: 980px; margin: 22px auto 0; padding: 0 max(16px, env(safe-area-inset-left, 0px)); }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 18px; }
+.card { background: var(--paper); border: 1px solid var(--line); border-radius: 18px; padding: 20px; min-width: 0; box-shadow: 0 6px 20px rgba(20,86,107,.08); }
+.card h2 { margin: 0; font-size: 26px; text-align: center; color: var(--navy); line-height: 1.5; }
+.card .sub { text-align: center; color: var(--ink-soft); margin: 0 0 12px; font-size: 17px; }
+.ico { width: 64px; height: 64px; border-radius: 50%; background: var(--soft); display: grid; place-items: center; margin: 0 auto 6px; font-size: 30px; }
+label { display: block; font-size: 17px; color: var(--ink-soft); margin-bottom: 2px; }
+input { width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 6px 14px; direction: ltr; text-align: right; }
+.field + .field { margin-top: 10px; }
+.btn { width: 100%; margin-top: 14px; background: var(--navy); color: var(--navy-ink); border: 0; border-bottom: 4px solid var(--accent); border-radius: 12px; padding: 6px; cursor: pointer; }
+.btn[disabled] { opacity: .6; cursor: wait; }
+.btn.alt { background: var(--soft); color: var(--navy); border-bottom-color: var(--line); width: auto; padding: 4px 18px; margin: 0; }
+.err { background: var(--bad-bg); color: var(--bad-ink); border-radius: 10px; padding: 6px 14px; margin-top: 12px; font-size: 18px; }
+.foot { text-align: center; color: var(--ink-soft); font-size: 15px; margin: 22px 0 0; }
+.scroll { overflow-x: auto; }
+/* notice sheet */
+.sheet { background: #fff; color: #11323f; border: 1px solid var(--line); border-radius: 6px; padding: 26px; margin-top: 22px; box-shadow: 0 6px 20px rgba(20,86,107,.1); border-bottom: 6px solid var(--accent); }
+.sheet-h { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.sheet-h img { height: 70px; width: auto; }
+.sheet h2 { text-align: center; font-size: 34px; margin: 6px 0 0; color: #14566b; line-height: 1.4; }
+.sheet .t2 { text-align: center; margin: 0 0 8px; font-size: 19px; border-bottom: 3px solid var(--accent); padding-bottom: 8px; }
+.sheet table { width: 100%; border-collapse: collapse; margin-top: 12px; min-width: 460px; }
+.sheet th { background: #14566b; color: #fff; padding: 4px 8px; border: 1px solid #14566b; }
+.sheet td { padding: 3px 8px; border: 1px solid #b9ccd5; text-align: center; }
+.sheet tbody tr:nth-child(even) td { background: #eaf2f6; }
+.sheet td:first-child { text-align: right; }
+.sheet .info tbody tr td:first-child { background: #14566b; color: #fff; width: 32%; }
+.info td:last-child { text-align: right; }
+.sign { display: flex; justify-content: space-between; margin-top: 26px; gap: 14px; }
+.sign div { flex: 1; text-align: center; }
+.sign i { display: block; border-bottom: 1px solid #11323f; margin-top: 30px; }
+.sheet .band { margin: 18px -26px -26px; background: #b9d9ea; text-align: center; padding: 4px; }
+.sheet .note { font-size: 15px; margin: 8px 0 0; color: #52707d; }
+.actions { text-align: center; margin-top: 12px; }
+@media print {
+  body { background: #fff; }
+  .hero, .cards, .foot, .actions, .err { display: none !important; }
+  .wrap { margin: 0; padding: 0; max-width: none; }
+  .sheet { margin: 0; box-shadow: none; border: 0; }
+  @page { size: A4; margin: 12mm; }
+}
+</style>
+</head>
+<body>
+<header class="hero"><div class="bg"></div><div class="hero-in">
+  <img src="assets/logo-school.png" alt="" onerror="this.remove()">
+  <div><h1>ابتدائية القادسية</h1><p>إدارة تعليم عسير</p><p>العام الدراسي ١٤٤٨هـ</p></div>
+</div></header>
+<div class="wrap">
+  <div class="cards">
+    <form class="card" id="f" autocomplete="off">
+      <div class="ico" aria-hidden="true">🎓</div><h2>دخول ولي الأمر</h2><p class="sub">نتائج الطالب المعتمدة</p>
+      <div class="field"><label for="nid">رقم السجل المدني للطالب</label><input id="nid" inputmode="numeric" maxlength="10" required></div>
+      <div class="field"><label for="l4">آخر ٤ أرقام من جوال ولي الأمر</label><input id="l4" inputmode="numeric" maxlength="4" required></div>
+      <button class="btn" id="go" type="submit">دخول</button>
+      <div class="err" id="err" role="alert" hidden></div>
+    </form>
+  </div>
+  <div id="out"></div>
+  <p class="foot">أداة مساعدة للمعلم · لا تمثل نظام نور · تصميم وبرمجة: أ. عبدالله ال عواد</p>
+</div>
+<script src="config.js"></script>
+<script>
+"use strict";
+const AR = "٠١٢٣٤٥٦٧٨٩";
+const GRN = ["الأول", "الثاني", "الثالث", "الرابع", "الخامس", "السادس"];
+const toAr = v => String(v).replace(/\d/g, d => AR[d]).replace(".", "٫");
+const toEn = s => String(s ?? "").replace(/[٠-٩]/g, d => AR.indexOf(d));
+const toEmail = u => { u = toEn(u).trim().toLowerCase().replace(/\s+/g, ""); return u.includes("@") ? u : u + "@qadisiyah.school"; };
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const $ = id => document.getElementById(id);
+const num = n => toAr(Math.round(Number(n) * 10) / 10);
+const label = p => p >= 90 ? "ممتاز" : p >= 80 ? "جيد جدًا" : p >= 70 ? "جيد" : p >= 60 ? "مقبول" : "يحتاج دعمًا";
+
+async function lookup(nid, last4) {
+  const h = { "Content-Type": "application/json", apikey: PORTAL.anonKey };
+  if (PORTAL.anonKey.startsWith("eyJ")) h.Authorization = "Bearer " + PORTAL.anonKey;
+  const r = await fetch(PORTAL.url.replace(/\/$/, "") + "/rest/v1/rpc/parent_result", { method: "POST", headers: h, body: JSON.stringify({ p_nid: nid, p_last4: last4 }) });
+  if (!r.ok) throw new Error("http " + r.status);
+  return r.json();
+}
+
+function show(d, nid) {
+  const rows = d.results || [], sum = rows.reduce((a, r) => a + (+r.exam) + (+r.assess), 0), max = rows.length * 60, pct = max ? sum / max * 100 : 0;
+  $("out").innerHTML = `<div class="sheet"><div class="sheet-h"><img src="assets/logo-moe.png" alt="" onerror="this.remove()"><img src="assets/logo-school.png" alt="" onerror="this.remove()"><span style="width:70px"></span></div>
+  <h2>إشعار درجات</h2><p class="t2">الفترة الأولى · العام الدراسي ١٤٤٨هـ</p>
+  <table class="info"><tbody><tr><td>اسم الطالب</td><td>${esc(d.name)}</td></tr><tr><td>رقم السجل المدني</td><td>${toAr(nid)}</td></tr><tr><td>الصف</td><td>${GRN[d.grade - 1]}</td></tr><tr><td>الفصل</td><td>${esc(d.section)}</td></tr></tbody></table>
+  ${rows.length ? `<div class="scroll"><table><thead><tr><th>المادة</th><th>الاختبار (${toAr(20)})</th><th>التقويمات (${toAr(40)})</th><th>المجموع (${toAr(60)})</th><th>التقدير</th></tr></thead><tbody>
+  ${rows.map(r => { const t = +r.exam + +r.assess; return `<tr><td>${esc(r.subject)}</td><td>${num(r.exam)}</td><td>${num(r.assess)}</td><td>${num(t)}</td><td>${label(t / 60 * 100)}</td></tr>`; }).join("")}</tbody></table></div>
+  <div class="scroll"><table><thead><tr><th>المجموع الكلي</th><th>النسبة المئوية</th></tr></thead><tbody><tr><td style="text-align:center">${num(sum)} / ${toAr(max)}</td><td>${num(pct)}٪</td></tr></tbody></table></div>
+  <p class="note">يشمل المواد المعتمدة حتى الآن فقط (${toAr(rows.length)} مواد).</p>` : `<p>لم تُعتمد درجات هذا الطالب بعد. حاول لاحقًا.</p>`}
+  <div class="sign"><div>مدير المدرسة<br>${esc(PORTAL.principal || "")}<i></i></div><div>رائد الفصل<i></i></div></div>
+  <div class="band">معًا لبناء جيل مبدع</div></div>
+  <div class="actions"><button class="btn alt" onclick="window.print()">طباعة الإشعار</button></div>`;
+  $("out").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+$("f").addEventListener("submit", async e => {
+  e.preventDefault();
+  const err = $("err"), go = $("go"); err.hidden = true; $("out").innerHTML = "";
+  const nid = toEn($("nid").value).replace(/\D/g, ""), l4 = toEn($("l4").value).replace(/\D/g, "");
+  if (!/^[12]\d{9}$/.test(nid) || !/^\d{4}$/.test(l4)) { err.textContent = "اكتب السجل المدني من ١٠ أرقام، وآخر ٤ أرقام من الجوال."; err.hidden = false; return; }
+  go.disabled = true; go.textContent = "جارٍ التحقق…";
+  try {
+    const d = await lookup(nid, l4);
+    if (d.ok) show(d, nid);
+    else {
+      err.textContent = d.locked ? "تكررت المحاولات الخاطئة. حاول مرة أخرى بعد ١٥ دقيقة."
+        : d.closed ? "النتائج لم تُنشر بعد. سيصلك إشعار عند نشرها."
+        : "البيانات غير مطابقة. تأكد من الرقمين وأعد المحاولة.";
+      err.hidden = false;
+    }
+  } catch { err.textContent = "تعذّر الاتصال. تحقق من الإنترنت وحاول مرة أخرى."; err.hidden = false; }
+  go.disabled = false; go.textContent = "دخول";
+});
+
+</script>
+</body>
+</html>
