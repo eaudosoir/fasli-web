@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>لوحة رصد القادسية</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap">
+<style>
+/* Layout: green app bar, tab strip, one working surface at a time; every table scrolls inside its own box. */
+:root {
+  --bg: #f3f6f8; --paper: #ffffff; --ink: #11323f; --ink-soft: #52707d;
+  --green: #14566b; --green-ink: #ffffff; --green-soft: #e1eef3; --line: #d3e0e6; --accent: #e8812b; --accent-ink: #ffffff;
+  --none-bg: #e8ecea; --none-ink: #44524b;
+  --draft-bg: #e6eefc; --draft-ink: #1d4a9c;
+  --sub-bg: #fff0c9; --sub-ink: #7a5200;
+  --ret-bg: #fbe5e3; --ret-ink: #9b1c1c;
+  --ok-bg: #d9f1e3; --ok-ink: #0b6b3f;
+  --font: "Noto Naskh Arabic", "Amiri", "Traditional Arabic", serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b1a21; --paper: #10252e; --ink: #dcebf1; --ink-soft: #9fbcc8;
+    --green: #3aa0c2; --green-ink: #06141a; --green-soft: #16343f; --line: #25444f; --accent: #f0903c; --accent-ink: #1b0d00;
+    --none-bg: #26312c; --none-ink: #b9c8c0; --draft-bg: #1b2a4a; --draft-ink: #a9c6ff;
+    --sub-bg: #40330f; --sub-ink: #f3d68a; --ret-bg: #3a1a1a; --ret-ink: #ffb4b4;
+    --ok-bg: #153a28; --ok-ink: #8fe0b4; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0b1a21; --paper: #10252e; --ink: #dcebf1; --ink-soft: #9fbcc8;
+  --green: #3aa0c2; --green-ink: #06141a; --green-soft: #16343f; --line: #25444f; --accent: #f0903c; --accent-ink: #1b0d00;
+  --none-bg: #26312c; --none-ink: #b9c8c0; --draft-bg: #1b2a4a; --draft-ink: #a9c6ff;
+  --sub-bg: #40330f; --sub-ink: #f3d68a; --ret-bg: #3a1a1a; --ret-ink: #ffb4b4;
+  --ok-bg: #153a28; --ok-ink: #8fe0b4; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body {
+  margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-weight: 700;
+  font-size: 19px; line-height: 1.8; padding-bottom: 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+button, input, select, textarea { font-family: inherit; font-weight: 700; font-size: 1em; color: inherit; }
+:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
+[hidden] { display: none !important; }
+.bar { background: var(--green); color: var(--green-ink); margin-inline: calc(-1 * max(16px, env(safe-area-inset-left, 0px))); padding: 10px max(16px, env(safe-area-inset-right, 0px)); padding-top: calc(10px + env(safe-area-inset-top, 0px)); display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: center; justify-content: space-between; }
+.bar { border-bottom: 4px solid var(--accent); }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand img { height: 52px; width: auto; }
+.bar h1 { margin: 0; font-size: 24px; line-height: 1.4; }
+.bar small { display: block; font-size: 15px; opacity: .85; }
+.btn.go { background: var(--accent); color: var(--accent-ink); }
+nav button[aria-current="true"] { box-shadow: inset 0 -4px 0 var(--accent); }
+.alert-h { display: flex; gap: 10px; align-items: center; }
+.badge { background: var(--accent); color: var(--accent-ink); border-radius: 999px; min-width: 2em; text-align: center; padding: 0 10px; }
+.subj { display: grid; grid-template-columns: minmax(110px,1fr) 2fr auto; gap: 12px; align-items: center; border: 1px solid var(--line); border-radius: 12px; padding: 6px 12px; }
+.subj + .subj { margin-top: 8px; }
+.gtiles { display: flex; gap: 8px; flex-wrap: wrap; }
+.gtiles button { flex: 1 1 110px; background: var(--bg); border: 2px solid var(--line); border-radius: 12px; padding: 4px 10px; cursor: pointer; }
+.gtiles button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+@media (max-width: 560px) { .subj { grid-template-columns: 1fr; } }
+.bar .who { font-size: 17px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.bar button { background: var(--green-ink); color: var(--green); border: 0; border-radius: 8px; padding: 0 12px; cursor: pointer; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-top: 14px; }
+nav { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+nav button { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 2px 16px; cursor: pointer; }
+nav button[aria-current="true"] { background: var(--green); color: var(--green-ink); border-color: var(--green); }
+.panel { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 16px; min-width: 0; }
+.stack > * + * { margin-top: 14px; }
+h2 { font-size: 24px; margin: 0 0 6px; line-height: 1.5; }
+h3 { font-size: 20px; margin: 10px 0 4px; }
+.sub { color: var(--ink-soft); font-size: 16px; margin: 0; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+.tile { border-radius: 12px; padding: 8px 12px; }
+.tile b { display: block; font-size: 30px; line-height: 1.3; }
+.chip { display: inline-block; border-radius: 999px; padding: 0 12px; font-size: 15px; white-space: nowrap; }
+.s-none { background: var(--none-bg); color: var(--none-ink); }
+.s-draft { background: var(--draft-bg); color: var(--draft-ink); }
+.s-submitted { background: var(--sub-bg); color: var(--sub-ink); }
+.s-returned { background: var(--ret-bg); color: var(--ret-ink); }
+.s-approved { background: var(--ok-bg); color: var(--ok-ink); }
+.asg { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
+.asg button { text-align: right; background: var(--bg); border: 2px solid var(--line); border-radius: 12px; padding: 6px 12px; cursor: pointer; line-height: 1.6; }
+.asg button[aria-pressed="true"] { border-color: var(--green); background: var(--green-soft); }
+.asg small { display: block; color: var(--ink-soft); font-size: 15px; }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 620px; }
+th { color: var(--green); border-bottom: 2px solid var(--green); padding: 4px 10px; text-align: center; white-space: nowrap; }
+td { border-bottom: 1px solid var(--line); padding: 3px 10px; text-align: center; white-space: nowrap; }
+.nm { text-align: right; }
+tr.low td { background: var(--ret-bg); }
+input.cell { width: 6em; text-align: center; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 1px 6px; }
+input.cell.err { border-color: var(--ret-ink); background: var(--ret-bg); }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; margin-top: 12px; }
+.row label, .field label { display: flex; flex-direction: column; font-size: 16px; color: var(--ink-soft); }
+.row input, .row select, .field input, .filters select, .filters input { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 2px 10px; min-width: 0; }
+.btn { background: var(--green); color: var(--green-ink); border: 0; border-radius: 10px; padding: 2px 16px; cursor: pointer; text-decoration: none; display: inline-block; }
+.btn.alt { background: var(--green-soft); color: var(--green); }
+.btn.bad { background: var(--ret-bg); color: var(--ret-ink); }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+.banner { border-radius: 10px; padding: 6px 14px; margin-bottom: 10px; font-size: 17px; }
+.filters { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; align-items: center; }
+.filters button { background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 0 14px; cursor: pointer; }
+.filters button[aria-pressed="true"] { background: var(--green); color: var(--green-ink); border-color: var(--green); }
+textarea { width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 6px 12px; min-height: 5.5em; }
+.bar-prog { height: 10px; border-radius: 6px; background: var(--none-bg); overflow: hidden; margin-top: 6px; }
+.bar-prog i { display: block; height: 100%; background: var(--green); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+.auth { max-width: 460px; margin: 30px auto 0; }
+.auth .field + .field { margin-top: 10px; }
+.auth input { width: 100%; direction: ltr; text-align: right; }
+.auth input#aName { direction: rtl; }
+.foot { text-align: center; color: var(--ink-soft); font-size: 15px; margin-top: 22px; }
+#flash { position: fixed; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); left: 16px; background: var(--ink); color: var(--bg); padding: 2px 16px; border-radius: 10px; opacity: 0; pointer-events: none; transition: opacity .2s; max-width: 80vw; }
+#flash.on { opacity: 1; }
+#flash.bad { background: var(--ret-ink); color: #fff; }
+@media (prefers-reduced-motion: reduce) { #flash { transition: none; } }
+</style>
+</head>
+<body>
+<div class="bar"><div class="brand"><img src="assets/logo-moe-white.png" alt="" onerror="this.remove()"><img src="assets/logo-school.png" alt="" onerror="this.remove()"><div><h1>ابتدائية القادسية</h1><small>إدارة تعليم عسير · لوحة رصد الدرجات</small></div></div><div class="who"><span id="who"></span><button id="refresh" hidden>تحديث</button><button id="logout" hidden>خروج</button></div></div>
+<div class="wrap">
+  <nav id="tabs"></nav>
+  <main id="main"><div class="panel">جارٍ التحميل…</div></main>
+  <p class="foot">أداة مساعدة للمعلم · لا تمثل نظام نور · تصميم وبرمجة: أ. عبدالله ال عواد</p>
+</div>
+<div id="flash" role="status"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.100.0/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="config.js"></script>
+<script>
+"use strict";
+const AR = "٠١٢٣٤٥٦٧٨٩";
+const toAr = v => String(v).replace(/\d/g, d => AR[d]).replace(".", "٫");
+const toEn = s => String(s ?? "").replace(/[٠-٩]/g, d => AR.indexOf(d)).replace(/[٫،,]/g, ".").trim();
+const toEmail = u => { u = toEn(u).trim().toLowerCase().replace(/\s+/g, ""); return u.includes("@") ? u : u + "@qadisiyah.school"; };
+const portalLink = () => { try { return new URL("index.html", location.href).href; } catch { return "index.html"; } };
+const genPass = () => Array.from(crypto.getRandomValues(new Uint8Array(6)), x => x % 10).join("");
+const waTeacher = c => { const m = c.mobile ? normMobile(c.mobile) : ""; const t = encodeURIComponent(`الأستاذ ${c.name}: حسابك في بوابة درجات القادسية جاهز.\nالرابط: ${portalLink()}\nاسم الدخول: ${c.user}\nكلمة المرور المؤقتة: ${c.pass}\nستُطلب منك كلمة مرور جديدة عند أول دخول. لا تشاركها مع أحد.`); return /^5\d{8}$/.test(m) ? `https://wa.me/966${m}?text=${t}` : `https://wa.me/?text=${t}`; };
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const fmt = n => (n === null || n === undefined || Number.isNaN(n)) ? "—" : toAr(Math.round(n * 10) / 10);
+const $ = id => document.getElementById(id);
+const GRN = ["الأول", "الثاني", "الثالث", "الرابع", "الخامس", "السادس"];
+const SUBJECTS = ["القرآن الكريم", "التوحيد", "الفقه", "لغتي", "الرياضيات", "العلوم", "الدراسات الاجتماعية", "اللغة الإنجليزية", "المهارات الرقمية", "التربية الفنية", "التربية البدنية", "المهارات الحياتية"];
+const STATUS = { none: "لم يبدأ", draft: "مسودة", submitted: "بانتظار الاعتماد", returned: "أُعيد للمعلم", approved: "معتمد" };
+const ORDER = ["submitted", "returned", "draft", "none", "approved"];
+const PERIOD = 1;
+
+const sb = supabase.createClient(PORTAL.url, PORTAL.anonKey);
+const S = { me: null, classes: [], asgs: [], students: [], contacts: {}, grades: {}, profiles: [], portalOpen: false,
+  tab: "", hg: 0, hs: "", allMiss: false, cred: null, roster: [], sel: "", filter: "submitted", q: "", rev: "", cid: "", tsel: "", msg: "", link: "", authMode: "login" };
+const chains = {}; let flashT;
+
+function flash(m, bad) { const f = $("flash"); f.textContent = m; f.className = "on" + (bad ? " bad" : ""); clearTimeout(flashT); flashT = setTimeout(() => f.className = "", 2600); }
+const isMgr = () => S.me && S.me.role === "manager";
+const cls = id => S.classes.find(c => c.id === id);
+const cname = id => { const c = cls(id); return c ? `الصف ${GRN[c.grade - 1]} / ${c.section}` : id; };
+const studentsOf = cid => S.students.filter(s => s.class_id === cid).sort((a, b) => a.name.localeCompare(b.name, "ar"));
+const tname = id => (S.profiles.find(p => p.id === id) || {}).full_name || "معلم";
+const asgBy = id => S.asgs.find(a => a.id === id);
+const G = (aid, sid) => S.grades[aid + "|" + sid];
+const tot = g => (g && g.e != null && g.a != null) ? g.e + g.a : null;
+const chip = s => `<span class="chip s-${s}">${STATUS[s]}</span>`;
+function stats(aid) {
+  const a = asgBy(aid), list = studentsOf(a.class_id), ts = list.map(s => tot(G(aid, s.id))).filter(x => x !== null);
+  return { n: list.length, rec: ts.length, avg: ts.length ? ts.reduce((x, y) => x + y, 0) / ts.length : null, low: ts.filter(x => x / 60 < .5).length };
+}
+const counts = list => { const c = { none: 0, draft: 0, submitted: 0, returned: 0, approved: 0 }; list.forEach(a => c[a.status]++); return c; };
+const normMobile = s => { let d = toEn(s).replace(/\D/g, ""); if (d.startsWith("00966")) d = d.slice(5); else if (d.startsWith("966")) d = d.slice(3); if (d.startsWith("0")) d = d.slice(1); return d; };
+
+/* ---------- data ---------- */
+async function fetchAll(table, cols, mod) {
+  const out = []; const size = 1000;
+  for (let from = 0; ; from += size) {
+    let q = sb.from(table).select(cols).range(from, from + size - 1);
+    if (mod) q = mod(q);
+    const { data, error } = await q;
+    if (error) throw error;
+    out.push(...data); if (data.length < size) break;
+  }
+  return out;
+}
+async function loadAsgs() { S.asgs = await fetchAll("assignments", "*", q => q.eq("period", PERIOD).order("id")); }
+async function loadStudents() {
+  S.students = await fetchAll("students", "id,class_id,name", q => q.order("id"));
+  if (isMgr()) { S.contacts = {}; (await fetchAll("student_contacts", "*", q => q.order("student_id"))).forEach(c => S.contacts[c.student_id] = c.mobile); }
+}
+async function loadGrades() {
+  S.grades = {}; (await fetchAll("grades", "assignment_id,student_id,exam,assess", q => q.order("assignment_id").order("student_id")))
+    .forEach(g => S.grades[g.assignment_id + "|" + g.student_id] = { e: g.exam === null ? null : Number(g.exam), a: g.assess === null ? null : Number(g.assess) });
+}
+async function loadAll() {
+  S.classes = await fetchAll("classes", "*", q => q.order("id"));
+  await Promise.all([loadAsgs(), loadStudents(), loadGrades()]);
+  if (isMgr()) {
+    S.profiles = await fetchAll("profiles", "*", q => q.order("created_at"));
+    S.roster = await fetchAll("teacher_roster", "*", q => q.order("created_at"));
+    const r = await sb.rpc("get_portal_open"); S.portalOpen = r.data === true;
+  }
+}
+
+/* ---------- boot and auth ---------- */
+async function start() {
+  const { data } = await sb.auth.getSession();
+  if (!data.session) return showAuth();
+  const { data: me, error } = await sb.from("profiles").select("*").eq("id", data.session.user.id).maybeSingle();
+  if (error || !me) return showAuth("تعذّر قراءة حسابك. حاول الدخول مرة أخرى.");
+  S.me = me; $("logout").hidden = false;
+  $("who").textContent = (me.full_name || "") + (me.role === "manager" ? " · المدير" : "");
+  if (!me.active) { $("tabs").innerHTML = ""; $("main").innerHTML = `<div class="panel auth"><h2>حسابك بانتظار التفعيل</h2><p>سجّلتَ بنجاح. سيفعّل المدير حسابك ويحدد فصولك، ثم يمكنك البدء.</p><div class="row"><button class="btn alt" id="recheck">تحقق مرة أخرى</button></div></div>`; return; }
+  if (me.must_change) return showChangePw();
+  $("refresh").hidden = false;
+  try { await loadAll(); } catch (e) { $("main").innerHTML = `<div class="panel">تعذّر تحميل البيانات: ${esc(e.message)}</div>`; return; }
+  render();
+}
+function showAuth(note) {
+  S.me = null; $("logout").hidden = true; $("refresh").hidden = true; $("who").textContent = ""; $("tabs").innerHTML = "";
+  const login = true;
+  $("main").innerHTML = `<form class="panel auth" id="authForm"><h2>${login ? "دخول" : "حساب جديد"}</h2>
+  ${note ? `<div class="banner s-returned">${esc(note)}</div>` : ""}
+  ${login ? "" : `<div class="field"><label>الاسم الكامل<input id="aName" required></label></div>`}
+  <div class="field"><label>اسم الدخول (رقم الهوية أو البريد)<input id="aMail" autocomplete="username" required></label></div>
+  <div class="field"><label>كلمة المرور<input id="aPass" type="password" minlength="8" autocomplete="${login ? "current-password" : "new-password"}" required></label></div>
+  <div class="row"><button class="btn" type="submit">${login ? "دخول" : "إنشاء الحساب"}</button></div>
+  <p class="sub">حساب المعلم يُنشئه مدير المدرسة ويسلّمه اسم الدخول وكلمة المرور.</p></form>`;
+}
+function showChangePw() {
+  $("tabs").innerHTML = "";
+  $("main").innerHTML = `<form class="panel auth" id="pwForm"><h2>اختر كلمة مرور جديدة</h2><p class="sub">هذه أول مرة تدخل فيها. كلمة المرور المؤقتة تنتهي هنا، فاكتب كلمة مرور خاصة بك.</p>
+  <div class="field"><label>كلمة المرور الجديدة<input id="pw1" type="password" minlength="8" autocomplete="new-password" required></label></div>
+  <div class="field"><label>أعد كتابتها<input id="pw2" type="password" minlength="8" autocomplete="new-password" required></label></div>
+  <div class="row"><button class="btn go" type="submit">حفظ ومتابعة</button></div></form>`;
+}
+$("main").addEventListener("submit", async e => {
+  if (e.target.id === "pwForm") {
+    e.preventDefault();
+    const p1 = $("pw1").value, p2 = $("pw2").value;
+    if (p1.length < 8) return flash("كلمة المرور ٨ أحرف على الأقل", true);
+    if (p1 !== p2) return flash("كلمتا المرور غير متطابقتين", true);
+    const { error } = await sb.auth.updateUser({ password: p1 });
+    if (error) return flash(/same|different/i.test(error.message) ? "اختر كلمة مرور مختلفة عن المؤقتة" : error.message, true);
+    await sb.rpc("clear_must_change"); flash("تم تغيير كلمة المرور"); return start();
+  }
+  if (e.target.id !== "authForm") return;
+  e.preventDefault();
+  const mail = toEmail($("aMail").value), pass = $("aPass").value;
+  if (S.authMode === "login") {
+    const { error } = await sb.auth.signInWithPassword({ email: mail, password: pass });
+    if (error) return flash("اسم الدخول أو كلمة المرور غير صحيحة", true);
+    start();
+  } else {
+    const name = $("aName").value.trim(); if (!name) return flash("اكتب اسمك", true);
+    const { data, error } = await sb.auth.signUp({ email: mail, password: pass, options: { data: { full_name: name } } });
+    if (error) return flash(error.message, true);
+    if (!data.session) { S.authMode = "login"; return showAuth("أُنشئ الحساب. أكّد بريدك من الرسالة التي وصلتك ثم ادخل."); }
+    start();
+  }
+});
+$("logout").onclick = async () => { await sb.auth.signOut(); S.authMode = "login"; showAuth(); };
+$("refresh").onclick = async () => { try { await loadAll(); render(); flash("تم التحديث"); } catch (e) { flash("تعذّر التحديث", true); } };
+
+/* ---------- rendering ---------- */
+function render() {
+  const tabs = isMgr() ? [["dash", "لوحة الاعتماد"], ["teachers", "المعلمون"], ["students", "الطلاب"], ["notif", "الإشعارات"], ["settings", "الإعدادات"]] : [["home", "الرئيسية"], ["entry", "رصد الدرجات"]];
+  if (!tabs.some(t => t[0] === S.tab)) S.tab = tabs[0][0];
+  if (!cls(S.cid)) S.cid = (S.classes[0] || {}).id || "";
+  $("tabs").innerHTML = tabs.map(([k, t]) => `<button data-tab="${k}" aria-current="${S.tab === k}">${t}</button>`).join("");
+  ({ home: viewHome, entry: viewEntry, dash: viewDash, teachers: viewTeachers, students: viewStudents, notif: viewNotif, settings: viewSettings })[S.tab]($("main"));
+}
+function classSelect(id) { return `<label>الفصل<select id="${id}">${S.classes.map(c => `<option value="${c.id}" ${c.id === S.cid ? "selected" : ""}>${esc(cname(c.id))}</option>`).join("")}</select></label>`; }
+
+function gradeTable(aid, editable) {
+  const a = asgBy(aid);
+  return `<div class="scroll"><table><thead><tr><th>م</th><th class="nm">الاسم</th><th>الاختبار /${fmt(20)}</th><th>التقويمات /${fmt(40)}</th><th>المجموع /${fmt(60)}</th><th>النسبة</th></tr></thead><tbody>
+  ${studentsOf(a.class_id).map((s, i) => { const g = G(aid, s.id) || {}, t = tot(g); return `<tr data-sid="${s.id}" class="${t !== null && t / 60 < .5 ? "low" : ""}">
+    <td>${fmt(i + 1)}</td><td class="nm">${esc(s.name)}</td>
+    <td>${editable ? `<input class="cell" inputmode="decimal" data-f="e" data-sid="${s.id}" value="${g.e != null ? toAr(g.e) : ""}" aria-label="الاختبار">` : fmt(g.e)}</td>
+    <td>${editable ? `<input class="cell" inputmode="decimal" data-f="a" data-sid="${s.id}" value="${g.a != null ? toAr(g.a) : ""}" aria-label="التقويمات">` : fmt(g.a)}</td>
+    <td class="tot">${fmt(t)}</td><td class="pct">${t === null ? "—" : toAr(Math.round(t / 60 * 100)) + "٪"}</td></tr>`; }).join("") || `<tr><td colspan="6">لا يوجد طلاب في هذا الفصل بعد.</td></tr>`}
+  </tbody></table></div>`;
+}
+
+function viewHome(m) {
+  const mine = S.asgs;
+  if (!mine.length) { m.innerHTML = `<div class="panel"><h2>لا توجد فصول مسندة إليك</h2><p>سيُسند إليك المدير فصولك ومادتك، ثم تظهر هنا. اضغط «تحديث» بعد ذلك.</p></div>`; return; }
+  const grades = [...new Set(mine.map(a => cls(a.class_id).grade))].sort();
+  if (!grades.includes(S.hg)) S.hg = grades[0];
+  const secs = [...new Set(mine.filter(a => cls(a.class_id).grade === S.hg).map(a => cls(a.class_id).section))].sort();
+  if (!secs.includes(S.hs)) S.hs = secs[0];
+  const cur = mine.filter(a => { const c = cls(a.class_id); return c.grade === S.hg && c.section === S.hs; });
+  const miss = [];
+  mine.filter(a => ["none", "draft", "returned"].includes(a.status)).forEach(a => studentsOf(a.class_id).forEach(s => { if (tot(G(a.id, s.id)) === null) miss.push({ a, s }); }));
+  const shown = S.allMiss ? miss : miss.slice(0, 5), c = counts(mine);
+  m.innerHTML = `<div class="stack">
+  <div class="panel"><div class="alert-h"><h2 style="margin:0">تنبيهات الرصد الناقص</h2><span class="badge">${fmt(miss.length)}</span></div>
+    <p class="sub">${fmt(c.approved)} معتمد · ${fmt(c.submitted)} بانتظار الاعتماد · ${fmt(c.returned)} أُعيد إليك</p>
+    ${c.returned ? `<div class="banner s-returned" style="margin-top:8px">لديك رصد أُعيد إليك بملاحظة من المدير. افتحه من قائمة المواد أدناه.</div>` : ""}
+    ${miss.length ? `<div class="scroll" style="margin-top:8px"><table style="min-width:520px"><thead><tr><th class="nm">الطالب</th><th>الصف والفصل</th><th>المادة</th><th></th></tr></thead><tbody>
+    ${shown.map(x => `<tr><td class="nm">${esc(x.s.name)}</td><td>${esc(cname(x.a.class_id))}</td><td>${esc(x.a.subject)}</td><td><button class="btn go" data-start="${x.a.id}">بدء الرصد</button></td></tr>`).join("")}</tbody></table></div>
+    ${miss.length > 5 ? `<p style="text-align:center;margin:6px 0 0"><button class="btn alt" id="allMiss">${S.allMiss ? "إخفاء القائمة" : `عرض القائمة كاملة (${fmt(miss.length)})`}</button></p>` : ""}` : `<p style="margin:8px 0 0">لا يوجد رصد ناقص. أحسنت.</p>`}</div>
+  <div class="panel"><h3 style="margin-top:0">اختر الصف</h3><div class="gtiles">${grades.map(g => `<button data-hg="${g}" aria-pressed="${g === S.hg}">الصف ${GRN[g - 1]}</button>`).join("")}</div>
+    <h3>اختر الفصل</h3><div class="gtiles">${secs.map(x => `<button data-hs="${esc(x)}" aria-pressed="${x === S.hs}">${esc(x)}</button>`).join("")}</div></div>
+  <div class="panel"><h3 style="margin-top:0">موادي في هذا الفصل</h3>
+    ${cur.map(a => { const k = stats(a.id), pct = k.n ? Math.round(k.rec / k.n * 100) : 0; return `<div class="subj"><div>${esc(a.subject)}<br>${chip(a.status)}</div><div><div class="bar-prog"><i style="width:${pct}%"></i></div><small class="sub">${fmt(k.rec)} من ${fmt(k.n)} · ${fmt(pct)}٪</small></div><button class="btn" data-start="${a.id}">بدء الرصد</button></div>`; }).join("")}</div></div>`;
+}
+
+function viewEntry(m) {
+  const mine = [...S.asgs].sort((a, b) => a.class_id.localeCompare(b.class_id) || a.subject.localeCompare(b.subject, "ar"));
+  if (!mine.length) { m.innerHTML = `<div class="panel"><h2>لا توجد فصول مسندة إليك</h2></div>`; return; }
+  if (!mine.some(a => a.id === S.sel)) S.sel = mine[0].id;
+  const a = asgBy(S.sel), stt = stats(S.sel), editable = ["none", "draft", "returned"].includes(a.status), pct = stt.n ? Math.round(stt.rec / stt.n * 100) : 0;
+  m.innerHTML = `<div class="stack">
+  <div class="panel"><div class="row" style="margin-top:0"><label>الصف والفصل والمادة<select id="asgSel">${mine.map(x => `<option value="${x.id}" ${x.id === S.sel ? "selected" : ""}>${esc(cname(x.class_id))} · ${esc(x.subject)}</option>`).join("")}</select></label></div></div>
+  <div class="panel"><h2>رصد درجات الطلاب</h2><p class="sub">${esc(cname(a.class_id))} · ${esc(a.subject)} · ${chip(a.status)} · الاختبار من ${fmt(20)} والتقويمات من ${fmt(40)} والمجموع من ${fmt(60)}</p>
+    ${a.status === "returned" ? `<div class="banner s-returned" style="margin-top:10px">ملاحظة المدير: ${esc(a.note || "")}</div>` : ""}
+    ${a.status === "submitted" ? `<div class="banner s-submitted" style="margin-top:10px">أُرسلت للاعتماد، ولا يمكن تعديلها حتى يراجعها المدير.</div>` : ""}
+    ${a.status === "approved" ? `<div class="banner s-approved" style="margin-top:10px">اعتُمدت هذه الدرجات.</div>` : ""}
+    <div style="margin-top:10px">${gradeTable(S.sel, editable)}</div>
+    <div class="row" style="align-items:center"><div style="flex:1 1 220px"><span class="sub" id="subHint">تم رصد ${fmt(stt.rec)} من ${fmt(stt.n)} طالبًا · ${fmt(pct)}٪</span><div class="bar-prog"><i id="prog" style="width:${pct}%"></i></div></div>
+    ${editable ? `<button class="btn go" id="submit" ${stt.rec < stt.n || stt.n === 0 ? "disabled" : ""}>إرسال الدرجات لاعتماد المدير</button>` : ""}</div></div></div>`;
+}
+
+function viewDash(m) {
+  const c = counts(S.asgs), total = S.asgs.length, q = S.q.trim();
+  let rows = S.asgs.filter(a => (S.filter === "all" || a.status === S.filter) && (!q || tname(a.teacher_id).includes(q) || a.subject.includes(q)));
+  rows.sort((x, y) => ORDER.indexOf(x.status) - ORDER.indexOf(y.status) || tname(x.teacher_id).localeCompare(tname(y.teacher_id), "ar"));
+  const tiles = [["submitted", "بانتظار اعتمادك"], ["returned", "أُعيدت للمعلمين"], ["draft", "مسودات"], ["none", "لم تبدأ"], ["approved", "معتمدة"]];
+  const pending = S.profiles.filter(p => p.role === "teacher" && !p.active).length;
+  m.innerHTML = `<div class="stack">
+  ${pending ? `<div class="banner s-submitted">${fmt(pending)} حسابات معلمين بانتظار تفعيلك من تبويب «المعلمون».</div>` : ""}
+  <div class="panel"><h2>تقدّم الفترة الأولى</h2>
+    <p class="sub">${fmt(c.approved)} معتمد من ${fmt(total)} رصدًا</p>
+    <div class="bar-prog"><i style="width:${total ? c.approved / total * 100 : 0}%"></i></div>
+    <div class="tiles" style="margin-top:12px">${tiles.map(([k, t]) => `<div class="tile s-${k}"><b>${fmt(c[k])}</b>${t}</div>`).join("")}</div></div>
+  <div class="panel"><div class="filters">
+    ${[["all", "الكل"], ...ORDER.map(k => [k, STATUS[k]])].map(([k, t]) => `<button data-f="${k}" aria-pressed="${S.filter === k}">${t}</button>`).join("")}
+    <input id="q" placeholder="بحث باسم المعلم أو المادة" value="${esc(S.q)}" aria-label="بحث"></div>
+    ${S.filter === "submitted" && c.submitted ? `<div class="row" style="margin:0 0 10px"><button class="btn alt" id="approveAll">اعتماد كل المرسل (${fmt(c.submitted)})</button></div>` : ""}
+    <div class="scroll" style="max-height:420px;overflow-y:auto"><table><thead><tr><th class="nm">المعلم</th><th class="nm">المادة</th><th>الفصل</th><th>الحالة</th><th>المرصود</th><th>المتوسط /${fmt(60)}</th><th></th></tr></thead><tbody>
+    ${rows.length ? rows.map(a => { const k = stats(a.id); return `<tr><td class="nm">${esc(tname(a.teacher_id))}</td><td class="nm">${esc(a.subject)}</td><td>${esc(cname(a.class_id))}</td><td>${chip(a.status)}</td><td>${fmt(k.rec)}/${fmt(k.n)}</td><td>${fmt(k.avg)}</td><td><button class="btn alt" data-rev="${a.id}">مراجعة</button></td></tr>`; }).join("") : `<tr><td colspan="7">لا توجد نتائج لهذا الفلتر.</td></tr>`}
+    </tbody></table></div></div>
+  ${S.rev && asgBy(S.rev) ? reviewPanel(S.rev) : ""}</div>`;
+}
+function reviewPanel(aid) {
+  const a = asgBy(aid), k = stats(aid);
+  return `<div class="panel" id="review"><h2>مراجعة: ${esc(tname(a.teacher_id))} · ${esc(a.subject)} · ${esc(cname(a.class_id))}</h2>
+  <p class="sub">${chip(a.status)} · المتوسط ${fmt(k.avg)} من ${fmt(60)} · أقل من ٥٠٪: ${fmt(k.low)}</p>
+  <div style="margin-top:10px">${gradeTable(aid, false)}</div>
+  <label style="display:block;margin-top:12px" for="note">ملاحظة للمعلم (مطلوبة عند الإعادة)</label><textarea id="note"></textarea>
+  <div class="row"><button class="btn go" data-act="approve" ${a.status !== "submitted" ? "disabled" : ""}>اعتماد</button>
+  <button class="btn bad" data-act="return" ${!["submitted", "approved"].includes(a.status) ? "disabled" : ""}>إعادة للمعلم</button>
+  <button class="btn alt" data-act="close">إغلاق</button></div></div>`;
+}
+
+function viewTeachers(m) {
+  const teachers = S.profiles.filter(p => p.role === "teacher").sort((a, b) => Number(a.active) - Number(b.active) || a.full_name.localeCompare(b.full_name, "ar"));
+  const t = teachers.find(x => x.id === S.tsel);
+  const list = t ? S.asgs.filter(a => a.teacher_id === t.id) : [];
+  m.innerHTML = `<div class="stack">
+  <div class="panel"><h2>قائمة المعلمين</h2><p class="sub">ارفع أسماء المعلمين، ثم اضغط «توليد وإرسال» أمام اسم المعلم: يُنشأ حسابه وتُولَّد كلمة مرور وتُرسل له عبر واتساب، ويغيّرها بنفسه عند أول دخول.</p>
+    ${S.cred ? `<div class="banner s-approved" style="margin-top:10px">جاهز لإرسال بيانات ${esc(S.cred.name)}. اسم الدخول <b dir="ltr">${esc(S.cred.user)}</b> · كلمة المرور <b dir="ltr">${esc(S.cred.pass)}</b> (تظهر هذه المرة فقط).
+    <a class="btn go" target="_blank" rel="noopener" href="${waTeacher(S.cred)}">إرسال عبر واتساب</a></div>` : ""}
+    <label for="rpaste" style="display:block;margin-top:12px;color:var(--ink-soft);font-size:16px">الصق الأسماء: الاسم في سطر، وتحته السجل المدني، وتحته الجوال، ثم المعلم التالي</label>
+    <textarea id="rpaste" dir="rtl" placeholder="أحمد محمد&#10;1012345678&#10;0551234567&#10;&#10;خالد علي&#10;1023456789&#10;0561234567"></textarea>
+    <div class="row" style="margin-top:6px"><button class="btn go" id="rpasteAdd">إضافة المعلمين</button><span class="sub" id="rpasteInfo"></span></div>
+    <div class="row"><label>الاسم<input id="rName"></label><label>اسم الدخول<input id="rUser" dir="ltr" autocomplete="off"></label><label>الجوال<input id="rMob" dir="ltr" placeholder="05xxxxxxxx"></label><button class="btn alt" id="rAdd">إضافة</button></div>
+    <div class="scroll" style="margin-top:10px"><table style="min-width:640px"><thead><tr><th class="nm">الاسم</th><th>اسم الدخول</th><th>الجوال</th><th>الحالة</th><th></th></tr></thead><tbody>
+    ${S.roster.length ? S.roster.map(r => { const p = S.profiles.find(x => x.id === r.user_id); return `<tr><td class="nm">${esc(r.full_name)}</td><td dir="ltr">${esc(r.username)}</td><td dir="ltr">${r.mobile ? toAr(r.mobile) : "—"}</td>
+      <td>${!r.user_id ? `<span class="chip s-none">بلا حساب</span>` : p && p.must_change ? `<span class="chip s-submitted">بانتظار أول دخول</span>` : `<span class="chip s-approved">فعّال</span>`}</td>
+      <td><button class="btn go" data-gen="${r.id}">${r.user_id ? "إعادة توليد وإرسال" : "توليد وإرسال"}</button> <button class="btn bad" data-rdel="${r.id}">حذف</button></td></tr>`; }).join("") : `<tr><td colspan="5">ارفع ملف الأسماء أو أضف معلمًا يدويًا.</td></tr>`}
+    </tbody></table></div></div>
+  <div class="panel"><h2>المعلمون</h2><p class="sub">فعّل الحساب أو أوقفه، وأسند لكل معلم فصوله ومادته.</p>
+  <div class="scroll" style="margin-top:8px"><table style="min-width:480px"><thead><tr><th class="nm">الاسم</th><th>الحساب</th><th>عدد الرصود</th><th></th></tr></thead><tbody>
+  ${teachers.length ? teachers.map(p => `<tr><td class="nm">${esc(p.full_name || "بلا اسم")}</td><td>${p.active ? `<span class="chip s-approved">مفعّل</span>` : `<span class="chip s-submitted">بانتظار التفعيل</span>`}</td><td>${fmt(S.asgs.filter(a => a.teacher_id === p.id).length)}</td>
+  <td><button class="btn alt" data-tsel="${p.id}">الفصول</button> <button class="btn ${p.active ? "bad" : ""}" data-toggle="${p.id}">${p.active ? "إيقاف" : "تفعيل"}</button></td></tr>`).join("") : `<tr><td colspan="4">لم يسجّل أي معلم بعد.</td></tr>`}
+  </tbody></table></div></div>
+  ${t ? `<div class="panel"><h2>فصول ${esc(t.full_name)}</h2>
+    <div class="row"><label>الفصل<select id="aCls">${S.classes.map(c => `<option value="${c.id}">${esc(cname(c.id))}</option>`).join("")}</select></label>
+    <label>المادة<input id="aSub" list="subs" placeholder="اختر أو اكتب"></label><datalist id="subs">${SUBJECTS.map(s => `<option value="${esc(s)}">`).join("")}</datalist>
+    <button class="btn" id="aAdd" data-t="${t.id}">إسناد</button></div>
+    <div class="scroll" style="margin-top:8px"><table style="min-width:480px"><thead><tr><th>الفصل</th><th class="nm">المادة</th><th>الحالة</th><th></th></tr></thead><tbody>
+    ${list.length ? list.map(a => `<tr><td>${esc(cname(a.class_id))}</td><td class="nm">${esc(a.subject)}</td><td>${chip(a.status)}</td><td><button class="btn bad" data-delasg="${a.id}">حذف</button></td></tr>`).join("") : `<tr><td colspan="4">لا توجد فصول مسندة بعد.</td></tr>`}
+    </tbody></table></div><p class="sub" style="margin-top:6px">حذف الإسناد يحذف درجاته أيضًا.</p></div>` : ""}</div>`;
+}
+
+function viewStudents(m) {
+  const list = studentsOf(S.cid);
+  m.innerHTML = `<div class="stack"><div class="panel"><div class="row" style="margin-top:0">${classSelect("clsSel")}</div></div>
+  <div class="panel"><h2>إضافة طلاب</h2><div class="row">
+    <label>اسم الطالب<input id="nName"></label>
+    <label>السجل المدني<input id="nNid" inputmode="numeric" maxlength="10" dir="ltr"></label>
+    <label>جوال ولي الأمر<input id="nMob" inputmode="tel" dir="ltr" placeholder="05xxxxxxxx"></label>
+    <button class="btn" id="addBtn">إضافة</button></div>
+  <label for="spaste" style="display:block;margin-top:12px;color:var(--ink-soft);font-size:16px">أو الصق الطلاب: الاسم في سطر، وتحته السجل المدني، وتحته جوال ولي الأمر، ثم الطالب التالي</label>
+  <textarea id="spaste" dir="rtl" placeholder="سعود خالد&#10;1012345678&#10;0551234567&#10;&#10;فهد ناصر&#10;1023456789&#10;0561234567"></textarea>
+  <div class="row" style="margin-top:6px"><button class="btn go" id="spasteAdd">إضافة الطلاب إلى الفصل المختار</button><span class="sub" id="spasteInfo"></span></div>
+  <p class="sub" style="margin-top:6px">لا يُحفظ السجل المدني نصًّا، بل بصمة مشفّرة فقط.</p></div>
+  <div class="panel"><h2>طلاب ${esc(cname(S.cid))} (${fmt(list.length)})</h2><div class="scroll"><table style="min-width:480px"><thead><tr><th>م</th><th class="nm">الاسم</th><th>الجوال</th><th></th></tr></thead><tbody>
+  ${list.length ? list.map((s, i) => `<tr><td>${fmt(i + 1)}</td><td class="nm">${esc(s.name)}</td><td dir="ltr">${S.contacts[s.id] ? toAr(S.contacts[s.id]) : "—"}</td><td><button class="btn bad" data-del="${s.id}">حذف</button></td></tr>`).join("") : `<tr><td colspan="4">لا يوجد طلاب في هذا الفصل بعد.</td></tr>`}
+  </tbody></table></div></div></div>`;
+}
+
+const DEFAULT_MSG = "السلام عليكم ورحمة الله وبركاته، ولي أمر الطالب {الطالب}: صدرت نتائج {الفترة} للصف {الفصل}، ويمكنكم الاطلاع عليها عبر البوابة: {الرابط}. وتفضلوا بقبول فائق الاحترام. إدارة ابتدائية القادسية";
+function msgFor(s) { return S.msg.replaceAll("{الطالب}", s.name).replaceAll("{الفترة}", "الفترة الأولى").replaceAll("{الفصل}", cname(S.cid)).replaceAll("{الرابط}", S.link); }
+const waLink = (mob, text) => `https://wa.me/966${mob.slice(1)}?text=${encodeURIComponent(text)}`;
+function refreshWa() { document.querySelectorAll("a[data-wa]").forEach(a => { const s = S.students.find(x => x.id === a.dataset.wa); if (s && S.contacts[s.id]) a.href = waLink(S.contacts[s.id], msgFor(s)); }); }
+function viewNotif(m) {
+  if (!S.msg) S.msg = DEFAULT_MSG;
+  if (!S.link) S.link = portalLink();
+  const late = S.profiles.filter(p => p.role === "teacher" && p.active).map(p => ({ p, n: S.asgs.filter(a => a.teacher_id === p.id && ["none", "draft", "returned"].includes(a.status)).length })).filter(x => x.n).sort((a, b) => b.n - a.n);
+  const inClass = S.asgs.filter(a => a.class_id === S.cid), okN = inClass.filter(a => a.status === "approved").length;
+  m.innerHTML = `<div class="grid2"><div class="panel"><h2>تذكير المعلمين</h2><p class="sub">${fmt(late.length)} معلمًا لديهم رصد غير مرسل أو معاد إليهم. يُفتح واتساب برسالة جاهزة وأنت من يضغط الإرسال.</p>
+    <div class="scroll" style="max-height:380px;overflow-y:auto;margin-top:8px"><table style="min-width:380px"><thead><tr><th class="nm">المعلم</th><th>المتبقي</th><th></th></tr></thead><tbody>
+    ${late.length ? late.map(x => `<tr><td class="nm">${esc(x.p.full_name)}</td><td>${fmt(x.n)}</td><td><a class="btn alt" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(`الأستاذ ${x.p.full_name}: نأمل استكمال رصد درجات ${toAr(x.n)} فصول متبقية في الفترة الأولى وإرسالها للاعتماد. شاكرين تعاونكم.`)}">واتساب</a></td></tr>`).join("") : `<tr><td colspan="3">لا يوجد متأخرون.</td></tr>`}
+    </tbody></table></div></div>
+  <div class="panel"><h2>إشعار أولياء الأمور</h2>
+    ${S.portalOpen ? "" : `<div class="banner s-submitted">بوابة أولياء الأمور مغلقة الآن. افتحها من «الإعدادات» قبل إرسال الرسائل.</div>`}
+    <div class="filters">${classSelect("clsSel")}</div>
+    <div class="banner ${inClass.length && okN === inClass.length ? "s-approved" : "s-submitted"}">معتمد ${fmt(okN)} من ${fmt(inClass.length)} مواد لهذا الفصل${okN === inClass.length ? "" : "، والأفضل إكمال الاعتماد قبل الإشعار"}.</div>
+    <div class="field"><label for="nLink">رابط البوابة</label><input id="nLink" dir="ltr" style="width:100%" value="${esc(S.link)}"></div>
+    <label for="nMsg" class="sub" style="display:block;margin-top:8px">نص الرسالة</label><textarea id="nMsg">${esc(S.msg)}</textarea>
+    <div class="scroll" style="margin-top:8px"><table style="min-width:400px"><tbody>
+    ${studentsOf(S.cid).map(s => `<tr><td class="nm">${esc(s.name)}</td><td dir="ltr">${S.contacts[s.id] ? toAr(S.contacts[s.id]) : "—"}</td><td>${S.contacts[s.id] ? `<a class="btn alt" data-wa="${s.id}" target="_blank" rel="noopener" href="${waLink(S.contacts[s.id], msgFor(s))}">واتساب</a>` : ""}</td></tr>`).join("") || `<tr><td>لا يوجد طلاب في هذا الفصل.</td></tr>`}
+    </tbody></table></div></div></div>`;
+}
+
+function viewSettings(m) {
+  m.innerHTML = `<div class="panel"><h2>بوابة أولياء الأمور</h2>
+  <p class="sub">عند الإغلاق لا يرى ولي الأمر أي نتيجة حتى لو أدخل بياناته صحيحة. افتحها بعد اعتماد الدرجات.</p>
+  <label style="display:flex;gap:10px;align-items:center;margin-top:10px"><input type="checkbox" id="portalOpen" ${S.portalOpen ? "checked" : ""}> فتح البوابة لأولياء الأمور (الفترة الأولى)</label>
+  <p class="sub" style="margin-top:14px">تظهر لولي الأمر المواد المعتمدة فقط، وبعد خمس محاولات خاطئة لنفس السجل المدني يُقفل الدخول ١٥ دقيقة.</p></div>`;
+}
+
+/* ---------- actions ---------- */
+let armed = null;
+function confirmTwice(btn, label, fn) {
+  const key = btn.id || btn.dataset.del || btn.dataset.delasg || btn.dataset.rdel || "x";
+  if (armed === key) { armed = null; return fn(); }
+  armed = key; const old = btn.textContent; btn.textContent = label;
+  setTimeout(() => { if (armed === key) { armed = null; if (btn.isConnected) btn.textContent = old; } }, 3000);
+}
+async function rpc(name, args, ok) {
+  const { data, error } = await sb.rpc(name, args);
+  if (error) { flash(error.message, true); return null; }
+  if (ok) flash(ok);
+  return data === null ? true : data;
+}
+function download(name, text) {
+  const url = URL.createObjectURL(new Blob(["﻿" + text], { type: "text/csv;charset=utf-8" }));
+  const a = document.createElement("a"); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+async function importFile(file) {
+  try {
+    const wb = XLSX.read(await file.arrayBuffer(), { type: "array" });
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: "" }).map(r => {
+      const k = Object.keys(r), get = re => r[k.find(x => re.test(x))] ?? "";
+      return { name: String(get(/اسم/)).trim(), nid: String(get(/سجل|هوية|الهوية/)).trim(), mobile: String(get(/جوال|هاتف|موبايل/)).trim() };
+    });
+    let added = 0, skipped = 0;
+    for (let i = 0; i < rows.length; i += 100) {
+      const r = await rpc("add_students", { p_class: S.cid, p_rows: rows.slice(i, i + 100) });
+      if (!r) return; added += r.added; skipped += r.skipped;
+    }
+    await loadStudents(); render();
+    flash(`أُضيف ${toAr(added)} طالبًا` + (skipped ? ` وتخطّي ${toAr(skipped)} صفًّا (مكرر أو غير صالح)` : ""), added === 0);
+  } catch { flash("تعذّرت قراءة الملف", true); }
+}
+function parseRoster(text) {
+  const recs = []; let cur = null;
+  text.split(/\r?\n/).map(l => l.trim()).filter(Boolean).forEach(l => {
+    const d = toEn(l).replace(/[\s\-]/g, "");
+    if (/^\d+$/.test(d)) {
+      if (!cur) return;
+      if (/^[12]\d{9}$/.test(d)) cur.username = d;
+      else { const m = normMobile(d); if (/^5\d{8}$/.test(m)) cur.mobile = "0" + m; }
+    } else { cur = { full_name: l, username: "", mobile: null }; recs.push(cur); }
+  });
+  const seen = new Set(), rows = recs.filter(r => r.username && !seen.has(r.username) && seen.add(r.username));
+  return { rows, noId: recs.filter(r => !r.username).length, noMob: rows.filter(r => !r.mobile).length };
+}
+async function importRoster(file) {
+  try {
+    const wb = XLSX.read(await file.arrayBuffer(), { type: "array" });
+    const seen = new Set();
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: "" }).map(r => {
+      const k = Object.keys(r), get = re => r[k.find(x => re.test(x))] ?? "";
+      const m = normMobile(String(get(/جوال|هاتف|موبايل/)));
+      return { full_name: String(get(/اسم/)).trim(), username: toEn(String(get(/هوية|دخول|سجل/))).replace(/\s+/g, ""), mobile: /^5\d{8}$/.test(m) ? "0" + m : null };
+    }).filter(r => r.full_name && r.username && !seen.has(r.username) && seen.add(r.username));
+    if (!rows.length) return flash("لم أجد أسماء صالحة. تأكد من أعمدة الاسم ورقم الهوية", true);
+    const { error } = await sb.from("teacher_roster").upsert(rows, { onConflict: "username" });
+    if (error) return flash(error.message, true);
+    S.roster = await fetchAll("teacher_roster", "*", q => q.order("created_at")); render();
+    flash(`أُضيف ${toAr(rows.length)} معلمًا إلى القائمة`);
+  } catch { flash("تعذّرت قراءة الملف", true); }
+}
+async function saveCell(aid, sid, f, v) {
+  const key = aid + "|" + sid, run = async () => {
+    const cur = S.grades[key] || { e: null, a: null }, next = { ...cur, [f]: v };
+    const { error } = await sb.rpc("save_grade", { p_assignment: aid, p_student: sid, p_exam: next.e, p_assess: next.a });
+    if (error) { flash(error.message, true); return false; }
+    S.grades[key] = next; const a = asgBy(aid); if (a.status === "none") a.status = "draft";
+    return true;
+  };
+  chains[key] = (chains[key] || Promise.resolve()).then(run);
+  return chains[key];
+}
+
+document.addEventListener("click", async e => {
+  const b = e.target.closest("button"); if (!b) return;
+  const d = b.dataset;
+  if (d.tab) { S.tab = d.tab; render(); }
+  else if (b.id === "authSwitch") { S.authMode = S.authMode === "login" ? "signup" : "login"; showAuth(); }
+  else if (b.id === "recheck") start();
+  else if (d.start) { S.sel = d.start; S.tab = "entry"; render(); window.scrollTo(0, 0); }
+  else if (d.hg) { S.hg = Number(d.hg); render(); }
+  else if (d.hs) { S.hs = d.hs; render(); }
+  else if (b.id === "allMiss") { S.allMiss = !S.allMiss; render(); }
+  else if (b.id === "submit") confirmTwice(b, "اضغط للتأكيد", async () => {
+    if (await rpc("submit_assignment", { p_assignment: S.sel }, "أُرسلت للاعتماد")) { await loadAsgs(); render(); }
+  });
+  else if (d.f) { S.filter = d.f; render(); }
+  else if (d.rev) { S.rev = d.rev; render(); $("review")?.scrollIntoView({ behavior: "smooth", block: "start" }); }
+  else if (b.id === "approveAll") confirmTwice(b, "اضغط للتأكيد", async () => {
+    const n = await rpc("approve_all_submitted", {}); if (n !== null) { await loadAsgs(); render(); flash(`اعتُمد ${toAr(n === true ? 0 : n)} رصدًا`); }
+  });
+  else if (d.act === "approve") { if (await rpc("review_assignment", { p_assignment: S.rev, p_action: "approve", p_note: null }, "تم الاعتماد")) { await loadAsgs(); render(); } }
+  else if (d.act === "return") {
+    const n = $("note").value.trim(); if (!n) return flash("اكتب ملاحظة للمعلم قبل الإعادة", true);
+    if (await rpc("review_assignment", { p_assignment: S.rev, p_action: "return", p_note: n }, "أُعيدت للمعلم")) { await loadAsgs(); render(); }
+  } else if (d.act === "close") { S.rev = ""; render(); }
+  else if (d.tsel) { S.tsel = d.tsel; render(); }
+  else if (d.toggle) {
+    const p = S.profiles.find(x => x.id === d.toggle);
+    const { error } = await sb.from("profiles").update({ active: !p.active }).eq("id", p.id);
+    if (error) return flash(error.message, true);
+    p.active = !p.active; render(); flash(p.active ? "فُعّل الحساب" : "أُوقف الحساب");
+  } else if (b.id === "aAdd") {
+    const subject = $("aSub").value.trim(); if (!subject) return flash("اختر المادة", true);
+    const { error } = await sb.from("assignments").insert({ teacher_id: d.t, class_id: $("aCls").value, subject, period: PERIOD });
+    if (error) return flash(error.code === "23505" ? "هذا الإسناد موجود من قبل" : error.message, true);
+    await loadAsgs(); render(); flash("تم الإسناد");
+  } else if (d.delasg) confirmTwice(b, "اضغط للتأكيد", async () => {
+    const { error } = await sb.from("assignments").delete().eq("id", d.delasg);
+    if (error) return flash(error.message, true);
+    await Promise.all([loadAsgs(), loadGrades()]); render(); flash("حُذف الإسناد");
+  });
+  else if (b.id === "addBtn") {
+    const name = $("nName").value.trim(), nid = toEn($("nNid").value).replace(/\D/g, ""), mob = normMobile($("nMob").value);
+    if (!name) return flash("اكتب اسم الطالب", true);
+    if (!/^[12]\d{9}$/.test(nid)) return flash("السجل المدني ١٠ أرقام ويبدأ بـ ١ أو ٢", true);
+    if (!/^5\d{8}$/.test(mob)) return flash("الجوال يبدأ بـ ٠٥ ويتكوّن من ١٠ أرقام", true);
+    const r = await rpc("add_students", { p_class: S.cid, p_rows: [{ name, nid, mobile: mob }] });
+    if (!r) return; if (!r.added) return flash("السجل المدني مسجّل من قبل", true);
+    await loadStudents(); render(); flash("تمت الإضافة");
+  } else if (d.del) confirmTwice(b, "اضغط للتأكيد", async () => {
+    if (await rpc("delete_student", { p_id: d.del }, "تم الحذف")) { await Promise.all([loadStudents(), loadGrades()]); render(); }
+  });
+  else if (d.gen) {
+    const r = S.roster.find(x => x.id === d.gen); if (!r) return;
+    const pass = genPass(); b.disabled = true;
+    if (!r.user_id) {
+      const tmp = supabase.createClient(PORTAL.url, PORTAL.anonKey, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } });
+      const { data, error } = await tmp.auth.signUp({ email: toEmail(r.username), password: pass, options: { data: { full_name: r.full_name } } });
+      if (error || !data.user) { b.disabled = false; return flash(error && /registered|exists/i.test(error.message) ? "اسم الدخول هذا مسجّل بحساب آخر" : (error ? error.message : "تعذّر إنشاء الحساب"), true); }
+      const up = await sb.from("profiles").update({ active: true, must_change: true }).eq("id", data.user.id);
+      if (up.error) { b.disabled = false; return flash(up.error.message, true); }
+      const lk = await sb.from("teacher_roster").update({ user_id: data.user.id }).eq("id", r.id);
+      if (lk.error) { b.disabled = false; return flash(lk.error.message, true); }
+      if (!data.session) flash("تنبيه: تأكيد البريد مفعّل في Supabase، عطّله ليتمكن المعلم من الدخول", true);
+    } else {
+      const { error } = await sb.rpc("reset_teacher_password", { p_user: r.user_id, p_password: pass });
+      if (error) { b.disabled = false; return flash(error.message, true); }
+    }
+    S.cred = { name: r.full_name, user: r.username, pass, mobile: r.mobile };
+    [S.profiles, S.roster] = await Promise.all([fetchAll("profiles", "*", q => q.order("created_at")), fetchAll("teacher_roster", "*", q => q.order("created_at"))]);
+    render(); flash("وُلّدت كلمة المرور. اضغط «إرسال عبر واتساب»");
+  }
+  else if (b.id === "rAdd") {
+    const name = $("rName").value.trim(), user = toEn($("rUser").value).replace(/\s+/g, ""), mob = normMobile($("rMob").value);
+    if (!name || !user) return flash("اكتب اسم المعلم واسم الدخول", true);
+    const { error } = await sb.from("teacher_roster").insert({ full_name: name, username: user, mobile: /^5\d{8}$/.test(mob) ? "0" + mob : null });
+    if (error) return flash(error.code === "23505" ? "اسم الدخول موجود من قبل" : error.message, true);
+    S.roster = await fetchAll("teacher_roster", "*", q => q.order("created_at")); render(); flash("أُضيف المعلم");
+  }
+  else if (b.id === "spasteAdd") {
+    const r = parseRoster($("spaste").value), rows = r.rows.filter(x => x.mobile).map(x => ({ name: x.full_name, nid: x.username, mobile: x.mobile }));
+    if (!rows.length) return flash("لا يوجد طالب كامل. لكل طالب اسم ثم سجل مدني ثم جوال ولي الأمر", true);
+    let added = 0, skipped = 0;
+    for (let i = 0; i < rows.length; i += 100) {
+      const x = await rpc("add_students", { p_class: S.cid, p_rows: rows.slice(i, i + 100) });
+      if (!x) return; added += x.added; skipped += x.skipped;
+    }
+    await loadStudents(); render();
+    flash(`أُضيف ${toAr(added)} طالبًا` + (skipped + r.rows.length - rows.length + r.noId ? ` وتخطّي ${toAr(skipped + r.rows.length - rows.length + r.noId)} (ناقص أو مكرر)` : ""), added === 0);
+  }
+  else if (b.id === "rpasteAdd") {
+    const r = parseRoster($("rpaste").value);
+    if (!r.rows.length) return flash("لم أجد معلمًا كاملًا. لكل معلم اسم ثم سجل مدني من ١٠ أرقام", true);
+    const { error } = await sb.from("teacher_roster").upsert(r.rows, { onConflict: "username" });
+    if (error) return flash(error.message, true);
+    S.roster = await fetchAll("teacher_roster", "*", q => q.order("created_at")); render();
+    flash(`أُضيف ${toAr(r.rows.length)} معلمًا` + (r.noId ? ` وتخطّي ${toAr(r.noId)} بلا سجل مدني` : "") + (r.noMob ? ` · ${toAr(r.noMob)} بلا جوال` : ""), !!r.noId);
+  }
+  else if (d.rdel) confirmTwice(b, "اضغط للتأكيد", async () => {
+    const { error } = await sb.from("teacher_roster").delete().eq("id", d.rdel);
+    if (error) return flash(error.message, true);
+    S.roster = S.roster.filter(x => x.id !== d.rdel); render(); flash("حُذف من القائمة (الحساب إن وُجد يبقى)");
+  })
+  else if (b.id === "tpl") download("نموذج-استيراد-الطلاب.csv", "الاسم,السجل المدني,جوال ولي الأمر\r\nاسم الطالب,1000000000,0500000000\r\n");
+});
+document.addEventListener("change", async e => {
+  const el = e.target;
+  if (el.id === "clsSel") { S.cid = el.value; render(); }
+  else if (el.id === "asgSel") { S.sel = el.value; render(); }
+  else if (el.id === "imp" && el.files[0]) { await importFile(el.files[0]); el.value = ""; }
+  else if (el.id === "rimp" && el.files[0]) { await importRoster(el.files[0]); el.value = ""; }
+  else if (el.id === "portalOpen") {
+    const want = el.checked;
+    if (await rpc("set_portal_open", { p_open: want }, want ? "فُتحت البوابة لأولياء الأمور" : "أُغلقت البوابة")) S.portalOpen = want; else el.checked = !want;
+  } else if (el.classList.contains("cell")) {
+    const f = el.dataset.f, max = f === "e" ? 20 : 40, sid = el.dataset.sid, raw = toEn(el.value), stored = (G(S.sel, sid) || {})[f];
+    let v = null;
+    if (raw !== "") {
+      v = Number(raw);
+      if (!Number.isFinite(v) || v < 0 || v > max || Math.round(v * 2) !== v * 2) {
+        el.classList.add("err"); flash(`الدرجة من ${toAr(0)} إلى ${toAr(max)} وبخطوة نصف درجة`, true);
+        el.value = stored != null ? toAr(stored) : ""; setTimeout(() => el.classList.remove("err"), 1500); return;
+      }
+      el.value = toAr(v);
+    }
+    el.classList.remove("err");
+    const ok = await saveCell(S.sel, sid, f, v);
+    if (!ok) { el.value = stored != null ? toAr(stored) : ""; return; }
+    flash("تم الحفظ");
+    const tr = el.closest("tr"), t = tot(G(S.sel, sid));
+    tr.querySelector(".tot").textContent = fmt(t); tr.querySelector(".pct").textContent = t === null ? "—" : toAr(Math.round(t / 60 * 100)) + "٪"; tr.classList.toggle("low", t !== null && t / 60 < .5);
+    const k = stats(S.sel), sbtn = $("submit"), pc = k.n ? Math.round(k.rec / k.n * 100) : 0; if (sbtn) sbtn.disabled = k.rec < k.n; if ($("subHint")) { $("subHint").textContent = `تم رصد ${fmt(k.rec)} من ${fmt(k.n)} طالبًا · ${fmt(pc)}٪`; $("prog").style.width = pc + "%"; }
+  }
+});
+document.addEventListener("input", e => {
+  const el = e.target;
+  if (el.id === "q") { S.q = el.value; const pos = el.selectionStart; render(); const q = $("q"); q.focus(); q.setSelectionRange(pos, pos); }
+  else if (el.id === "spaste") { const r = parseRoster(el.value), ok = r.rows.filter(x => x.mobile).length; $("spasteInfo").textContent = el.value.trim() ? `عُرف ${toAr(ok)} طالبًا كاملًا` + (r.rows.length + r.noId - ok ? ` · ${toAr(r.rows.length + r.noId - ok)} ناقص` : "") : ""; }
+  else if (el.id === "rpaste") { const r = parseRoster(el.value); $("rpasteInfo").textContent = el.value.trim() ? `عُرف ${toAr(r.rows.length)} معلمًا` + (r.noId ? ` · ${toAr(r.noId)} بلا سجل مدني` : "") + (r.noMob ? ` · ${toAr(r.noMob)} بلا جوال` : "") : ""; }
+  else if (el.id === "nMsg") { S.msg = el.value; refreshWa(); }
+  else if (el.id === "nLink") { S.link = el.value; refreshWa(); }
+});
+document.addEventListener("keydown", e => {
+  if (e.key !== "Enter" || !e.target.classList?.contains("cell")) return;
+  e.preventDefault(); const all = [...document.querySelectorAll(`input.cell[data-f="${e.target.dataset.f}"]`)], nx = all[all.indexOf(e.target) + 1];
+  e.target.blur(); if (nx) { nx.focus(); nx.select(); }
+});
+
+if (!window.supabase || !PORTAL.url || PORTAL.url.includes("YOUR-PROJECT")) {
+  $("main").innerHTML = `<div class="panel"><h2>الإعداد غير مكتمل</h2><p>عدّل ملف config.js بعنوان مشروع Supabase والمفتاح العام، ثم أعد فتح الصفحة.</p></div>`;
+} else start();
+</script>
+</body>
+</html>

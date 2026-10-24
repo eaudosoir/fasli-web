@@ -1,0 +1,9 @@
+// عدّل القيمتين من: Supabase > Project > Connect (أو Settings > API Keys)
+// المفتاح هنا هو المفتاح العام فقط (Publishable key) ويبدأ بـ sb_publishable_
+// لا تضع هنا المفتاح السري (secret) أبدًا.
+window.PORTAL = {
+  url: "https://kfsfcjgvwfggmzhumprg.supabase.co",
+  anonKey: "sb_publishable_fLyY0ewFcxIsYLS6c0eujg_sWyJJ5FN"
+};
+// بيانات الإشعار المطبوع
+window.PORTAL.principal = "محمد بن عبدالله بن يسارى";
