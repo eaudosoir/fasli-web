@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>بوابة ابتدائية القادسية</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&family=Mrs+Saint+Delafield&display=swap">
 <style>
 /* Layout: banner with school identity, two login cards side by side (stacked on phones), result below; print shows only the notice sheet. */
 :root {
@@ -45,7 +45,7 @@ input { width: 100%; background: var(--bg); border: 1px solid var(--line); borde
 .btn[disabled] { opacity: .6; cursor: wait; }
 .btn.alt { background: var(--soft); color: var(--navy); border-bottom-color: var(--line); width: auto; padding: 4px 18px; margin: 0; }
 .err { background: var(--bad-bg); color: var(--bad-ink); border-radius: 10px; padding: 6px 14px; margin-top: 12px; font-size: 18px; }
-.foot { text-align: center; color: var(--ink-soft); font-size: 15px; margin: 22px 0 0; }
+.foot { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; text-align: center; color: var(--ink-soft); font-size: 15px; margin: 22px 0 0; }
 .scroll { overflow-x: auto; }
 /* notice sheet */
 .sheet { background: #fff; color: #11323f; border: 1px solid var(--line); border-radius: 6px; padding: 26px; margin-top: 22px; box-shadow: 0 6px 20px rgba(20,86,107,.1); border-bottom: 6px solid var(--accent); }
@@ -65,6 +65,7 @@ input { width: 100%; background: var(--bg); border: 1px solid var(--line); borde
 .sign i { display: block; border-bottom: 1px solid #11323f; margin-top: 30px; }
 .sheet .band { margin: 18px -26px -26px; background: #b9d9ea; text-align: center; padding: 4px; }
 .sheet .note { font-size: 15px; margin: 8px 0 0; color: #52707d; }
+.sig { height: 56px; width: auto; direction: ltr; }
 .actions { text-align: center; margin-top: 12px; }
 @media print {
   body { background: #fff; }
@@ -91,7 +92,12 @@ input { width: 100%; background: var(--bg); border: 1px solid var(--line); borde
     </form>
   </div>
   <div id="out"></div>
-  <p class="foot">أداة مساعدة للمعلم · لا تمثل نظام نور · تصميم وبرمجة: أ. عبدالله ال عواد</p>
+  <p class="foot">تصميم وبرمجة: teacher abdullah
+    <svg class="sig" viewBox="0 0 230 70" role="img" aria-label="توقيع teacher abdullah" xmlns="http://www.w3.org/2000/svg">
+      <text x="8" y="44" font-family="'Mrs Saint Delafield','Dancing Script',cursive" font-size="46" fill="#14566b" direction="ltr">teacher abdullah</text>
+      <path d="M6 54 C 50 62, 120 46, 222 52" fill="none" stroke="#14566b" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M150 60 C 175 56, 200 60, 224 58" fill="none" stroke="#14566b" stroke-width="1.2" stroke-linecap="round" opacity=".6"/>
+    </svg></p>
 </div>
 <script src="config.js"></script>
 <script>
