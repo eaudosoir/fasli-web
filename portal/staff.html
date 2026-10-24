@@ -143,7 +143,7 @@ const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": 
 const fmt = n => (n === null || n === undefined || Number.isNaN(n)) ? "—" : toAr(Math.round(n * 10) / 10);
 const $ = id => document.getElementById(id);
 const GRN = ["الأول", "الثاني", "الثالث", "الرابع", "الخامس", "السادس"];
-const SUBJECTS = ["القرآن الكريم", "التوحيد", "الفقه", "لغتي", "الرياضيات", "العلوم", "الدراسات الاجتماعية", "اللغة الإنجليزية", "المهارات الرقمية", "التربية الفنية", "التربية البدنية", "المهارات الحياتية"];
+const SUBJECTS = ["القرآن الكريم والدراسات الإسلامية", "اللغة العربية", "الرياضيات", "العلوم", "الدراسات الاجتماعية", "اللغة الانجليزية", "المهارات الرقمية", "التربية الفنية", "التربية البدنية والدفاع عن النفس", "المهارات الحياتية والأسرية"];
 const STATUS = { none: "لم يبدأ", draft: "مسودة", submitted: "بانتظار الاعتماد", returned: "أُعيد للمعلم", approved: "معتمد" };
 const ORDER = ["submitted", "returned", "draft", "none", "approved"];
 const PERIOD = 1;
@@ -273,7 +273,8 @@ function classSelect(id) { return `<label>الفصل<select id="${id}">${S.class
 
 function gradeTable(aid, editable) {
   const a = asgBy(aid);
-  return `<div class="scroll"><table><thead><tr><th>م</th><th class="nm">الاسم</th><th>الاختبار /${fmt(20)}</th><th>التقويمات /${fmt(40)}</th><th>المجموع /${fmt(60)}</th><th>النسبة</th></tr></thead><tbody>
+  const fullBtn = (f, t) => editable ? `<br><button class="btn alt" style="padding:2px 8px;font-size:.8em;margin-top:4px" data-full="${f}">${t}</button>` : "";
+  return `<div class="scroll"><table><thead><tr><th>م</th><th class="nm">الاسم</th><th>الاختبار /${fmt(20)}${fullBtn("e", "الكل كامل")}</th><th>التقويمات /${fmt(40)}${fullBtn("a", "الكل كامل")}</th><th>المجموع /${fmt(60)}${fullBtn("b", "الكل كامل")}</th><th>النسبة</th></tr></thead><tbody>
   ${studentsOf(a.class_id).map((s, i) => { const g = G(aid, s.id) || {}, t = tot(g); return `<tr data-sid="${s.id}" class="${t !== null && t / 60 < .5 ? "low" : ""}">
     <td>${fmt(i + 1)}</td><td class="nm">${esc(s.name)}</td>
     <td>${editable ? `<input class="cell" inputmode="decimal" data-f="e" data-sid="${s.id}" value="${g.e != null ? toAr(g.e) : ""}" aria-label="الاختبار">` : fmt(g.e)}</td>
@@ -436,7 +437,7 @@ function viewSettings(m) {
 /* ---------- actions ---------- */
 let armed = null;
 function confirmTwice(btn, label, fn) {
-  const key = btn.id || btn.dataset.del || btn.dataset.delasg || btn.dataset.rdel || "x";
+  const key = btn.id || btn.dataset.del || btn.dataset.delasg || btn.dataset.rdel || btn.dataset.full || "x";
   if (armed === key) { armed = null; return fn(); }
   armed = key; const old = btn.textContent; btn.textContent = label;
   setTimeout(() => { if (armed === key) { armed = null; if (btn.isConnected) btn.textContent = old; } }, 3000);
@@ -473,7 +474,7 @@ function parseRoster(text) {
     const d = toEn(l).replace(/[\s\-]/g, "");
     if (/^\d+$/.test(d)) {
       if (!cur) return;
-      if (/^[12]\d{9}$/.test(d)) cur.username = d;
+      if (/^(?!05)\d{10}$/.test(d)) cur.username = d;
       else { const m = normMobile(d); if (/^5\d{8}$/.test(m)) cur.mobile = "0" + m; }
     } else { cur = { full_name: l, username: "", mobile: null }; recs.push(cur); }
   });
@@ -521,6 +522,16 @@ document.addEventListener("click", async e => {
   else if (b.id === "submit") confirmTwice(b, "اضغط للتأكيد", async () => {
     if (await rpc("submit_assignment", { p_assignment: S.sel }, "أُرسلت للاعتماد")) { await loadAsgs(); render(); }
   });
+  else if (d.full) {
+    const cols = d.full === "b" ? ["e", "a"] : [d.full], list = studentsOf(asgBy(S.sel).class_id);
+    if (!list.length) return flash("لا يوجد طلاب في هذا الفصل", true);
+    const fill = async () => {
+      for (const s of list) for (const f of cols) { const ok = await saveCell(S.sel, s.id, f, f === "e" ? 20 : 40); if (!ok) { render(); return; } }
+      render(); flash("رُصدت الدرجة كاملة لجميع الطلاب");
+    };
+    const has = list.some(s => cols.some(f => (G(S.sel, s.id) || {})[f] != null));
+    if (has) confirmTwice(b, "فيه درجات مرصودة، اضغط لاستبدالها", fill); else fill();
+  }
   else if (d.f) { S.filter = d.f; render(); }
   else if (d.rev) { S.rev = d.rev; render(); $("review")?.scrollIntoView({ behavior: "smooth", block: "start" }); }
   else if (b.id === "approveAll") confirmTwice(b, "اضغط للتأكيد", async () => {
