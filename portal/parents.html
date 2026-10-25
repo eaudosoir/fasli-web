@@ -124,7 +124,7 @@ function show(d, nid) {
   const rows = d.results || [], sum = rows.reduce((a, r) => a + (+r.exam) + (+r.assess), 0), max = rows.length * 60, pct = max ? sum / max * 100 : 0;
   $("out").innerHTML = `<div class="sheet"><div class="sheet-h"><img src="assets/logo-moe.png" alt="" onerror="this.remove()"><img src="assets/logo-school.png" alt="" onerror="this.remove()"><span style="width:70px"></span></div>
   <h2>إشعار درجات</h2><p class="t2">الفترة الأولى · العام الدراسي ١٤٤٨هـ</p>
-  <table class="info"><tbody><tr><td>اسم الطالب</td><td>${esc(d.name)}</td></tr><tr><td>رقم السجل المدني</td><td>${toAr(nid)}</td></tr><tr><td>الصف</td><td>${GRN[d.grade - 1]}</td></tr><tr><td>الفصل</td><td>${esc(d.section)}</td></tr></tbody></table>
+  <table class="info"><tbody><tr><td>اسم الطالب</td><td>${esc(d.name)}</td></tr><tr><td>رقم السجل المدني</td><td>${toAr(nid)}</td></tr><tr><td>الصف</td><td>${GRN[d.grade - 1]}</td></tr><tr><td>الفصل</td><td>${esc(d.section)}</td></tr>${d.advisor ? `<tr><td>رائد الفصل</td><td>${esc(d.advisor)}</td></tr>` : ""}</tbody></table>
   ${rows.length ? `<div class="scroll"><table><thead><tr><th>المادة</th><th>الاختبار (${toAr(20)})</th><th>التقويمات (${toAr(40)})</th><th>المجموع (${toAr(60)})</th><th>التقدير</th></tr></thead><tbody>
   ${rows.map(r => { const t = +r.exam + +r.assess; return `<tr><td>${esc(r.subject)}</td><td>${num(r.exam)}</td><td>${num(r.assess)}</td><td>${num(t)}</td><td>${label(t / 60 * 100)}</td></tr>`; }).join("")}</tbody></table></div>
   <div class="scroll"><table><thead><tr><th>المجموع الكلي</th><th>النسبة المئوية</th></tr></thead><tbody><tr><td style="text-align:center">${num(sum)} / ${toAr(max)}</td><td>${num(pct)}٪</td></tr></tbody></table></div>

@@ -314,7 +314,7 @@ function viewEntry(m) {
   const a = asgBy(S.sel), stt = stats(S.sel), editable = ["none", "draft", "returned"].includes(a.status), pct = stt.n ? Math.round(stt.rec / stt.n * 100) : 0;
   m.innerHTML = `<div class="stack">
   <div class="panel"><div class="row" style="margin-top:0"><label>الصف والفصل والمادة<select id="asgSel">${mine.map(x => `<option value="${x.id}" ${x.id === S.sel ? "selected" : ""}>${esc(cname(x.class_id))} · ${esc(x.subject)}</option>`).join("")}</select></label></div></div>
-  <div class="panel"><h2>رصد درجات الطلاب</h2><p class="sub">${esc(cname(a.class_id))} · ${esc(a.subject)} · ${chip(a.status)} · الاختبار من ${fmt(20)} والتقويمات من ${fmt(40)} والمجموع من ${fmt(60)}</p>
+  <div class="panel"><h2>رصد درجات الطلاب</h2><p class="sub">${esc(cname(a.class_id))}${cls(a.class_id).advisor ? " · رائد الفصل: " + esc(cls(a.class_id).advisor) : ""} · ${esc(a.subject)} · ${chip(a.status)} · الاختبار من ${fmt(20)} والتقويمات من ${fmt(40)} والمجموع من ${fmt(60)}</p>
     ${a.status === "returned" ? `<div class="banner s-returned" style="margin-top:10px">ملاحظة المدير: ${esc(a.note || "")}</div>` : ""}
     ${a.status === "submitted" ? `<div class="banner s-submitted" style="margin-top:10px">أُرسلت للاعتماد، ولا يمكن تعديلها حتى يراجعها المدير.</div>` : ""}
     ${a.status === "approved" ? `<div class="banner s-approved" style="margin-top:10px">اعتُمدت هذه الدرجات.</div>` : ""}
