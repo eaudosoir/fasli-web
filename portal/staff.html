@@ -431,6 +431,9 @@ function viewSettings(m) {
   m.innerHTML = `<div class="panel"><h2>بوابة أولياء الأمور</h2>
   <p class="sub">عند الإغلاق لا يرى ولي الأمر أي نتيجة حتى لو أدخل بياناته صحيحة. افتحها بعد اعتماد الدرجات.</p>
   <label style="display:flex;gap:10px;align-items:center;margin-top:10px"><input type="checkbox" id="portalOpen" ${S.portalOpen ? "checked" : ""}> فتح البوابة لأولياء الأمور (الفترة الأولى)</label>
+  <h2 style="margin-top:22px">نسخة احتياطية</h2>
+  <p class="sub">تنزّل كل البيانات (الفصول، الطلاب، الجوالات، المعلمون، التكليفات، الدرجات) في ملف واحد على جهازك. احتفظ به في مكان آمن ولا ترسله لأحد. يُنصح بنسخة أسبوعية.</p>
+  <button class="btn" id="backup" style="margin-top:8px">تنزيل نسخة احتياطية الآن</button>
   <p class="sub" style="margin-top:14px">تظهر لولي الأمر المواد المعتمدة فقط، وبعد خمس محاولات خاطئة لنفس السجل المدني يُقفل الدخول ١٥ دقيقة.</p></div>`;
 }
 
@@ -620,6 +623,20 @@ document.addEventListener("click", async e => {
     if (error) return flash(error.message, true);
     S.roster = S.roster.filter(x => x.id !== d.rdel); render(); flash("حُذف من القائمة (الحساب إن وُجد يبقى)");
   })
+  else if (b.id === "backup") {
+    b.disabled = true; flash("جارٍ تجهيز النسخة…");
+    try {
+      const tables = ["classes", "profiles", "teacher_roster", "students", "student_contacts", "assignments", "grades"];
+      const out = { app: "qadisiyah-grades", exported_at: new Date().toISOString(), tables: {} };
+      for (const t of tables) out.tables[t] = await fetchAll(t, "*");
+      const n = Object.values(out.tables).reduce((a, r) => a + r.length, 0);
+      const d = new Date().toISOString().slice(0, 10);
+      const url = URL.createObjectURL(new Blob([JSON.stringify(out)], { type: "application/json" }));
+      const a = document.createElement("a"); a.href = url; a.download = "نسخة-احتياطية-الدرجات-" + d + ".json"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1500);
+      flash("نُزّلت النسخة (" + toAr(n) + " سجلًا)");
+    } catch (err) { flash("تعذّر تجهيز النسخة: " + (err.message || err), true); }
+    b.disabled = false;
+  }
   else if (b.id === "tpl") download("نموذج-استيراد-الطلاب.csv", "الاسم,السجل المدني,جوال ولي الأمر\r\nاسم الطالب,1000000000,0500000000\r\n");
 });
 document.addEventListener("change", async e => {
