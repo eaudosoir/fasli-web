@@ -386,5 +386,60 @@ $('btnCopy').onclick = async () => {
 };
 syncTime().then(updateWin); updateWin(); setInterval(() => { if (!student) updateWin(); }, 1000);
 </script>
+<style>
+#pager{margin-top:14px;text-align:center}
+#pager .cnt{font-size:18px;color:var(--green);margin-bottom:10px}
+#pager button:disabled{opacity:.45;cursor:not-allowed}
+.qlesson{font-size:16px;color:var(--gold);margin-bottom:6px}
+.fdis{opacity:.55}
+</style>
+<script>
+/* تسلسل الإجابة: لا ينتقل الطالب للمرحلة التالية قبل إكمال السابقة */
+(function(){
+  /* 1) خانات الدخول بالتسلسل */
+  const ids=['fN1','fN2','fN3','fN4','fId','fSec'];
+  const okf={fN1:v=>v.trim().length>=2,fN2:v=>v.trim().length>=2,fN3:v=>v.trim().length>=2,fN4:v=>v.trim().length>=2,
+    fId:v=>/^[12]\d{9}$/.test(en(v.trim())),fSec:v=>!!v};
+  function gate(){
+    let prev=true;
+    ids.forEach(k=>{const el=$(k);const lab=el.closest('label');
+      el.disabled=!prev; if(lab) lab.classList.toggle('fdis',!prev);
+      prev=prev&&okf[k](el.value);});
+  }
+  ids.forEach(k=>{$(k).addEventListener('input',gate);$(k).addEventListener('change',gate);});
+  gate();
+  /* 2) سؤال واحد في كل مرة */
+  let cur=0;
+  const cards=()=>document.querySelectorAll('#screenExam .card');
+  function show(){
+    const qs=document.querySelectorAll('#qs .q'), n=qs.length;
+    qs.forEach((q,i)=>q.classList.toggle('hide',i!==cur));
+    document.querySelectorAll('#qs .lesson-h').forEach(h=>h.classList.add('hide'));
+    const answered=answers[cur]!==null&&answers[cur]!==undefined;
+    const last=cur===n-1;
+    $('pgCnt').textContent='السؤال '+ar(cur+1)+' من '+ar(n);
+    $('pgNext').classList.toggle('hide',last);
+    $('pgNext').disabled=!answered;
+    $('pgHint').textContent=answered?'':'أجب عن السؤال لتنتقل إلى التالي.';
+    cards().forEach(c=>c.classList.toggle('hide',!(last&&answered)));
+    $('progI').style.width=((cur+(answered?1:0))/n*100)+'%';
+  }
+  const _r=render;
+  render=function(){
+    _r();
+    cur=0;
+    document.querySelectorAll('#qs .q').forEach((q,i)=>{
+      const d=document.createElement('div');d.className='qlesson';d.textContent=LESSONS[items[i].l];q.insertBefore(d,q.firstChild);});
+    if(!$('pager')){
+      const p=document.createElement('div');p.id='pager';
+      p.innerHTML='<div class="cnt" id="pgCnt"></div><div class="err" id="pgHint"></div><button id="pgNext">التالي ←</button>';
+      $('qs').after(p);
+      $('pgNext').onclick=()=>{ if(answers[cur]===null)return; cur++; show(); window.scrollTo({top:0,behavior:'smooth'}); };
+    }
+    show();
+  };
+  $('qs').addEventListener('click',()=>setTimeout(show,0));
+})();
+</script>
 </body>
 </html>
