@@ -105,7 +105,7 @@ footer{text-align:center;margin:24px 0 12px;font-size:17px;color:var(--green)}
     <ol>
       <li>اكتب اسمك الرباعي في الخانات الأربع بدقة واختر فصلك، ولا يُسمح بالدخول إلا مرة واحدة.</li>
       <li>اختر إجابة واحدة صحيحة لكل سؤال، وجميع الأسئلة موضوعية وإجبارية، ولا يُقبل التسليم قبل الإجابة عنها كلها.</li>
-      <li>هذا اختبار بديل للطلاب الذين لم يسلّموا الاختبار الأساسي، وهو مفتوح في أي وقت، ومدته ٣٠ دقيقة من لحظة بدئك، ويُغلق ويُسلَّم تلقائيًا بانتهاء الزمن.</li>
+      <li>هذا اختبار بديل للطلاب الذين لم يسلّموا الاختبار الأساسي، وهو مفتوح من الآن حتى ظهر يوم الجمعة (الساعة ١٢:٠٠ ظهرًا)، ومدته ٣٠ دقيقة من لحظة بدئك، ويُغلق ويُسلَّم تلقائيًا بانتهاء الزمن أو الموعد أيهما أقرب.</li>
       <li>ابدأ وأنت متفرغ وجهازك مشحون واتصالك مستقر، فالزمن لا يتوقف.</li>
       <li>اعتمد على نفسك، فالأمانة من أخلاق الطالب المتميز.</li>
     </ol>
@@ -167,7 +167,7 @@ footer{text-align:center;margin:24px 0 12px;font-size:17px;color:var(--green)}
 /* ===== إعدادات المعلم ===== */
 const CONFIG = {
   DURATION_MIN: 30,     // مدة الاختبار بالدقائق
-  WINDOWS: [ {open:'2026-10-29T00:00:00+03:00', close:'2027-12-31T23:59:00+03:00'} ],
+  WINDOWS: [ {open:'2026-10-29T00:00:00+03:00', close:'2026-10-30T12:00:00+03:00'} ],
   EXAM: 'g4m',          // رمز الاختبار (لا يتغير)
   ENDPOINT: 'https://script.google.com/macros/s/AKfycby60are3UKEjF65UpHtvBPn8ykBjJrkoG_4mTDS_Vgs19nLrRqgPnpP2W2BCA18D0MW/exec'          // رابط Google Apps Script: يمنع الدخول الثاني من أي جهاز ويحفظ النتائج في شيت
 };
@@ -224,7 +224,7 @@ function updateWin(){
   const st = winState(), el = $('winInfo'), b = $('btnStart'), t = now();
   const day = w => `${fmtD(w.o,'islamic-umalqura')} الموافق ${fmtD(w.o,'gregory').replace(/^[^،]*، /,'')} م`;
   const list = WINS.map((w,i) => `موعد الاختبار: ${day(w)}، من ${fmtT(w.o)} إلى ${fmtT(w.c)}`).join('<br>');
-  if (st === 'open'){ el.className = 'note good'; el.innerHTML = `الاختبار مفتوح الآن، ومدته ٣٠ دقيقة من لحظة بدئك.`; b.disabled = false; b.style.opacity = 1; }
+  if (st === 'open'){ el.className = 'note good'; el.innerHTML = `الاختبار مفتوح الآن حتى الساعة ${fmtT(curWin().c)}، ومدته ٣٠ دقيقة من لحظة بدئك.`; b.disabled = false; b.style.opacity = 1; }
   else if (st === 'before'){
     const n = WINS.find(w => t < w.o), m = Math.ceil((n.o - t)/60000);
     const left = m >= 120 ? `${ar(Math.floor(m/60))} ساعة` : `${ar(m)} دقيقة`;
