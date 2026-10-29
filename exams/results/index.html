@@ -21,8 +21,8 @@ button:active{opacity:.85}
 </style></head><body><div class="w">
 <div class="h"><small>ابتدائية القادسية — الدراسات الاجتماعية</small><big>الاستعلام عن نتيجة اختبار الاجتماعيات</big></div>
 <div class="bar"></div><div class="c">
-<label>اكتب رقم السجل المدني للطالب (١٠ أرقام):</label>
-<input id="q" autocomplete="off" inputmode="numeric" maxlength="10"><button id="b">استعلام</button>
+<label>اكتب اسم الطالب (ثلاثة أسماء على الأقل) أو رقم السجل المدني:</label>
+<input id="q" autocomplete="off" maxlength="60" placeholder="الاسم أو رقم السجل المدني"><button id="b">استعلام</button>
 <div id="o"></div>
 </div></div>
 <script>
@@ -32,10 +32,10 @@ function ar(n){return String(n).replace(/[0-9]/g,function(d){return '٠١٢٣٤�
 function esc(t){var d=document.createElement('div');d.textContent=t;return d.innerHTML}
 document.getElementById('b').onclick=function(){
  var q=dig(document.getElementById('q').value).trim(),o=document.getElementById('o');
- if(!/^[0-9]{10}$/.test(q)){o.innerHTML='<div class="r e">اكتب رقم السجل المدني كاملًا (١٠ أرقام)</div>';return}
+ var isId=/^[0-9]{10}$/.test(q);if(!isId&&q.split(/\s+/).filter(Boolean).length<3){o.innerHTML='<div class="r e">اكتب الاسم ثلاثيًا على الأقل كما كتبته في الاختبار، أو رقم السجل المدني كاملًا (١٠ أرقام)</div>';return}
  o.innerHTML='<div class="r">جارٍ البحث...</div>';
  fetch(EP+'?action=result&q='+encodeURIComponent(q)).then(function(r){return r.json()}).then(function(j){
-  if(!j.ok){o.innerHTML='<div class="r e">لم يتم العثور على نتيجة. تأكد من الرقم، أو تواصل مع المعلم.</div>';return}
+  if(!j.ok){o.innerHTML='<div class="r e">لم يتم العثور على نتيجة. تأكد من كتابة الاسم كما كتبته في الاختبار، أو استخدم رقم السجل، أو تواصل مع المعلم.</div>';return}
   o.innerHTML=j.list.map(function(x){return '<div class="r">الصف '+esc(x.exam)+' — فصل '+esc(x.section)+'<br>الدرجة<br><b>'+ar(x.score)+' من '+ar(x.total)+'</b></div>'}).join('')
  }).catch(function(){o.innerHTML='<div class="r e">تعذر الاتصال، حاول مرة أخرى.</div>'})};
 document.getElementById('q').onkeydown=function(e){if(e.key==='Enter')document.getElementById('b').click()};
