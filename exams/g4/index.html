@@ -101,7 +101,7 @@ footer{text-align:center;margin:24px 0 12px;font-size:15px;color:var(--green)}
   <div class="rules">
     <b>تعليمات الاختبار:</b>
     <ol>
-      <li>اكتب اسمك الرباعي في الخانات الأربع ورقم السجل المدني بدقة، ولا يُسمح بالدخول إلا مرة واحدة في أي من الموعدين.</li>
+      <li>اكتب اسمك الرباعي في الخانات الأربع بدقة واختر فصلك، ولا يُسمح بالدخول إلا مرة واحدة في أي من الموعدين.</li>
       <li>اختر إجابة واحدة صحيحة لكل سؤال، وجميع الأسئلة موضوعية وإجبارية، ولا يُقبل التسليم قبل الإجابة عنها كلها.</li>
       <li>الاختبار متاح في موعدين (موضحين في أعلى بيانات الدخول)، كل موعد من الساعة ٦:٠٠ مساءً إلى ١٠:٠٠ مساءً فقط، ومدته ٣٠ دقيقة من لحظة بدئك، ويُغلق ويُسلَّم تلقائيًا بانتهاء الزمن أو الموعد أيهما أقرب.</li>
       <li>ابدأ وأنت متفرغ وجهازك مشحون واتصالك مستقر، فالزمن لا يتوقف.</li>
@@ -119,7 +119,6 @@ footer{text-align:center;margin:24px 0 12px;font-size:15px;color:var(--green)}
     <label>اسم الجد<input id="fN3" autocomplete="off" required></label>
     <label>اسم العائلة<input id="fN4" autocomplete="off" required></label>
   </div>
-  <label>رقم السجل المدني (١٠ أرقام)<input id="fId" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="١٢٣٤٥٦٧٨٩٠" style="direction:ltr;text-align:right"></label>
   <div class="row">
     <label>الصف<select id="fGrade"><option>الرابع الابتدائي</option></select></label>
     <label>الفصل<select id="fSec"><option value="">اختر الفصل</option><option>أ</option><option>ب</option><option>ج</option></select></label>
@@ -272,11 +271,11 @@ $('btnStart').onclick = async () => {
   if (winState() !== 'open') { updateWin(); return; }
   const parts = ['fN1','fN2','fN3','fN4'].map(k => $(k).value.trim());
   const name = parts.join(' ');
-  const id = en($('fId').value.trim());
+  const norm = t => t.replace(/[\u064B-\u065F\u0640]/g,'').replace(/[أإآ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/\s+/g,' ').trim();
+  const id = 'N:' + norm(name) + '|' + $('fSec').value;
   const sec = $('fSec').value;
   const bad = parts.findIndex(p => p.length < 2);
   if (bad >= 0){ $(['fN1','fN2','fN3','fN4'][bad]).focus(); return $('loginErr').textContent = 'الاسم الرباعي إجباري: أكمل الخانات الأربع كلها.'; }
-  if (!/^[12]\d{9}$/.test(id)) return $('loginErr').textContent = 'رقم السجل المدني يجب أن يكون ١٠ أرقام ويبدأ بـ ١ أو ٢.';
   if (!sec) return $('loginErr').textContent = 'اختر الفصل.';
   try { if (localStorage.getItem('u2g4_' + id)) return $('loginErr').textContent = 'تم تسليم الاختبار بهذا الرقم من قبل.'; } catch(e){}
   if (CONFIG.ENDPOINT){
@@ -361,7 +360,7 @@ function submit(auto){
   const total = items.length;
   $('screenExam').classList.add('hide');
   $('screenRes').classList.remove('hide');
-  $('resWho').innerHTML = `الطالب: <b>${student.name}</b> – الصف الرابع / ${student.sec}<br>السجل المدني: <b>${ar(student.id)}</b>`;
+  $('resWho').innerHTML = `الطالب: <b>${student.name}</b> – الصف الرابع / ${student.sec}`;
   $('resScore').textContent = `${ar(score)} / ${ar(total)}`;
   $('resLessons').innerHTML = Object.keys(per).map(l => {
     const [g,t] = per[l]; const pct = g/t*100;
@@ -374,7 +373,6 @@ function submit(auto){
   window.resultText =
 `نتيجة اختبار الوحدة الثانية – الدراسات الاجتماعية – الرابع
 الاسم: ${student.name}
-السجل المدني: ${student.id}
 الفصل: ${student.sec}
 الدرجة: ${score} / ${total}
 ${Object.keys(per).map(l => 'د' + l + ': ' + per[l][0] + '/' + per[l][1]).join(' | ')}
@@ -401,9 +399,9 @@ syncTime().then(updateWin); updateWin(); setInterval(() => { if (!student) updat
 /* تسلسل الإجابة: لا ينتقل الطالب للمرحلة التالية قبل إكمال السابقة */
 (function(){
   /* 1) خانات الدخول بالتسلسل */
-  const ids=['fN1','fN2','fN3','fN4','fId','fSec'];
+  const ids=['fN1','fN2','fN3','fN4','fSec'];
   const okf={fN1:v=>v.trim().length>=2,fN2:v=>v.trim().length>=2,fN3:v=>v.trim().length>=2,fN4:v=>v.trim().length>=2,
-    fId:v=>/^[12]\d{9}$/.test(en(v.trim())),fSec:v=>!!v};
+    fSec:v=>!!v};
   function gate(){
     let prev=true;
     ids.forEach(k=>{const el=$(k);const lab=el.closest('label');
