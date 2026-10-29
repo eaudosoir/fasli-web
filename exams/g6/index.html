@@ -374,7 +374,7 @@ function submit(auto){
 ${Object.keys(per).map(l => 'د' + l + ': ' + per[l][0] + '/' + per[l][1]).join(' | ')}
 التفصيل: ${log.join(' ')}${auto ? '\n(سُلِّم تلقائيًا بانتهاء الزمن)' : ''}`;
   if (CONFIG.ENDPOINT){
-    try { fetch(CONFIG.ENDPOINT + '?' + new URLSearchParams({action:'submit', exam:CONFIG.EXAM, id:student.id, score, total, detail:log.join(' '), auto: auto ? '1' : '0'}), {mode:'no-cors'}); } catch(e){}
+    try { fetch(CONFIG.ENDPOINT + '?' + new URLSearchParams({action:'submit', exam:CONFIG.EXAM, id:student.id, score, total, detail:'v2 '+log.join(' '), auto: auto ? '1' : '0'}), {mode:'no-cors'}); } catch(e){}
   }
   window.scrollTo(0,0);
 }
