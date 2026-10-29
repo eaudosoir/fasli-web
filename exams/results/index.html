@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>الاستعلام عن درجة اختبار الوحدة الثانية</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:'Noto Naskh Arabic',serif;font-weight:700;background:#eef5f0;color:#16311f}
+.w{max-width:520px;margin:0 auto;padding:16px}
+.h{background:#1b6b3a;color:#fff;border-radius:14px 14px 0 0;padding:16px;text-align:center;font-size:22px;line-height:1.7}
+.c{background:#fff;border-radius:0 0 14px 14px;padding:18px;box-shadow:0 2px 10px #0002}
+input{width:100%;font:inherit;font-size:20px;padding:12px;border:2px solid #9bc4a8;border-radius:10px;text-align:center}
+button{width:100%;margin-top:12px;font:inherit;font-size:22px;padding:12px;background:#1b6b3a;color:#fff;border:0;border-radius:10px}
+.r{margin-top:16px;border:2px solid #1b6b3a;border-radius:12px;padding:14px;text-align:center;font-size:20px;line-height:1.9}
+.r b{font-size:34px;color:#1b6b3a}.e{color:#b00020}.s{font-size:16px;color:#456;margin-top:12px;text-align:center}
+</style></head><body><div class="w">
+<div class="h">ابتدائية القادسية<br>الاستعلام عن درجة اختبار الوحدة الثانية — الدراسات الاجتماعية</div>
+<div class="c">
+<label>اكتب رقم السجل المدني للطالب (١٠ أرقام) أو اسمه الثلاثي كما كتبه في الاختبار:</label>
+<input id="q" autocomplete="off" inputmode="text"><button id="b">استعلام</button>
+<div id="o"></div>
+<div class="s">معلم المادة: أ. عبدالله بن سعيد آل عواد</div></div></div>
+<script>
+var EP='https://script.google.com/macros/s/AKfycby60are3UKEjF65UpHtvBPn8ykBjJrkoG_4mTDS_Vgs19nLrRqgPnpP2W2BCA18D0MW/exec';
+function dig(s){return String(s).replace(/[٠-٩]/g,function(d){return '٠١٢٣٤٥٦٧٨٩'.indexOf(d)})}
+function ar(n){return String(n).replace(/[0-9]/g,function(d){return '٠١٢٣٤٥٦٧٨٩'[d]})}
+function esc(t){var d=document.createElement('div');d.textContent=t;return d.innerHTML}
+document.getElementById('b').onclick=function(){
+ var q=dig(document.getElementById('q').value).trim(),o=document.getElementById('o');
+ if(q.length<4){o.innerHTML='<div class="r e">اكتب رقم السجل المدني أو الاسم كاملًا</div>';return}
+ o.innerHTML='<div class="r">جارٍ البحث...</div>';
+ fetch(EP+'?action=result&q='+encodeURIComponent(q)).then(function(r){return r.json()}).then(function(j){
+  if(!j.ok){o.innerHTML='<div class="r e">لم يتم العثور على نتيجة. تأكد من الرقم أو الاسم، أو تواصل مع المعلم.</div>';return}
+  o.innerHTML=j.list.map(function(x){return '<div class="r">'+esc(x.name)+'<br>الصف '+esc(x.exam)+' — فصل '+esc(x.section)+'<br>الدرجة<br><b>'+ar(x.score)+' من '+ar(x.total)+'</b></div>'}).join('')
+ }).catch(function(){o.innerHTML='<div class="r e">تعذر الاتصال، حاول مرة أخرى.</div>'})};
+document.getElementById('q').onkeydown=function(e){if(e.key==='Enter')document.getElementById('b').click()};
+</script></body></html>
