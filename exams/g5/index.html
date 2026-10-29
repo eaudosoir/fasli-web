@@ -291,7 +291,7 @@ function startExam(){
   $('who').textContent = student.name;
   const QSET = (WINS.indexOf(curWin()) === 1) ? QB : Q;
   items = QSET.map((x,i) => {
-    if (x.tf) return {...x, opts:[{t:'صح',v:true},{t:'خطأ',v:false}], idx:i};
+    if (x.tf) return {...x, opts:[{t:'صح',v:x.ok===true},{t:'خطأ',v:x.ok===false}], idx:i};
     const opts = shuffle(x.a.map((t,k)=>({t,v:k===0})));
     return {...x, opts, idx:i};
   });
