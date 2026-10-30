@@ -265,6 +265,16 @@ footer{text-align:center;color:var(--muted);font-size:.8rem}
         <p class="hint" id="noP" hidden>لم تُضف أفرادًا بعد. أضف رقم ولي الأمر من الأسفل.</p>
         <div class="pgrid" id="people"></div>
         <div class="addp">
+          <label>رفع قائمة أسماء من ملف</label>
+          <label class="drop" for="pFile"><span>📎 اختر ملف Excel أو CSV أو نص</span><small>عمودان: الاسم ثم رقم الجوال</small></label>
+          <input type="file" id="pFile" accept=".csv,.txt,.xlsx,.xls,text/csv,text/plain" hidden>
+        </div>
+        <div class="addp">
+          <label for="pPaste">أو الصق الأسماء هنا (من Excel أو واتساب أو أي مكان)</label>
+          <textarea id="pPaste" style="min-height:90px" placeholder="أحمد محمد	0501234567&#10;خالد علي | 0555555555&#10;0509998877"></textarea>
+          <button class="ghost" id="pPasteAdd" type="button">إضافة الأسماء الملصوقة</button>
+        </div>
+        <div class="addp">
           <label for="pName">إضافة فرد (ولي أمر)</label>
           <input type="text" id="pName" placeholder="الاسم — مثال: ولي أمر الطالب أحمد">
           <input type="text" class="phone" id="pPhone" inputmode="tel" placeholder="05XXXXXXXX">
@@ -333,7 +343,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem}
           <textarea id="gList" placeholder="رابع أ | https://chat.whatsapp.com/..."></textarea>
         </div>
         <div>
-          <label for="pList">الأفراد — فرد في كل سطر: الاسم | رقم الجوال (٠٥XXXXXXXX)</label>
+          <label for="pList">الأفراد — فرد في كل سطر: الاسم | رقم الجوال (٠٥XXXXXXXX). ويمكنك لصق عمودين مباشرة من Excel</label>
           <textarea id="pList" placeholder="ولي أمر الطالب أحمد | 0501234567"></textarea>
         </div>
         <div>
@@ -347,7 +357,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem}
     </details>
   </section>
 
-  <footer>تصميم: أ. عبدالله ال عواد · الإصدار ٢٣</footer>
+  <footer>تصميم: أ. عبدالله ال عواد · الإصدار ٢٤</footer>
 </div>
 <div class="scrim" id="installSheet" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="insT">
@@ -385,7 +395,23 @@ const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.
 const ar=x=>String(x).replace(/[0-9]/g,d=>"٠١٢٣٤٥٦٧٨٩"[d]);
 const pad=n=>String(n).padStart(2,"0");
 const en=x=>String(x).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d));
-function normPhone(x){let d=en(x).replace(/\D/g,"");if(d.startsWith("00"))d=d.slice(2);if(/^05\d{8}$/.test(d))d="966"+d.slice(1);else if(/^5\d{8}$/.test(d))d="966"+d;return /^\d{9,15}$/.test(d)?d:""}
+function normPhone(x){let d=en(x).replace(/\D/g,"");if(d.startsWith("00"))d=d.slice(2);if(/^05\d{8}$/.test(d))return "966"+d.slice(1);if(/^5\d{8}$/.test(d))return "966"+d;if(/^9665\d{8}$/.test(d))return d;if(/^\d{11,15}$/.test(d)&&!d.startsWith("966"))return d;return ""}
+const DIG="0-9٠-٩۰-۹";
+function parseLines(text){
+  const list=[];let bad=0;
+  String(text).split(/\r?\n/).map(z=>z.trim()).filter(Boolean).forEach(z=>{
+    if(!new RegExp("["+DIG+"]").test(z))return;
+    const tk=z.split(/[|\t;,]/).map(x=>x.trim()).filter(Boolean);
+    let ph="",pi=-1;
+    tk.forEach((x,i)=>{if(!ph){const v=normPhone(x);if(v){ph=v;pi=i}}});
+    if(!ph){bad++;return}
+    const rest=tk.filter((x,i)=>i!==pi&&!new RegExp("^[+\\-()\\s"+DIG+"]+$").test(x));
+    const inTok=tk[pi].replace(new RegExp("[+\\-()\\s"+DIG+"]+","g")," ").trim();
+    const n=[...rest,inTok].filter(Boolean).join(" ").trim();
+    if(!list.some(q=>q[1]===ph))list.push([n,ph]);
+  });
+  return {list,bad};
+}
 const pLabel=q=>q[0]||("رقم "+q[1]);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const DAYS=["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
@@ -748,6 +774,37 @@ document.querySelectorAll("#rtabs button").forEach(b=>b.onclick=()=>{
   document.querySelectorAll("#rtabs button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
   $("tab-g").hidden=b.dataset.tab!=="g";$("tab-p").hidden=b.dataset.tab!=="p";
 });
+function addPeople(list){
+  pushUndo("استيراد أفراد");
+  let added=0;
+  list.forEach(([n,ph])=>{const ex=cfg.p.find(q=>q[1]===ph);if(ex){if(n&&!ex[0])ex[0]=n}else{cfg.p.push([n,ph]);added++}});
+  store.set("p_cfg",cfg);fillPeople();fillSetup();renderSend();
+  return added;
+}
+function loadXlsx(){return new Promise((res,rej)=>{if(window.XLSX)return res();const sc=document.createElement("script");sc.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";sc.onload=res;sc.onerror=()=>rej(new Error("x"));document.head.appendChild(sc)})}
+async function readPeopleFile(f){
+  let text="";
+  if(/\.(xlsx|xls)$/i.test(f.name)){
+    try{await loadXlsx()}catch(e){toast("تعذّر تحميل قارئ Excel — احفظ الملف بصيغة CSV وارفعه");return}
+    const wb=XLSX.read(await f.arrayBuffer(),{type:"array"});
+    const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:false,defval:""});
+    text=rows.map(r=>r.join("\t")).join("\n");
+  }else{
+    const buf=await f.arrayBuffer();
+    try{text=new TextDecoder("utf-8",{fatal:true}).decode(buf)}catch(e){text=new TextDecoder("windows-1256").decode(buf)}
+  }
+  const {list,bad}=parseLines(text);
+  if(!list.length){toast("لم أجد أرقام جوال صحيحة في الملف");return}
+  const added=addPeople(list);
+  toast("أُضيف "+ar(added)+" فردًا"+(bad?" — وتجاهلتُ "+ar(bad)+" سطرًا برقم غير صحيح":""));
+}
+$("pPasteAdd").onclick=()=>{
+  const {list,bad}=parseLines($("pPaste").value);
+  if(!list.length){toast("لم أجد أرقام جوال صحيحة في النص الملصوق");return}
+  const added=addPeople(list);$("pPaste").value="";
+  toast("أُضيف "+ar(added)+" فردًا"+(bad?" — وتجاهلتُ "+ar(bad)+" سطرًا برقم غير صحيح":""));
+};
+$("pFile").onchange=e=>{const f=e.target.files[0];e.target.value="";if(f)readPeopleFile(f).catch(()=>toast("تعذّرت قراءة الملف"))};
 $("undoBtn").onclick=doUndo;
 addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&!e.shiftKey&&String(e.key).toLowerCase()==="z"){const t=e.target&&e.target.tagName;if(t==="TEXTAREA"||t==="INPUT"||t==="SELECT")return;e.preventDefault();doUndo()}});
 $("share").addEventListener("click",e=>{
@@ -775,8 +832,7 @@ $("save").onclick=()=>{
   const t=$("tList").value.split("\n").map(s=>s.trim()).filter(Boolean);
   const g=$("gList").value.split("\n").map(s=>s.trim()).filter(Boolean).map(s=>{const i=s.indexOf("|");return i<0?[s,""]:[s.slice(0,i).trim(),s.slice(i+1).trim()]}).filter(x=>x[0]);
   if(!g.length){toast("أضف قروبًا واحدًا على الأقل");return}
-  const p=[];let bad=0;
-  $("pList").value.split("\n").map(z=>z.trim()).filter(Boolean).forEach(z=>{const i=z.indexOf("|"),n=i<0?"":z.slice(0,i).trim(),ph=normPhone(i<0?z:z.slice(i+1));if(!ph){bad++;return}if(!p.some(q=>q[1]===ph))p.push([n,ph])});
+  const {list:p,bad}=parseLines($("pList").value);
   cfg={t,g,s:$("sender").value.trim(),p};store.set("p_cfg",cfg);
   fillTeachers();fillGroups();fillPeople();renderSend();render();
   toast(bad?"تم الحفظ — تجاهلتُ "+ar(bad)+" سطرًا برقم غير صحيح":"تم حفظ الإعدادات");
