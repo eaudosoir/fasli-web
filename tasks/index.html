@@ -142,6 +142,18 @@ button:active,.btn:active{transform:scale(.98)}
 .chip.sent{background:var(--done);border-color:transparent;color:var(--done-ink)}
 .chip.sent::after{content:" ✓"}
 
+/* nav, people, undo */
+.nav{display:flex;gap:8px}.nav .prev{flex:1;background:var(--soft);color:var(--accent);padding:13px}.nav .next{flex:2;width:auto}
+.seg.two{grid-template-columns:repeat(2,1fr)}
+.pgrid{display:grid;gap:8px}.prow{display:flex;gap:6px;align-items:stretch}.prow .g{flex:1;min-width:0}.prow .g span{white-space:normal}
+.prow .g small{display:inline-block;direction:ltr;unicode-bidi:isolate;margin-inline-start:6px}
+.xbtn{background:none;color:var(--red);border:1.5px solid var(--line);border-radius:14px;padding:0 12px;font-size:1.05rem;flex:none}
+.addp{display:grid;gap:8px;border-top:1px dashed var(--line);padding-top:12px}
+.phone{direction:ltr;text-align:right}
+#chipsP{grid-template-columns:repeat(2,1fr)}
+.tools{position:relative;z-index:1;display:flex}
+.undoBtn{background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.35);padding:6px 14px;border-radius:999px;font-size:.85rem;font-weight:700;backdrop-filter:blur(6px)}
+
 /* misc */
 details{padding-top:2px}
 summary{cursor:pointer;color:var(--accent);font-weight:700}
@@ -185,6 +197,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem}
       <a class="backFasli" id="backFasli" href="../" hidden aria-label="رجوع إلى فصلي"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg><span>فصلي</span></a>
       <button class="resetBtn" id="resetBtn" type="button" title="تصفير الاختيارات" aria-label="تصفير الاختيارات والبدء من جديد"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg><span>تصفير</span></button>
     </div>
+    <div class="tools" id="tools" hidden><button class="undoBtn" id="undoBtn" type="button" aria-label="تراجع عن آخر إجراء">↩ تراجع <span id="undoLbl"></span></button></div>
     <div class="prog" aria-live="polite">
       <div class="lbl"><span id="progLbl">الخطوة ١ من ٥</span><span id="progName"></span></div>
       <div class="track"><i id="progBar"></i></div>
@@ -224,20 +237,42 @@ footer{text-align:center;color:var(--muted);font-size:.8rem}
         <input type="file" id="file" multiple accept="image/*,application/pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx" hidden>
         <div class="files" id="files"></div>
       </div>
-      <button class="btn next" id="f-next" type="button" data-next="s-task">التالي: اختيار القروبات</button>
+      <div class="nav"><button class="btn prev" type="button" data-prev="s-task">السابق</button><button class="btn next" id="f-next" type="button" data-next="s-task">التالي: اختيار المستلمين</button></div>
     </div>
   </section>
 
   <section class="step" id="s-groups">
-    <h2 tabindex="0" role="button"><span class="n">٣</span> قروبات أولياء الأمور <span class="sum"></span></h2>
+    <h2 tabindex="0" role="button"><span class="n">٣</span> المستلمون <span class="sum"></span></h2>
     <div class="body">
-      <div class="row">
-        <button class="ghost small" id="all" type="button">تحديد الكل</button>
-        <button class="ghost small" id="none" type="button">إلغاء التحديد</button>
-        <span class="hint" id="gcount" style="margin-inline-start:auto"></span>
+      <div class="seg two" id="rtabs">
+        <button type="button" data-tab="g" aria-pressed="true">القروبات</button>
+        <button type="button" data-tab="p" aria-pressed="false">الأفراد</button>
       </div>
-      <div class="groups" id="groups"></div>
-      <button class="btn next" type="button" data-next="s-groups">التالي</button>
+      <div id="tab-g" style="display:grid;gap:12px">
+        <div class="row">
+          <button class="ghost small" id="all" type="button">تحديد الكل</button>
+          <button class="ghost small" id="none" type="button">إلغاء التحديد</button>
+          <span class="hint" id="gcount" style="margin-inline-start:auto"></span>
+        </div>
+        <div class="groups" id="groups"></div>
+      </div>
+      <div id="tab-p" style="display:grid;gap:12px" hidden>
+        <div class="row">
+          <button class="ghost small" id="pAll" type="button">تحديد الكل</button>
+          <button class="ghost small" id="pNone" type="button">إلغاء التحديد</button>
+          <span class="hint" id="pcount" style="margin-inline-start:auto"></span>
+        </div>
+        <p class="hint" id="noP" hidden>لم تُضف أفرادًا بعد. أضف رقم ولي الأمر من الأسفل.</p>
+        <div class="pgrid" id="people"></div>
+        <div class="addp">
+          <label for="pName">إضافة فرد (ولي أمر)</label>
+          <input type="text" id="pName" placeholder="الاسم — مثال: ولي أمر الطالب أحمد">
+          <input type="text" class="phone" id="pPhone" inputmode="tel" placeholder="05XXXXXXXX">
+          <button class="ghost" id="pAdd" type="button">إضافة وتحديد</button>
+          <p class="hint">يُحفظ الرقم على هذا الجهاز فقط لاستخدامه لاحقًا، ويمكنك حذفه بزر ✕.</p>
+        </div>
+      </div>
+      <div class="nav"><button class="btn prev" type="button" data-prev="s-groups">السابق</button><button class="btn next" type="button" data-next="s-groups">التالي</button></div>
     </div>
   </section>
 
@@ -252,7 +287,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem}
         <label for="whenLbl">يُكتب في الرسالة باسم</label>
         <select id="whenLbl"><option>موعد التسليم</option><option>موعد الاختبار</option><option>الموعد</option><option>اليوم الدراسي</option></select>
       </div>
-      <button class="btn next" type="button" data-next="whenSec">التالي: المعاينة والإرسال</button>
+      <div class="nav"><button class="btn prev" type="button" data-prev="whenSec">السابق</button><button class="btn next" type="button" data-next="whenSec">التالي: المعاينة والإرسال</button></div>
     </div>
   </section>
 
@@ -271,9 +306,12 @@ footer{text-align:center;color:var(--muted);font-size:.8rem}
       <div class="hint" id="cnt"></div>
       <div class="bar"><i id="bar"></i></div>
       <div class="chips" id="chips"></div>
+      <div class="hint" id="pLbl" hidden>الأفراد — اضغط الاسم ليُفتح واتساب على محادثته والمهمة جاهزة فيها</div>
+      <div class="chips" id="chipsP"></div>
       <div class="row">
         <button class="ghost" id="copy" type="button">نسخ المهمة</button>
       </div>
+      <div class="nav"><button class="btn prev" type="button" data-prev="s-send">السابق</button></div>
     </div>
   </section>
 
@@ -284,7 +322,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem}
 
   <section>
     <details id="setup">
-      <summary>الإعدادات (المعلمون وروابط القروبات)</summary>
+      <summary>الإعدادات (المعلمون والقروبات والأفراد)</summary>
       <div style="display:grid;gap:12px;margin-top:10px">
         <div>
           <label for="tList">المعلمون — معلم في كل سطر، ويمكن كتابة المادة بعد علامة |</label>
@@ -295,17 +333,21 @@ footer{text-align:center;color:var(--muted);font-size:.8rem}
           <textarea id="gList" placeholder="رابع أ | https://chat.whatsapp.com/..."></textarea>
         </div>
         <div>
+          <label for="pList">الأفراد — فرد في كل سطر: الاسم | رقم الجوال (٠٥XXXXXXXX)</label>
+          <textarea id="pList" placeholder="ولي أمر الطالب أحمد | 0501234567"></textarea>
+        </div>
+        <div>
           <label for="sender">اسم المدرسة أسفل الرسالة</label>
           <input type="text" id="sender">
         </div>
         <button class="ghost" id="save" type="button">حفظ الإعدادات</button>
         <button class="ghost" id="shareCfg" type="button">نسخ رابط جاهز بالأسماء للزملاء</button>
-        <p class="hint">تُحفظ الإعدادات على هذا الجهاز فقط. «الرابط الجاهز» يفتح الصفحة عند زملائك بنفس الأسماء والقروبات دون إدخالها من جديد.</p>
+        <p class="hint">تُحفظ الإعدادات على هذا الجهاز فقط. «الرابط الجاهز» يفتح الصفحة عند زملائك بنفس الأسماء والقروبات دون إدخالها من جديد، ولا يتضمّن أرقام الأفراد حمايةً لخصوصيتهم.</p>
       </div>
     </details>
   </section>
 
-  <footer>تصميم: أ. عبدالله ال عواد · الإصدار ٢٢</footer>
+  <footer>تصميم: أ. عبدالله ال عواد · الإصدار ٢٣</footer>
 </div>
 <div class="scrim" id="installSheet" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="insT">
@@ -342,6 +384,9 @@ const ck={get(k){const m=document.cookie.match(new RegExp("(?:^|; )"+k+"=([^;]*)
 const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 const ar=x=>String(x).replace(/[0-9]/g,d=>"٠١٢٣٤٥٦٧٨٩"[d]);
 const pad=n=>String(n).padStart(2,"0");
+const en=x=>String(x).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d));
+function normPhone(x){let d=en(x).replace(/\D/g,"");if(d.startsWith("00"))d=d.slice(2);if(/^05\d{8}$/.test(d))d="966"+d.slice(1);else if(/^5\d{8}$/.test(d))d="966"+d;return /^\d{9,15}$/.test(d)?d:""}
+const pLabel=q=>q[0]||("رقم "+q[1]);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const DAYS=["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
 const GRADES=[["أول",["أ","ب"]],["ثاني",["أ","ب","ج"]],["ثالث",["أ","ب","ج"]],["رابع",["أ","ب","ج"]],["خامس",["أ","ب","ج"]],["سادس",["أ","ب","ج"]]];
@@ -366,16 +411,17 @@ const nm=t=>t.split("|")[0].trim(), sub=t=>(t.split("|")[1]||"").trim();
 /* ---------- config ---------- */
 let cfg=store.get("p_cfg",null)||DEF;
 if(cfg.t.length<=1||((cfg.t.length===30||cfg.t.length===31)&&!cfg.t.some(t=>t.includes("مدير المدرسة")))||cfg.t.some(t=>t.includes("مسفر المسفر"))||(cfg.t.length>30&&!cfg.t.some(t=>t.includes("الساقطي"))))cfg.t=DEF.t.slice();
+if(!Array.isArray(cfg.p))cfg.p=[];
 (function importFromHash(){
   const m=location.hash.match(/^#c=(.+)$/);if(!m)return;
   try{
     const c=JSON.parse(decodeURIComponent(escape(atob(m[1].replace(/-/g,"+").replace(/_/g,"/")))));
-    if(Array.isArray(c.t)&&Array.isArray(c.g)){cfg={t:c.t,g:c.g,s:c.s||DEF.s};store.set("p_cfg",cfg);setTimeout(()=>toast("تم تحميل المعلمين والقروبات"),300)}
+    if(Array.isArray(c.t)&&Array.isArray(c.g)){cfg={t:c.t,g:c.g,s:c.s||DEF.s,p:Array.isArray(cfg.p)?cfg.p:[]};store.set("p_cfg",cfg);setTimeout(()=>toast("تم تحميل المعلمين والقروبات"),300)}
   }catch(e){}
   history.replaceState(null,"",location.pathname);
 })();
 
-let picked=store.get("p_picked",[]), sent=store.get("p_sent",[]), prio=-1, log=store.get("p_log",[]);
+let picked=store.get("p_picked",[]), sent=store.get("p_sent",[]), prio=-1, log=store.get("p_log",[]), pickedP=store.get("p_pickedP",[]), sentP=store.get("p_sentP",[]);
 
 function fillTeachers(){
   const s=$("teacher"),cur=store.get("p_teacher","")||ck.get("p_teacher");s.innerHTML='<option value="" disabled>اختر اسمك…</option>';s.value="";
@@ -397,7 +443,7 @@ function fillGroups(){
       const l=document.createElement("label");l.className="g"+(picked.includes(name)?" on":"");
       l.innerHTML='<input type="checkbox" id="gc'+i+'"'+(picked.includes(name)?" checked":"")+'><span>'+esc(name)+(link?' <small>🔗</small>':'')+'</span>';
       l.querySelector("input").onchange=e=>{
-        picked=e.target.checked?[...picked,name]:picked.filter(x=>x!==name);
+        pushUndo("تحديد القروب");picked=e.target.checked?[...picked,name]:picked.filter(x=>x!==name);
         store.set("p_picked",picked);fillGroups();renderSend();
       };
       w.appendChild(l);
@@ -406,10 +452,36 @@ function fillGroups(){
   });
   $("gcount").textContent=ar(picked.length)+" من "+ar(cfg.g.length);
 }
+function fillPeople(){
+  const box=$("people");box.innerHTML="";
+  const P=cfg.p||[];
+  pickedP=pickedP.filter(x=>P.some(q=>q[1]===x));
+  $("noP").hidden=P.length>0;
+  P.forEach(q=>{
+    const on=pickedP.includes(q[1]),row=document.createElement("div");row.className="prow";
+    const l=document.createElement("label");l.className="g"+(on?" on":"");
+    l.innerHTML='<input type="checkbox"'+(on?" checked":"")+'><span>'+esc(pLabel(q))+' <small>'+esc(q[1])+'</small></span>';
+    l.querySelector("input").onchange=e=>{
+      pushUndo("تحديد فرد");
+      pickedP=e.target.checked?[...pickedP,q[1]]:pickedP.filter(x=>x!==q[1]);
+      store.set("p_pickedP",pickedP);fillPeople();renderSend();
+    };
+    const x=document.createElement("button");x.type="button";x.className="xbtn";x.textContent="✕";x.setAttribute("aria-label","حذف "+pLabel(q));
+    x.onclick=()=>{
+      pushUndo("حذف "+pLabel(q));
+      cfg.p=cfg.p.filter(z=>z[1]!==q[1]);pickedP=pickedP.filter(z=>z!==q[1]);sentP=sentP.filter(z=>z!==q[1]);
+      store.set("p_cfg",cfg);store.set("p_pickedP",pickedP);store.set("p_sentP",sentP);
+      fillPeople();fillSetup();renderSend();
+    };
+    row.append(l,x);box.appendChild(row);
+  });
+  $("pcount").textContent=ar(pickedP.length)+" من "+ar(P.length);
+}
 function fillSetup(){
   $("tList").value=cfg.t.join("\n");
   $("gList").value=cfg.g.map(([n,l])=>l?n+" | "+l:n).join("\n");
   $("sender").value=cfg.s;
+  $("pList").value=(cfg.p||[]).map(([n,ph])=>n?n+" | "+ph:ph).join("\n");
 }
 
 /* ---------- date & time ---------- */
@@ -477,19 +549,36 @@ function render(){
 function renderSend(){
   const c=$("chips");c.innerHTML="";
   sent=sent.filter(n=>picked.includes(n));
+  sentP=sentP.filter(n=>pickedP.includes(n));
   picked.forEach(name=>{
     const link=(cfg.g.find(g=>g[0]===name)||[])[1]||"",b=document.createElement("button");
     b.type="button";b.className="chip"+(sent.includes(name)?" sent":"");b.textContent=name;
     b.onclick=async()=>{
       if(!sent.includes(name)){ if(!current()){toast("اكتب المهمة أولًا");return} await copy(); if(link) window.open(link,"_blank"); }
+      pushUndo("تعليم الإرسال");
       sent=sent.includes(name)?sent.filter(x=>x!==name):[...sent,name];store.set("p_sent",sent);renderSend();
     };
     c.appendChild(b);
   });
-  const n=picked.length;
-  $("cnt").textContent=n?"أُرسلت إلى "+ar(sent.length)+" من "+ar(n)+" قروبات — اضغط القروب بعد الإرسال لتعليمه":"حدّد القروبات من الخطوة ٢";
-  $("bar").style.width=(n?sent.length/n*100:0)+"%";
-  if(n&&sent.length===n) toast("وصلت المهمة لجميع القروبات المحددة");
+  const cp=$("chipsP");cp.innerHTML="";$("pLbl").hidden=!pickedP.length;
+  pickedP.forEach(ph=>{
+    const person=(cfg.p||[]).find(q=>q[1]===ph)||["",ph],b=document.createElement("button");
+    b.type="button";b.className="chip"+(sentP.includes(ph)?" sent":"");b.textContent=pLabel(person);
+    b.onclick=()=>{
+      if(!sentP.includes(ph)){
+        const t=current();if(!t){toast("اكتب المهمة أولًا");return}
+        window.open("https://wa.me/"+ph+"?text="+encodeURIComponent(t),"_blank");
+        if((last&&last.files&&last.files.length)||files.length)toast("فُتحت المحادثة بالنص — أرفق الملف من زر 📎 في واتساب");
+      }
+      pushUndo("تعليم الإرسال");
+      sentP=sentP.includes(ph)?sentP.filter(x=>x!==ph):[...sentP,ph];store.set("p_sentP",sentP);renderSend();
+    };
+    cp.appendChild(b);
+  });
+  const n=picked.length+pickedP.length,sn=sent.length+sentP.length;
+  $("cnt").textContent=n?"أُرسلت إلى "+ar(sn)+" من "+ar(n)+" — اضغط الاسم بعد الإرسال لتعليمه":"حدّد المستلمين من الخطوة ٣";
+  $("bar").style.width=(n?sn/n*100:0)+"%";
+  if(n&&sn===n) toast("وصلت المهمة لجميع المستلمين المحددين");
   try{updateSteps()}catch(e){}
 }
 function renderLog(){
@@ -498,12 +587,12 @@ function renderLog(){
   if(!log.length){L.innerHTML='<p class="hint">تظهر هنا المهام المرسلة لإعادة استخدامها.</p>';return}
   log.forEach((it,i)=>{
     const d=document.createElement("div");d.className="it";
-    d.innerHTML="<b>"+esc(it.type)+" · "+esc(nm(it.who))+"</b><div>"+esc(it.body.length>90?it.body.slice(0,90)+"…":it.body)+"</div><div class='meta'>"+esc(ar(GEN(it.type)?"":it.when))+" · "+esc(ar(it.groups.length))+" قروبات</div>";
+    d.innerHTML="<b>"+esc(it.type)+" · "+esc(nm(it.who))+"</b><div>"+esc(it.body.length>90?it.body.slice(0,90)+"…":it.body)+"</div><div class='meta'>"+esc(ar(GEN(it.type)?"":it.when))+" · "+esc(ar(it.groups.length))+" قروبات"+(it.people&&it.people.length?" · "+esc(ar(it.people.length))+" أفراد":"")+"</div>";
     const r=document.createElement("div");r.className="row";
     const u=document.createElement("button");u.type="button";u.className="ghost small";u.textContent="استخدام مرة أخرى";
-    u.onclick=()=>{$("tpl").value=it.type==="تنبيه عام"?"مهمة عامة":it.type;$("msg").value=it.body;if(cfg.t.includes(it.who))$("teacher").value=it.who;picked=it.groups.filter(n=>cfg.g.some(g=>g[0]===n));store.set("p_picked",picked);setPrio(it.prio>=0?it.prio:0);fillGroups();renderSend();render();openStep("s-task");toast("تم تحميل المهمة")};
+    u.onclick=()=>{pushUndo("تحميل مهمة سابقة");$("tpl").value=it.type==="تنبيه عام"?"مهمة عامة":it.type;$("msg").value=it.body;if(cfg.t.includes(it.who))$("teacher").value=it.who;picked=it.groups.filter(n=>cfg.g.some(g=>g[0]===n));store.set("p_picked",picked);pickedP=(it.people||[]).filter(ph=>(cfg.p||[]).some(q=>q[1]===ph));store.set("p_pickedP",pickedP);setPrio(it.prio>=0?it.prio:0);fillGroups();fillPeople();renderSend();render();openStep("s-task");toast("تم تحميل المهمة")};
     const x=document.createElement("button");x.type="button";x.className="ghost small";x.textContent="حذف";
-    x.onclick=()=>{log.splice(i,1);store.set("p_log",log);renderLog()};
+    x.onclick=()=>{pushUndo("حذف مهمة من السجل");log.splice(i,1);store.set("p_log",log);renderLog()};
     r.append(u,x);d.appendChild(r);L.appendChild(d);
   });
 }
@@ -517,7 +606,7 @@ function renderFiles(){
     else{const c=document.createElement("div");c.className="ic";c.textContent=f.type==="application/pdf"?"📄":"📎";d.appendChild(c)}
     const t=document.createElement("span");t.innerHTML=esc(f.name)+"<small>"+fmtSize(f.size)+"</small>";d.appendChild(t);
     const x=document.createElement("button");x.type="button";x.setAttribute("aria-label","حذف الملف");x.textContent="✕";
-    x.onclick=()=>{files.splice(i,1);renderFiles()};d.appendChild(x);w.appendChild(d);
+    x.onclick=()=>{pushUndo("حذف الملف");files.splice(i,1);renderFiles()};d.appendChild(x);w.appendChild(d);
   });
   $("fileNote").hidden=!files.length;
   $("share").textContent=files.length?"إرسال المهمة مع الملف عبر واتساب":"إرسال عبر واتساب";
@@ -525,7 +614,7 @@ function renderFiles(){
 $("file").onchange=e=>{
   const add=[...e.target.files];e.target.value="";
   const big=add.find(f=>f.size>64*1048576);if(big){toast("الملف أكبر من ٦٤ م.ب");return}
-  files=[...files,...add].slice(0,5);renderFiles();
+  pushUndo("إضافة ملف");files=[...files,...add].slice(0,5);renderFiles();
 };
 function shareWithFiles(t,fl){
   try{navigator.clipboard.writeText(t).catch(()=>{})}catch(e){}
@@ -535,10 +624,11 @@ function shareWithFiles(t,fl){
 }
 function sendNow(t,fl){ if(fl.length) shareWithFiles(t,fl); else window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank"); }
 function commit(t){
-  if(!last||last.t!==t){sent=[];store.set("p_sent",sent)}
+  pushUndo("إرسال المهمة");
+  if(!last||last.t!==t){sent=[];sentP=[];store.set("p_sent",sent);store.set("p_sentP",sentP)}
   last={t,files:files.slice()};
   const w=whenInfo();
-  log.unshift({type:$("tpl").value,who:$("teacher").value,body:$("msg").value.trim(),prio,groups:picked.slice(),when:w?w.day+" "+w.hj+" "+w.time:""});
+  log.unshift({type:$("tpl").value,who:$("teacher").value,body:$("msg").value.trim(),prio,groups:picked.slice(),people:pickedP.slice(),when:w?w.day+" "+w.hj+" "+w.time:""});
   log=log.slice(0,20);store.set("p_log",log);
   $("msg").value=GREET;$("tpl").value="";prio=-1;document.querySelectorAll("#prio button").forEach(b=>b.setAttribute("aria-pressed","false"));files=[];renderFiles();
   render();renderSend();renderLog();
@@ -554,14 +644,35 @@ async function copy(){
 }
 function setPrio(p){prio=p;document.querySelectorAll("#prio button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.p==p)));render()}
 
+/* ---------- التراجع عن آخر الإجراءات ---------- */
+const undoStack=[];
+const clone=o=>JSON.parse(JSON.stringify(o));
+function snap(){return {tpl:$("tpl").value,msg:$("msg").value,prio,dt:$("dt").value,tm:$("tm").value,wl:$("whenLbl").value,picked:picked.slice(),pickedP:pickedP.slice(),sent:sent.slice(),sentP:sentP.slice(),files:files.slice(),log:clone(log),last,p:clone(cfg.p||[])}}
+function updateUndoBtn(){const n=undoStack.length;$("tools").hidden=!n;$("undoLbl").textContent=n?"("+ar(n)+")":"";$("undoBtn").title=n?"التراجع عن: "+undoStack[n-1].label:""}
+function pushUndo(label){undoStack.push({label,s:snap()});if(undoStack.length>30)undoStack.shift();updateUndoBtn()}
+function doUndo(){
+  const it=undoStack.pop();if(!it){toast("لا يوجد ما يُتراجع عنه");return}
+  const s=it.s;
+  $("tpl").value=s.tpl;$("msg").value=s.msg;$("dt").value=s.dt;$("tm").value=s.tm;$("whenLbl").value=s.wl;
+  picked=s.picked;pickedP=s.pickedP;sent=s.sent;sentP=s.sentP;files=s.files;log=s.log;last=s.last;cfg.p=s.p;
+  store.set("p_picked",picked);store.set("p_pickedP",pickedP);store.set("p_sent",sent);store.set("p_sentP",sentP);store.set("p_log",log);store.set("p_cfg",cfg);
+  renderFiles();fillGroups();fillPeople();fillSetup();setPrio(s.prio);renderSend();renderLog();render();
+  updateUndoBtn();toast("تم التراجع عن: "+it.label);
+}
+
 /* ---------- steps ---------- */
 const STEPS=["s-teacher","s-task","s-groups","whenSec","s-send"];
 const visibleSteps=()=>STEPS.filter(id=>!$(id).hidden);
-function openStep(id,scroll=true){
+let curStep=null;
+function openStep(id,scroll=true,fromPop=false){
   STEPS.forEach(x=>$(x).classList.toggle("open",x===id));
   updateSteps();
+  if(!fromPop){try{if(curStep===null)history.replaceState({st:id},"");else if(curStep!==id)history.pushState({st:id},"")}catch(e){}}
+  curStep=id;
   if(scroll) setTimeout(()=>$(id).scrollIntoView({behavior:"smooth",block:"start"}),60);
 }
+addEventListener("popstate",e=>{const st=e.state&&e.state.st;if(st&&STEPS.includes(st)&&!$(st).hidden)openStep(st,true,true)});
+function prevOf(id){const v=visibleSteps();return v[v.indexOf(id)-1]}
 function nextOf(id){const v=visibleSteps();return v[v.indexOf(id)+1]}
 function updateProg(){
   const v=visibleSteps(),open=v.find(id=>$(id).classList.contains("open"))||v[0],i=v.indexOf(open);
@@ -577,13 +688,16 @@ function updateSteps(){
   sum("s-teacher",t?nm(t):"");
   const b=bodyOf();
   sum("s-task",b?$("tpl").value+" · "+b.replace(GREET.trim(),"").trim().slice(0,30):"");
-  sum("s-groups",picked.length?(picked.length<=3?picked.join("، "):ar(picked.length)+" قروبات"):"");
+  {const parts=[];
+  if(picked.length)parts.push(picked.length<=3&&!pickedP.length?picked.join("، "):ar(picked.length)+" قروبات");
+  if(pickedP.length)parts.push(ar(pickedP.length)+" أفراد");
+  sum("s-groups",parts.join(" + "))}
   const w=whenInfo();sum("whenSec",w?ar(w.day+" "+w.hj+" · "+w.time):"");
   sum("s-send","");
   $("s-teacher").classList.toggle("done",!!t);
   $("s-task").classList.toggle("done",!!b&&!!$("tpl").value&&prio>=0);
-  $("s-groups").classList.toggle("done",picked.length>0);
-  $("whenSec").classList.toggle("done",picked.length>0&&$("s-task").classList.contains("done"));
+  $("s-groups").classList.toggle("done",(picked.length+pickedP.length)>0);
+  $("whenSec").classList.toggle("done",(picked.length+pickedP.length)>0&&$("s-task").classList.contains("done"));
   try{updateProg()}catch(e){}
 }
 STEPS.forEach(id=>{const h=$(id).querySelector("h2");
@@ -598,9 +712,10 @@ STEPS.forEach(id=>{const h=$(id).querySelector("h2");
 document.querySelectorAll("[data-next]").forEach(b=>b.onclick=()=>{
   const id=b.dataset.next;
   if(id==="s-task"&&!$("s-task").classList.contains("done")){toast("أكمل خانات المهمة أولًا");return}
-  if(id==="s-groups"&&!picked.length){toast("اختر قروبًا واحدًا على الأقل");return}
+  if(id==="s-groups"&&!(picked.length+pickedP.length)){toast("اختر قروبًا أو فردًا على الأقل");return}
   openStep(nextOf(id));
 });
+document.querySelectorAll("[data-prev]").forEach(b=>b.onclick=()=>{const p=prevOf(b.dataset.prev);if(p)openStep(p)});
 $("teacher").addEventListener("change",()=>{store.set("p_teacher",$("teacher").value);ck.set("p_teacher",$("teacher").value);render();openStep("s-task")});
 
 /* ---------- wiring ---------- */
@@ -613,9 +728,28 @@ $("msg").addEventListener("focus",()=>{const m=$("msg");if(m.value===GREET)setTi
 document.querySelectorAll("#prio button").forEach(b=>b.onclick=()=>setPrio(+b.dataset.p));
 ["msg"].forEach(i=>$(i).addEventListener("input",render));
 ["teacher","dt","tm","whenLbl","emo"].forEach(i=>$(i).addEventListener("change",render));
-$("all").onclick=()=>{picked=cfg.g.map(g=>g[0]);store.set("p_picked",picked);fillGroups();renderSend()};
-$("none").onclick=()=>{picked=[];store.set("p_picked",picked);fillGroups();renderSend()};
+$("all").onclick=()=>{pushUndo("تحديد كل القروبات");picked=cfg.g.map(g=>g[0]);store.set("p_picked",picked);fillGroups();renderSend()};
+$("none").onclick=()=>{pushUndo("إلغاء تحديد القروبات");picked=[];store.set("p_picked",picked);fillGroups();renderSend()};
 $("copy").onclick=copy;
+$("pAll").onclick=()=>{pushUndo("تحديد كل الأفراد");pickedP=(cfg.p||[]).map(q=>q[1]);store.set("p_pickedP",pickedP);fillPeople();renderSend()};
+$("pNone").onclick=()=>{pushUndo("إلغاء تحديد الأفراد");pickedP=[];store.set("p_pickedP",pickedP);fillPeople();renderSend()};
+$("pAdd").onclick=()=>{
+  const ph=normPhone($("pPhone").value);
+  if(!ph){toast("اكتب رقم جوال صحيحًا مثل ٠٥٠١٢٣٤٥٦٧");return}
+  pushUndo("إضافة فرد");
+  const n=$("pName").value.trim(),ex=cfg.p.find(q=>q[1]===ph);
+  if(ex){if(n)ex[0]=n}else cfg.p.push([n,ph]);
+  if(!pickedP.includes(ph))pickedP.push(ph);
+  store.set("p_cfg",cfg);store.set("p_pickedP",pickedP);
+  $("pName").value="";$("pPhone").value="";fillPeople();fillSetup();renderSend();toast("أُضيف وحُدِّد");
+};
+$("pPhone").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("pAdd").click()}});
+document.querySelectorAll("#rtabs button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("#rtabs button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
+  $("tab-g").hidden=b.dataset.tab!=="g";$("tab-p").hidden=b.dataset.tab!=="p";
+});
+$("undoBtn").onclick=doUndo;
+addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&!e.shiftKey&&String(e.key).toLowerCase()==="z"){const t=e.target&&e.target.tagName;if(t==="TEXTAREA"||t==="INPUT"||t==="SELECT")return;e.preventDefault();doUndo()}});
 $("share").addEventListener("click",e=>{
   e.preventDefault();
   const t=full();
@@ -627,9 +761,10 @@ $("resend").onclick=()=>{if(last)sendNow(last.t,last.files)};
 (function(){try{if(new URLSearchParams(location.search).get("from")==="fasli"){sessionStorage.setItem("fromFasli","1");history.replaceState(null,"",location.pathname+location.hash)}if(sessionStorage.getItem("fromFasli"))$("backFasli").hidden=false}catch(e){}})();
 /* تصفير الاختيارات: يبقى اسم المعلم، ويعود كل ما عداه كما في أول فتح */
 $("resetBtn").onclick=()=>{
+  pushUndo("التصفير");
   $("tpl").value="";$("msg").value=GREET;store.set("p_msg","");
   setPrio(-1);files=[];renderFiles();$("file").value="";
-  picked=[];sent=[];store.set("p_picked",picked);store.set("p_sent",sent);fillGroups();
+  picked=[];sent=[];pickedP=[];sentP=[];store.set("p_picked",picked);store.set("p_sent",sent);store.set("p_pickedP",pickedP);store.set("p_sentP",sentP);fillGroups();fillPeople();
   if($("dt").options.length)$("dt").selectedIndex=0;
   $("tm").value="07:00";$("whenLbl").value="موعد التسليم";store.set("p_tm","07:00");store.set("p_wl","موعد التسليم");
   last=null;$("lastBox").hidden=true;
@@ -640,11 +775,14 @@ $("save").onclick=()=>{
   const t=$("tList").value.split("\n").map(s=>s.trim()).filter(Boolean);
   const g=$("gList").value.split("\n").map(s=>s.trim()).filter(Boolean).map(s=>{const i=s.indexOf("|");return i<0?[s,""]:[s.slice(0,i).trim(),s.slice(i+1).trim()]}).filter(x=>x[0]);
   if(!g.length){toast("أضف قروبًا واحدًا على الأقل");return}
-  cfg={t,g,s:$("sender").value.trim()};store.set("p_cfg",cfg);
-  fillTeachers();fillGroups();renderSend();render();toast("تم حفظ الإعدادات");
+  const p=[];let bad=0;
+  $("pList").value.split("\n").map(z=>z.trim()).filter(Boolean).forEach(z=>{const i=z.indexOf("|"),n=i<0?"":z.slice(0,i).trim(),ph=normPhone(i<0?z:z.slice(i+1));if(!ph){bad++;return}if(!p.some(q=>q[1]===ph))p.push([n,ph])});
+  cfg={t,g,s:$("sender").value.trim(),p};store.set("p_cfg",cfg);
+  fillTeachers();fillGroups();fillPeople();renderSend();render();
+  toast(bad?"تم الحفظ — تجاهلتُ "+ar(bad)+" سطرًا برقم غير صحيح":"تم حفظ الإعدادات");
 };
 $("shareCfg").onclick=async()=>{
-  const b=btoa(unescape(encodeURIComponent(JSON.stringify(cfg)))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+  const b=btoa(unescape(encodeURIComponent(JSON.stringify({t:cfg.t,g:cfg.g,s:cfg.s})))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
   const url=location.origin+location.pathname+"#c="+b;
   try{await navigator.clipboard.writeText(url);toast("تم نسخ الرابط الجاهز")}catch(e){prompt("انسخ الرابط:",url)}
 };
@@ -686,7 +824,7 @@ $("insGo").onclick=async()=>{
 };
 if((isIOS||isAndroid)&&!isStandalone()&&!store.get("p_installed",0)){$("installBtn").hidden=false;setTimeout(()=>maybeAsk("open"),1200)}
 if(isStandalone())store.set("p_installed",1);
-fillTeachers();fillGroups();fillSetup();renderSend();renderLog();render();
+fillTeachers();fillGroups();fillPeople();fillSetup();renderSend();renderLog();render();
 openStep($("teacher").value?"s-task":"s-teacher",false);
 </script>
 </body>
