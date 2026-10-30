@@ -265,6 +265,15 @@ footer{text-align:center;color:var(--muted);font-size:.8rem}
         </div>
         <input type="search" id="pSearch" placeholder="🔍 ابحث بالاسم أو الرقم…" autocomplete="off" enterkeyhint="search">
         <p class="hint" id="pFound" hidden></p>
+        <details class="addp" id="addBox">
+          <summary style="cursor:pointer;font-weight:900;color:var(--navy)">＋ إضافة اسم فردي (ولي أمر)</summary>
+          <div style="display:grid;gap:10px;margin-top:10px">
+            <input type="text" id="pName" placeholder="الاسم — مثال: ولي أمر الطالب أحمد">
+            <input type="text" class="phone" id="pPhone" inputmode="tel" placeholder="05XXXXXXXX">
+            <button class="ghost" id="pAdd" type="button">إضافة وتحديد</button>
+            <p class="hint">يُحفظ الرقم على هذا الجهاز فقط لاستخدامه لاحقًا، ويمكنك حذفه بزر ✕.</p>
+          </div>
+        </details>
         <p class="hint" id="noP" hidden>لم تُضف أفرادًا بعد. أضف رقم ولي الأمر من الأسفل.</p>
         <div class="pgrid" id="people"></div>
         <div class="addp">
@@ -276,13 +285,6 @@ footer{text-align:center;color:var(--muted);font-size:.8rem}
           <label for="pPaste">أو الصق الأسماء هنا (من Excel أو واتساب أو أي مكان)</label>
           <textarea id="pPaste" style="min-height:90px" placeholder="أحمد محمد	0501234567&#10;خالد علي | 0555555555&#10;0509998877"></textarea>
           <button class="ghost" id="pPasteAdd" type="button">إضافة الأسماء الملصوقة</button>
-        </div>
-        <div class="addp">
-          <label for="pName">إضافة فرد (ولي أمر)</label>
-          <input type="text" id="pName" placeholder="الاسم — مثال: ولي أمر الطالب أحمد">
-          <input type="text" class="phone" id="pPhone" inputmode="tel" placeholder="05XXXXXXXX">
-          <button class="ghost" id="pAdd" type="button">إضافة وتحديد</button>
-          <p class="hint">يُحفظ الرقم على هذا الجهاز فقط لاستخدامه لاحقًا، ويمكنك حذفه بزر ✕.</p>
         </div>
       </div>
       <div class="nav"><button class="btn prev" type="button" data-prev="s-groups">السابق</button><button class="btn next" type="button" data-next="s-groups">التالي</button></div>
@@ -360,7 +362,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem}
     </details>
   </section>
 
-  <footer>تصميم: أ. عبدالله ال عواد · الإصدار ٢٥</footer>
+  <footer>تصميم: أ. عبدالله ال عواد · الإصدار ٢٦</footer>
 </div>
 <div class="scrim" id="installSheet" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="insT">
@@ -776,7 +778,7 @@ $("pAdd").onclick=()=>{
   if(ex){if(n)ex[0]=n}else cfg.p.push([n,ph]);
   if(!pickedP.includes(ph))pickedP.push(ph);
   store.set("p_cfg",cfg);store.set("p_pickedP",pickedP);
-  $("pName").value="";$("pPhone").value="";fillPeople();fillSetup();renderSend();toast("أُضيف وحُدِّد");
+  $("pSearch").value=n||ph;$("pName").value="";$("pPhone").value="";$("addBox").open=false;fillPeople();fillSetup();renderSend();toast("أُضيف وحُدِّد");
 };
 $("pPhone").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("pAdd").click()}});
 document.querySelectorAll("#rtabs button").forEach(b=>b.onclick=()=>{
