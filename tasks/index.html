@@ -103,6 +103,11 @@ button:active,.btn:active{transform:scale(.98)}
 .seg button[aria-pressed=true]{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-color:transparent}
 .seg button[data-p="1"][aria-pressed=true]{background:linear-gradient(135deg,#f59e0b,#f97316)}
 .seg button.u[aria-pressed=true]{background:linear-gradient(135deg,#ef4444,#e11d48)}
+.seg.two{grid-template-columns:repeat(2,1fr)}
+.pl{display:grid;gap:6px;max-height:340px;overflow:auto}
+.pl .g{padding:9px 12px}.pl .g span{white-space:normal}
+.g small.cnt{color:var(--warn);font-weight:700}
+.upd{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:40;background:var(--accent);color:var(--accent-ink);padding:8px 16px;border-radius:999px;font-size:.9rem;box-shadow:var(--shadow)}
 
 /* files */
 .drop{display:flex;flex-direction:column;align-items:center;gap:2px;border:2px dashed color-mix(in srgb,var(--accent) 35%,var(--line));border-radius:16px;padding:16px;cursor:pointer;color:var(--accent);font-weight:700;background:color-mix(in srgb,var(--soft) 55%,transparent)}
@@ -219,6 +224,10 @@ footer{text-align:center;color:var(--muted);font-size:.8rem}
         </div>
       </div>
       <div id="f-file" class="fld">
+        <div style="margin-bottom:10px">
+          <label for="lnk">رابط (اختياري) — اختبار أو درس أو ورقة عمل</label>
+          <input type="text" id="lnk" dir="ltr" inputmode="url" placeholder="https://..." autocomplete="off">
+        </div>
         <label>إرفاق ملف (اختياري) — صورة أو PDF أو ورقة عمل</label>
         <label class="drop" for="file"><span>📎 اضغط لاختيار ملف</span><small>حتى ٥ ملفات</small></label>
         <input type="file" id="file" multiple accept="image/*,application/pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx" hidden>
@@ -229,14 +238,31 @@ footer{text-align:center;color:var(--muted);font-size:.8rem}
   </section>
 
   <section class="step" id="s-groups">
-    <h2 tabindex="0" role="button"><span class="n">٣</span> قروبات أولياء الأمور <span class="sum"></span></h2>
+    <h2 tabindex="0" role="button"><span class="n">٣</span> المستلمون <span class="sum"></span></h2>
     <div class="body">
-      <div class="row">
-        <button class="ghost small" id="all" type="button">تحديد الكل</button>
-        <button class="ghost small" id="none" type="button">إلغاء التحديد</button>
-        <span class="hint" id="gcount" style="margin-inline-start:auto"></span>
+      <div class="seg two" id="mode" role="group" aria-label="نوع الإرسال">
+        <button type="button" data-m="g" aria-pressed="true">قروبات الفصول</button>
+        <button type="button" data-m="p" aria-pressed="false">أولياء أمور (أفراد)</button>
       </div>
-      <div class="groups" id="groups"></div>
+      <div id="gMode" style="display:grid;gap:12px">
+        <div class="row">
+          <button class="ghost small" id="all" type="button">تحديد الكل</button>
+          <button class="ghost small" id="none" type="button">إلغاء التحديد</button>
+          <span class="hint" id="gcount" style="margin-inline-start:auto"></span>
+        </div>
+        <div class="groups" id="groups"></div>
+        <p class="hint">الرقم بين قوسين هو عدد مهام اليوم التي وصلت هذا القروب.</p>
+      </div>
+      <div id="pMode" style="display:grid;gap:12px" hidden>
+        <input type="text" id="psearch" placeholder="ابحث باسم الطالب أو الفصل (مثل: رابع أ)" autocomplete="off">
+        <div class="row">
+          <button class="ghost small" id="pall" type="button">تحديد النتائج</button>
+          <button class="ghost small" id="pnone" type="button">إلغاء التحديد</button>
+          <span class="hint" id="pcount" style="margin-inline-start:auto"></span>
+        </div>
+        <div class="pl" id="plist"></div>
+        <p class="hint" id="noRoster" hidden>أضف أسماء الطلاب وأرقام أولياء أمورهم من «الإعدادات» أسفل الصفحة.</p>
+      </div>
       <button class="btn next" type="button" data-next="s-groups">التالي</button>
     </div>
   </section>
@@ -263,7 +289,8 @@ footer{text-align:center;color:var(--muted);font-size:.8rem}
       <label class="chk"><input type="checkbox" id="emo" checked> الرموز التعبيرية</label>
       <a class="btn primary" id="share" href="#" target="_blank" rel="noopener">إرسال عبر واتساب</a>
       <p class="note" id="fileNote" hidden>مع الملف: يُنسخ نص المهمة تلقائيًا ثم تفتح قائمة المشاركة. اختر واتساب ثم القروبات. إذا ظهر الملف بدون النص، الصق النص في خانة التعليق.</p>
-      <p class="note">واتساب لا يسمح لأي موقع بالإرسال الآلي للقروبات. بعد الضغط تفتح قائمة المحادثات: حدّد القروبات (حتى ٥ في كل مرة) ثم أرسل. أو اضغط اسم القروب بالأسفل لنسخ المهمة وفتحه مباشرة إن أضفت رابطه.</p>
+      <p class="note" id="pNote" hidden>في هذا الوضع يفتح واتساب على محادثة ولي الأمر والرسالة جاهزة باسم الطالب. اضغط «إرسال» في واتساب ثم ارجع واضغط الاسم التالي. المرفقات لا تُرسل في هذا الوضع.</p>
+      <p class="note" id="gNote">واتساب لا يسمح لأي موقع بالإرسال الآلي للقروبات. بعد الضغط تفتح قائمة المحادثات: حدّد القروبات (حتى ٥ في كل مرة) ثم أرسل. أو اضغط اسم القروب بالأسفل لنسخ المهمة وفتحه مباشرة إن أضفت رابطه.</p>
       <div class="last" id="lastBox" hidden>
         <span>✅ أُرسلت المهمة ومُسحت من المربع. لإرسالها لقروبات أخرى:</span>
         <button class="ghost" id="resend" type="button">إرسال المهمة السابقة مرة أخرى</button>
@@ -300,13 +327,30 @@ footer{text-align:center;color:var(--muted);font-size:.8rem}
         </div>
         <button class="ghost" id="save" type="button">حفظ الإعدادات</button>
         <button class="ghost" id="shareCfg" type="button">نسخ رابط جاهز بالأسماء للزملاء</button>
-        <p class="hint">تُحفظ الإعدادات على هذا الجهاز فقط. «الرابط الجاهز» يفتح الصفحة عند زملائك بنفس الأسماء والقروبات دون إدخالها من جديد.</p>
+        <p class="hint">تُحفظ الإعدادات على هذا الجهاز فقط. «الرابط الجاهز» يفتح الصفحة عند زملائك بنفس الأسماء والقروبات دون إدخالها من جديد، ولا يتضمن أرقام أولياء الأمور.</p>
+        <div>
+          <label for="rList">أولياء الأمور — سطر لكل طالب: اسم الطالب | الفصل | رقم الجوال</label>
+          <textarea id="rList" dir="auto" placeholder="أحمد محمد | رابع أ | 0551234567"></textarea>
+        </div>
+        <div class="row">
+          <button class="ghost" id="rSave" type="button">حفظ أرقام أولياء الأمور</button>
+          <label class="btn ghost" for="rFile">رفع ملف أسماء (csv أو txt)</label>
+          <input type="file" id="rFile" accept=".csv,.txt,text/plain,text/csv" hidden>
+        </div>
+        <p class="hint">الأرقام تُحفظ على هذا الجهاز فقط ولا تُرفع لأي موقع.</p>
+        <div class="row">
+          <button class="ghost" id="bkOut" type="button">حفظ نسخة احتياطية</button>
+          <label class="btn ghost" for="bkIn">استرجاع نسخة</label>
+          <input type="file" id="bkIn" accept=".json,application/json" hidden>
+        </div>
+        <p class="hint">النسخة الاحتياطية تحوي الأسماء والقروبات والأرقام وسجل المهام. احتفظ بها لنفسك ولا ترسلها لأحد.</p>
       </div>
     </details>
   </section>
 
-  <footer>تصميم: أ. عبدالله ال عواد · الإصدار ٢٢</footer>
+  <footer>تصميم: أ. عبدالله ال عواد · الإصدار <span id="ver"></span></footer>
 </div>
+<button class="upd" id="upd" type="button" hidden>يتوفر تحديث جديد — اضغط للتحديث</button>
 <div class="scrim" id="installSheet" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="insT">
     <div class="grab"></div>
@@ -364,7 +408,11 @@ const GEN=t=>t==="مهمة عامة"||t==="تنبيه عام";
 const nm=t=>t.split("|")[0].trim(), sub=t=>(t.split("|")[1]||"").trim();
 
 /* ---------- config ---------- */
+const APP_VERSION=23;
 let cfg=store.get("p_cfg",null)||DEF;
+/* حماية من أي إعدادات تالفة محفوظة على الجهاز: تعود للافتراضي بدل أن تتعطل الصفحة */
+if(!cfg||!Array.isArray(cfg.t)||!Array.isArray(cfg.g)||!cfg.g.length)cfg={t:DEF.t.slice(),g:DEF.g.slice(),s:DEF.s};
+if(typeof cfg.s!=="string")cfg.s=DEF.s;
 if(cfg.t.length<=1||((cfg.t.length===30||cfg.t.length===31)&&!cfg.t.some(t=>t.includes("مدير المدرسة")))||cfg.t.some(t=>t.includes("مسفر المسفر"))||(cfg.t.length>30&&!cfg.t.some(t=>t.includes("الساقطي"))))cfg.t=DEF.t.slice();
 (function importFromHash(){
   const m=location.hash.match(/^#c=(.+)$/);if(!m)return;
@@ -376,6 +424,15 @@ if(cfg.t.length<=1||((cfg.t.length===30||cfg.t.length===31)&&!cfg.t.some(t=>t.in
 })();
 
 let picked=store.get("p_picked",[]), sent=store.get("p_sent",[]), prio=-1, log=store.get("p_log",[]);
+if(!Array.isArray(picked))picked=[];if(!Array.isArray(sent))sent=[];if(!Array.isArray(log))log=[];
+let mode=store.get("p_mode","g")==="p"?"p":"g";
+let roster=store.get("p_roster",[]);if(!Array.isArray(roster))roster=[];
+let pickedP=store.get("p_pickedP",[]), sentP=store.get("p_sentP",[]), psq="";
+if(!Array.isArray(pickedP))pickedP=[];if(!Array.isArray(sentP))sentP=[];
+const MAXDAY=3;
+const dayKey=ts=>{const d=new Date(ts);return d.getFullYear()+"-"+d.getMonth()+"-"+d.getDate()};
+const todayCount=name=>log.filter(it=>it.ts&&dayKey(it.ts)===dayKey(Date.now())&&(it.groups||[]).includes(name)).length;
+const nSel=()=>mode==="p"?pickedP.length:picked.length;
 
 function fillTeachers(){
   const s=$("teacher"),cur=store.get("p_teacher","")||ck.get("p_teacher");s.innerHTML='<option value="" disabled>اختر اسمك…</option>';s.value="";
@@ -391,12 +448,21 @@ function fillGroups(){
   sections.forEach(sec=>{
     const d=document.createElement("div");d.className="grade";
     const multi=sec.items.length>1;
-    d.innerHTML=multi?"<b>الصف ال"+esc(sec.k)+"</b>":"";
+    if(multi){
+      const hd=document.createElement("div");hd.className="row";hd.innerHTML="<b>الصف ال"+esc(sec.k)+"</b>";
+      const tb=document.createElement("button");tb.type="button";tb.className="ghost small";tb.textContent="تحديد الصف";tb.style.marginInlineStart="auto";
+      tb.onclick=()=>{const names=sec.items.map(([g])=>g[0]),all=names.every(n=>picked.includes(n));
+        picked=all?picked.filter(n=>!names.includes(n)):[...new Set([...picked,...names])];
+        store.set("p_picked",picked);fillGroups();renderSend()};
+      hd.appendChild(tb);d.appendChild(hd);
+    }
     const w=document.createElement("div");w.className="gg";
     sec.items.forEach(([[name,link],i])=>{
       const l=document.createElement("label");l.className="g"+(picked.includes(name)?" on":"");
-      l.innerHTML='<input type="checkbox" id="gc'+i+'"'+(picked.includes(name)?" checked":"")+'><span>'+esc(name)+(link?' <small>🔗</small>':'')+'</span>';
+      const tc=todayCount(name);
+      l.innerHTML='<input type="checkbox" id="gc'+i+'"'+(picked.includes(name)?" checked":"")+'><span>'+esc(name)+(link?' <small>🔗</small>':'')+(tc?' <small class="cnt">('+ar(tc)+')</small>':'')+'</span>';
       l.querySelector("input").onchange=e=>{
+        if(e.target.checked&&todayCount(name)>=MAXDAY)toast("وصل هذا القروب "+ar(todayCount(name))+" مهام اليوم");
         picked=e.target.checked?[...picked,name]:picked.filter(x=>x!==name);
         store.set("p_picked",picked);fillGroups();renderSend();
       };
@@ -410,6 +476,62 @@ function fillSetup(){
   $("tList").value=cfg.t.join("\n");
   $("gList").value=cfg.g.map(([n,l])=>l?n+" | "+l:n).join("\n");
   $("sender").value=cfg.s;
+  $("rList").value=roster.map(rosterLine).join("\n");
+}
+
+/* ---------- أولياء الأمور (أفراد) ---------- */
+function normPhone(p){
+  let d=String(p||"").replace(/[٠-٩]/g,c=>"٠١٢٣٤٥٦٧٨٩".indexOf(c)).replace(/\D/g,"");
+  if(d.startsWith("00"))d=d.slice(2);
+  if(d.startsWith("05")&&d.length===10)d="966"+d.slice(1);else if(d.startsWith("5")&&d.length===9)d="966"+d;
+  return d.length>=11&&d.length<=15&&!d.startsWith("0")?d:"";
+}
+const rosterLine=r=>[r.n,r.c,r.p.startsWith("966")?"0"+r.p.slice(3):r.p].filter((x,i)=>i!==1||x).join(" | ");
+function parseRoster(txt){
+  const out=[];
+  String(txt||"").split(/\r?\n/).forEach(line=>{
+    const parts=line.split(/[|\t,;،]/).map(s=>s.trim()).filter(Boolean);
+    const pi=parts.findIndex(x=>normPhone(x));if(pi<0)return;
+    const rest=parts.filter((x,i)=>i!==pi);if(!rest.length)return;
+    out.push({n:rest[0],c:rest[1]||"",p:normPhone(parts[pi])});
+  });
+  return out;
+}
+const visiblePeople=()=>{const q=psq.trim();return roster.map((r,i)=>i).filter(i=>!q||(roster[i].n+" "+roster[i].c).includes(q))};
+function fillPeople(){
+  const box=$("plist");box.innerHTML="";
+  const vis=visiblePeople();
+  $("noRoster").hidden=roster.length>0;
+  const cnt=()=>{$("pcount").textContent=ar(pickedP.length)+" من "+ar(roster.length)};cnt();
+  vis.slice(0,80).forEach(i=>{
+    const r=roster[i],on=pickedP.includes(i),l=document.createElement("label");
+    l.className="g"+(on?" on":"");
+    l.innerHTML='<input type="checkbox"'+(on?" checked":"")+'><span>'+esc(r.n)+(r.c?' <small>'+esc(r.c)+'</small>':'')+'</span>';
+    l.querySelector("input").onchange=e=>{
+      pickedP=e.target.checked?[...pickedP,i]:pickedP.filter(x=>x!==i);
+      store.set("p_pickedP",pickedP);l.classList.toggle("on",e.target.checked);cnt();renderSend();
+    };
+    box.appendChild(l);
+  });
+  if(vis.length>80){const p=document.createElement("p");p.className="hint";p.textContent="يظهر ٨٠ من "+ar(vis.length)+" — اكتب في البحث لتضييق القائمة";box.appendChild(p)}
+}
+function setMode(m){
+  mode=m;store.set("p_mode",m);
+  document.querySelectorAll("#mode button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.m===m)));
+  $("gMode").hidden=m==="p";$("pMode").hidden=m!=="p";
+  $("share").hidden=m==="p";$("pNote").hidden=m!=="p";$("gNote").hidden=m==="p";
+  if(m==="p"){$("fileNote").hidden=true;fillPeople()}else{$("fileNote").hidden=!files.length;fillGroups()}
+  renderSend();render();
+}
+function sendToPerson(i){
+  const r=roster[i];if(!r)return;
+  const t=full(),base=t||(last?last.t:"");
+  if(!base){toast("اكتب المهمة أولًا");return}
+  if(t)commit(t);
+  const txt="إلى ولي أمر الطالب: "+r.n+"\n\n"+base;
+  window.open("https://wa.me/"+r.p+"?text="+encodeURIComponent(txt),"_blank");
+  if(!sentP.includes(i)){sentP=[...sentP,i];store.set("p_sentP",sentP)}
+  renderSend();
 }
 
 /* ---------- date & time ---------- */
@@ -454,12 +576,14 @@ function full(){
   const head=prio==2?e("🔴")+"*تنبيه عاجل*":prio==1?e("🟠")+"*تنبيه مهم*":(type==="تقرير يوم دراسي"?e("📋"):e("📚"))+"*"+(GEN(type)?"تنبيه من معلم المادة":type)+"*";
   let t=head+(prio&&!GEN(type)?" — "+type:"")+"\n\n";
   t+=body+"\n";
+  const lk=($("lnk").value||"").trim();
+  if(lk) t+="\n"+e("🔗")+"الرابط:\n\u0001L\u0001\n";
   const REP=type==="تقرير يوم دراسي";
   if(w&&!GEN(type)) t+="\n"+e(REP?"🗓️":"⏰")+"*"+$("whenLbl").value+":*\n"+"اليوم: "+w.day+"\nالتاريخ: "+w.date+(REP?"":"\nالوقت: "+w.time)+"\n";
   t+="\nشاكرين تعاونكم "+(E?"🌹":"")+"\n";
   if(t0) t+="\n"+(sub(t0)?(/^(مدير|وكيل|المرشد|رائد)/.test(sub(t0))?sub(t0):"معلم "+sub(t0))+": ":"المعلم: ")+nm(t0);
   if(cfg.s.trim()) t+="\n"+cfg.s.trim();
-  return ar(t.trim());
+  return ar(t.trim()).replace("\u0001L\u0001",()=>lk);
 }
 function render(){
   $("whenSec").hidden=GEN($("tpl").value);
@@ -468,7 +592,7 @@ function render(){
   if(typeof updateSteps==="function"&&$("s-teacher").querySelector(".sum"))try{updateSteps()}catch(e){}
   const w=whenInfo();
   const t=full();
-  $("pv").textContent=t||"اكتب المهمة لتظهر المعاينة هنا…";
+  $("pv").textContent=t?(mode==="p"?"إلى ولي أمر الطالب: (اسم الطالب)\n\n"+t:t):"اكتب المهمة لتظهر المعاينة هنا…";
   $("share").href=t?"https://wa.me/?text="+encodeURIComponent(t):"#";
   $("share").setAttribute("aria-disabled",t?"false":"true");
   $("lastBox").hidden=!(last&&!t);
@@ -476,20 +600,28 @@ function render(){
 }
 function renderSend(){
   const c=$("chips");c.innerHTML="";
-  sent=sent.filter(n=>picked.includes(n));
-  picked.forEach(name=>{
-    const link=(cfg.g.find(g=>g[0]===name)||[])[1]||"",b=document.createElement("button");
-    b.type="button";b.className="chip"+(sent.includes(name)?" sent":"");b.textContent=name;
-    b.onclick=async()=>{
-      if(!sent.includes(name)){ if(!current()){toast("اكتب المهمة أولًا");return} await copy(); if(link) window.open(link,"_blank"); }
-      sent=sent.includes(name)?sent.filter(x=>x!==name):[...sent,name];store.set("p_sent",sent);renderSend();
-    };
+  const P=mode==="p";
+  if(P){sentP=sentP.filter(i=>pickedP.includes(i))}else{sent=sent.filter(n=>picked.includes(n))}
+  const done=P?sentP:sent;
+  (P?pickedP:picked).forEach(key=>{
+    const b=document.createElement("button");b.type="button";b.className="chip"+(done.includes(key)?" sent":"");
+    if(P){
+      if(!roster[key])return;
+      b.textContent=roster[key].n;b.onclick=()=>sendToPerson(key);
+    }else{
+      const name=key,link=(cfg.g.find(g=>g[0]===name)||[])[1]||"";
+      b.textContent=name;
+      b.onclick=async()=>{
+        if(!sent.includes(name)){ if(!current()){toast("اكتب المهمة أولًا");return} await copy(); if(link) window.open(link,"_blank"); }
+        sent=sent.includes(name)?sent.filter(x=>x!==name):[...sent,name];store.set("p_sent",sent);renderSend();
+      };
+    }
     c.appendChild(b);
   });
-  const n=picked.length;
-  $("cnt").textContent=n?"أُرسلت إلى "+ar(sent.length)+" من "+ar(n)+" قروبات — اضغط القروب بعد الإرسال لتعليمه":"حدّد القروبات من الخطوة ٢";
-  $("bar").style.width=(n?sent.length/n*100:0)+"%";
-  if(n&&sent.length===n) toast("وصلت المهمة لجميع القروبات المحددة");
+  const n=P?pickedP.length:picked.length;
+  $("cnt").textContent=n?(P?"أُرسلت إلى "+ar(done.length)+" من "+ar(n)+" أولياء أمور — اضغط الاسم لفتح محادثته":"أُرسلت إلى "+ar(done.length)+" من "+ar(n)+" قروبات — اضغط القروب بعد الإرسال لتعليمه"):"حدّد المستلمين من خطوة «المستلمون»";
+  $("bar").style.width=(n?done.length/n*100:0)+"%";
+  if(n&&done.length===n) toast(P?"وصلت المهمة لجميع أولياء الأمور المحددين":"وصلت المهمة لجميع القروبات المحددة");
   try{updateSteps()}catch(e){}
 }
 function renderLog(){
@@ -498,10 +630,10 @@ function renderLog(){
   if(!log.length){L.innerHTML='<p class="hint">تظهر هنا المهام المرسلة لإعادة استخدامها.</p>';return}
   log.forEach((it,i)=>{
     const d=document.createElement("div");d.className="it";
-    d.innerHTML="<b>"+esc(it.type)+" · "+esc(nm(it.who))+"</b><div>"+esc(it.body.length>90?it.body.slice(0,90)+"…":it.body)+"</div><div class='meta'>"+esc(ar(GEN(it.type)?"":it.when))+" · "+esc(ar(it.groups.length))+" قروبات</div>";
+    d.innerHTML="<b>"+esc(it.type)+" · "+esc(nm(it.who))+"</b><div>"+esc(it.body.length>90?it.body.slice(0,90)+"…":it.body)+"</div><div class='meta'>"+esc(ar(GEN(it.type)?"":it.when))+" · "+esc(it.people?ar(it.people)+" أولياء أمور":ar((it.groups||[]).length)+" قروبات")+"</div>";
     const r=document.createElement("div");r.className="row";
     const u=document.createElement("button");u.type="button";u.className="ghost small";u.textContent="استخدام مرة أخرى";
-    u.onclick=()=>{$("tpl").value=it.type==="تنبيه عام"?"مهمة عامة":it.type;$("msg").value=it.body;if(cfg.t.includes(it.who))$("teacher").value=it.who;picked=it.groups.filter(n=>cfg.g.some(g=>g[0]===n));store.set("p_picked",picked);setPrio(it.prio>=0?it.prio:0);fillGroups();renderSend();render();openStep("s-task");toast("تم تحميل المهمة")};
+    u.onclick=()=>{$("tpl").value=it.type==="تنبيه عام"?"مهمة عامة":it.type;$("msg").value=it.body;if(cfg.t.includes(it.who))$("teacher").value=it.who;picked=(it.groups||[]).filter(n=>cfg.g.some(g=>g[0]===n));store.set("p_picked",picked);setPrio(it.prio>=0?it.prio:0);fillGroups();renderSend();render();openStep("s-task");toast("تم تحميل المهمة")};
     const x=document.createElement("button");x.type="button";x.className="ghost small";x.textContent="حذف";
     x.onclick=()=>{log.splice(i,1);store.set("p_log",log);renderLog()};
     r.append(u,x);d.appendChild(r);L.appendChild(d);
@@ -535,13 +667,14 @@ function shareWithFiles(t,fl){
 }
 function sendNow(t,fl){ if(fl.length) shareWithFiles(t,fl); else window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank"); }
 function commit(t){
-  if(!last||last.t!==t){sent=[];store.set("p_sent",sent)}
+  if(!last||last.t!==t){sent=[];store.set("p_sent",sent);sentP=[];store.set("p_sentP",sentP)}
   last={t,files:files.slice()};
   const w=whenInfo();
-  log.unshift({type:$("tpl").value,who:$("teacher").value,body:$("msg").value.trim(),prio,groups:picked.slice(),when:w?w.day+" "+w.hj+" "+w.time:""});
+  log.unshift({type:$("tpl").value,who:$("teacher").value,body:$("msg").value.trim(),prio,groups:mode==="p"?[]:picked.slice(),people:mode==="p"?pickedP.length:0,ts:Date.now(),when:w?w.day+" "+w.hj+" "+w.time:""});
   log=log.slice(0,20);store.set("p_log",log);
+  $("lnk").value="";
   $("msg").value=GREET;$("tpl").value="";prio=-1;document.querySelectorAll("#prio button").forEach(b=>b.setAttribute("aria-pressed","false"));files=[];renderFiles();
-  render();renderSend();renderLog();
+  render();renderSend();renderLog();if(mode==="g")fillGroups();
   setTimeout(()=>toast("أُرسلت المهمة ومُسحت من المربع"),400);
   try{maybeAsk("done")}catch(e){}
   setTimeout(()=>{$("s-send").classList.add("open");$("s-task").classList.add("open");updateSteps()},50);
@@ -577,13 +710,14 @@ function updateSteps(){
   sum("s-teacher",t?nm(t):"");
   const b=bodyOf();
   sum("s-task",b?$("tpl").value+" · "+b.replace(GREET.trim(),"").trim().slice(0,30):"");
-  sum("s-groups",picked.length?(picked.length<=3?picked.join("، "):ar(picked.length)+" قروبات"):"");
+  const nS=nSel();
+  sum("s-groups",nS?(mode==="p"?ar(nS)+" أولياء أمور":(picked.length<=3?picked.join("، "):ar(picked.length)+" قروبات")):"");
   const w=whenInfo();sum("whenSec",w?ar(w.day+" "+w.hj+" · "+w.time):"");
   sum("s-send","");
   $("s-teacher").classList.toggle("done",!!t);
   $("s-task").classList.toggle("done",!!b&&!!$("tpl").value&&prio>=0);
-  $("s-groups").classList.toggle("done",picked.length>0);
-  $("whenSec").classList.toggle("done",picked.length>0&&$("s-task").classList.contains("done"));
+  $("s-groups").classList.toggle("done",nS>0);
+  $("whenSec").classList.toggle("done",nS>0&&$("s-task").classList.contains("done"));
   try{updateProg()}catch(e){}
 }
 STEPS.forEach(id=>{const h=$(id).querySelector("h2");
@@ -598,7 +732,7 @@ STEPS.forEach(id=>{const h=$(id).querySelector("h2");
 document.querySelectorAll("[data-next]").forEach(b=>b.onclick=()=>{
   const id=b.dataset.next;
   if(id==="s-task"&&!$("s-task").classList.contains("done")){toast("أكمل خانات المهمة أولًا");return}
-  if(id==="s-groups"&&!picked.length){toast("اختر قروبًا واحدًا على الأقل");return}
+  if(id==="s-groups"&&!nSel()){toast(mode==="p"?"اختر ولي أمر واحدًا على الأقل":"اختر قروبًا واحدًا على الأقل");return}
   openStep(nextOf(id));
 });
 $("teacher").addEventListener("change",()=>{store.set("p_teacher",$("teacher").value);ck.set("p_teacher",$("teacher").value);render();openStep("s-task")});
@@ -611,7 +745,11 @@ $("msg").value=store.get("p_msg","").trim()?store.get("p_msg",""):GREET;
 $("tpl").onchange=()=>{if($("tpl").value==="تقرير يوم دراسي"){$("whenLbl").value="اليوم الدراسي"}else if($("whenLbl").value==="اليوم الدراسي"){$("whenLbl").value="موعد التسليم"}render();if(!bodyOf())setTimeout(()=>{$("msg").focus()},50)};
 $("msg").addEventListener("focus",()=>{const m=$("msg");if(m.value===GREET)setTimeout(()=>m.setSelectionRange(m.value.length,m.value.length),0)});
 document.querySelectorAll("#prio button").forEach(b=>b.onclick=()=>setPrio(+b.dataset.p));
-["msg"].forEach(i=>$(i).addEventListener("input",render));
+["msg","lnk"].forEach(i=>$(i).addEventListener("input",render));
+document.querySelectorAll("#mode button").forEach(b=>b.onclick=()=>setMode(b.dataset.m));
+$("psearch").addEventListener("input",e=>{psq=e.target.value;fillPeople()});
+$("pall").onclick=()=>{pickedP=[...new Set([...pickedP,...visiblePeople()])];store.set("p_pickedP",pickedP);fillPeople();renderSend()};
+$("pnone").onclick=()=>{pickedP=[];store.set("p_pickedP",pickedP);fillPeople();renderSend()};
 ["teacher","dt","tm","whenLbl","emo"].forEach(i=>$(i).addEventListener("change",render));
 $("all").onclick=()=>{picked=cfg.g.map(g=>g[0]);store.set("p_picked",picked);fillGroups();renderSend()};
 $("none").onclick=()=>{picked=[];store.set("p_picked",picked);fillGroups();renderSend()};
@@ -630,6 +768,7 @@ $("resetBtn").onclick=()=>{
   $("tpl").value="";$("msg").value=GREET;store.set("p_msg","");
   setPrio(-1);files=[];renderFiles();$("file").value="";
   picked=[];sent=[];store.set("p_picked",picked);store.set("p_sent",sent);fillGroups();
+  pickedP=[];sentP=[];store.set("p_pickedP",pickedP);store.set("p_sentP",sentP);fillPeople();$("lnk").value="";
   if($("dt").options.length)$("dt").selectedIndex=0;
   $("tm").value="07:00";$("whenLbl").value="موعد التسليم";store.set("p_tm","07:00");store.set("p_wl","موعد التسليم");
   last=null;$("lastBox").hidden=true;
@@ -648,6 +787,42 @@ $("shareCfg").onclick=async()=>{
   const url=location.origin+location.pathname+"#c="+b;
   try{await navigator.clipboard.writeText(url);toast("تم نسخ الرابط الجاهز")}catch(e){prompt("انسخ الرابط:",url)}
 };
+$("rSave").onclick=()=>{
+  roster=parseRoster($("rList").value);store.set("p_roster",roster);
+  pickedP=[];sentP=[];store.set("p_pickedP",pickedP);store.set("p_sentP",sentP);
+  fillSetup();fillPeople();renderSend();toast("تم حفظ "+ar(roster.length)+" ولي أمر");
+};
+$("rFile").onchange=e=>{
+  const f=e.target.files[0];e.target.value="";if(!f)return;
+  const rd=new FileReader();
+  rd.onload=()=>{const add=parseRoster(String(rd.result));
+    if(!add.length){toast("لم أجد أسماء وأرقامًا في الملف");return}
+    const cur=$("rList").value.trim();$("rList").value=(cur?cur+"\n":"")+add.map(rosterLine).join("\n");
+    toast("أُضيف "+ar(add.length)+" — اضغط «حفظ أرقام أولياء الأمور»")};
+  rd.onerror=()=>toast("تعذّرت قراءة الملف");
+  rd.readAsText(f,"utf-8");
+};
+$("bkOut").onclick=()=>{
+  const data={app:"saee",v:APP_VERSION,at:new Date().toISOString(),cfg,roster,log};
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(data)],{type:"application/json"}));
+  a.download="saee-backup.json";document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),4000);toast("تم حفظ النسخة الاحتياطية");
+};
+$("bkIn").onchange=e=>{
+  const f=e.target.files[0];e.target.value="";if(!f)return;
+  const rd=new FileReader();
+  rd.onload=()=>{try{
+    const d=JSON.parse(rd.result);if(!d||d.app!=="saee")throw new Error("bad");
+    if(d.cfg&&Array.isArray(d.cfg.t)&&Array.isArray(d.cfg.g)&&d.cfg.g.length){cfg={t:d.cfg.t,g:d.cfg.g,s:typeof d.cfg.s==="string"?d.cfg.s:DEF.s};store.set("p_cfg",cfg)}
+    if(Array.isArray(d.roster)){roster=d.roster.filter(r=>r&&r.n&&normPhone(r.p)).map(r=>({n:String(r.n),c:String(r.c||""),p:normPhone(r.p)}));store.set("p_roster",roster)}
+    if(Array.isArray(d.log)){log=d.log.slice(0,20);store.set("p_log",log)}
+    picked=[];sent=[];pickedP=[];sentP=[];
+    store.set("p_picked",picked);store.set("p_sent",sent);store.set("p_pickedP",pickedP);store.set("p_sentP",sentP);
+    fillTeachers();fillSetup();setMode(mode);renderLog();toast("تم استرجاع النسخة");
+  }catch(err){toast("الملف ليس نسخة ساعي صالحة")}};
+  rd.onerror=()=>toast("تعذّرت قراءة الملف");
+  rd.readAsText(f,"utf-8");
+};
 
 
 /* ---------- install (PWA) ---------- */
@@ -655,7 +830,19 @@ const isStandalone=()=>matchMedia("(display-mode: standalone)").matches||navigat
 const isAndroid=/android/i.test(navigator.userAgent);
 const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
 let deferred=null;
-if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
+if("serviceWorker" in navigator){
+  /* التحديث: الخادم هو المصدر دائمًا (network-first). إذا وصلت نسخة جديدة والمعلم لا يكتب مهمة تُعاد الصفحة تلقائيًا، وإلا يظهر زر تحديث حتى لا يضيع ما كتبه */
+  const had=!!navigator.serviceWorker.controller;let asked=false;
+  navigator.serviceWorker.addEventListener("controllerchange",()=>{
+    if(!had||asked)return;asked=true;
+    if(files.length||bodyOf()||($("lnk").value||"").trim())$("upd").hidden=false;else location.reload();
+  });
+  $("upd").onclick=()=>location.reload();
+  addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{
+    const chk=()=>{try{r.update().catch(()=>{})}catch(e){}};chk();
+    document.addEventListener("visibilitychange",()=>{if(!document.hidden)chk()});
+  }).catch(()=>{}));
+}
 addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferred=e;$("installBtn").hidden=false;maybeAsk("open")});
 addEventListener("appinstalled",()=>{deferred=null;$("installBtn").hidden=true;closeSheet();store.set("p_installed",1);toast("تم التثبيت — ستجده على الشاشة الرئيسية")});
 function canAsk(){return !isStandalone()&&!store.get("p_installed",0)&&(deferred||isIOS||isAndroid)}
@@ -686,7 +873,8 @@ $("insGo").onclick=async()=>{
 };
 if((isIOS||isAndroid)&&!isStandalone()&&!store.get("p_installed",0)){$("installBtn").hidden=false;setTimeout(()=>maybeAsk("open"),1200)}
 if(isStandalone())store.set("p_installed",1);
-fillTeachers();fillGroups();fillSetup();renderSend();renderLog();render();
+$("ver").textContent=ar(APP_VERSION);
+fillTeachers();fillGroups();fillSetup();renderLog();setMode(mode);
 openStep($("teacher").value?"s-task":"s-teacher",false);
 </script>
 </body>
