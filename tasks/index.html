@@ -145,6 +145,7 @@ button:active,.btn:active{transform:scale(.98)}
 /* nav, people, undo */
 .nav{display:flex;gap:8px}.nav .prev{flex:1;background:var(--soft);color:var(--accent);padding:13px}.nav .next{flex:2;width:auto}
 .seg.two{grid-template-columns:repeat(2,1fr)}
+#pSearch{width:100%;font:inherit;font-weight:700;padding:11px 14px;border:1.5px solid var(--line);border-radius:14px;background:var(--bg);color:var(--ink)}
 .pgrid{display:grid;gap:8px}.prow{display:flex;gap:6px;align-items:stretch}.prow .g{flex:1;min-width:0}.prow .g span{white-space:normal}
 .prow .g small{display:inline-block;direction:ltr;unicode-bidi:isolate;margin-inline-start:6px}
 .xbtn{background:none;color:var(--red);border:1.5px solid var(--line);border-radius:14px;padding:0 12px;font-size:1.05rem;flex:none}
@@ -262,6 +263,8 @@ footer{text-align:center;color:var(--muted);font-size:.8rem}
           <button class="ghost small" id="pNone" type="button">إلغاء التحديد</button>
           <span class="hint" id="pcount" style="margin-inline-start:auto"></span>
         </div>
+        <input type="search" id="pSearch" placeholder="🔍 ابحث بالاسم أو الرقم…" autocomplete="off" enterkeyhint="search">
+        <p class="hint" id="pFound" hidden></p>
         <p class="hint" id="noP" hidden>لم تُضف أفرادًا بعد. أضف رقم ولي الأمر من الأسفل.</p>
         <div class="pgrid" id="people"></div>
         <div class="addp">
@@ -357,7 +360,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem}
     </details>
   </section>
 
-  <footer>تصميم: أ. عبدالله ال عواد · الإصدار ٢٤</footer>
+  <footer>تصميم: أ. عبدالله ال عواد · الإصدار ٢٥</footer>
 </div>
 <div class="scrim" id="installSheet" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="insT">
@@ -478,12 +481,17 @@ function fillGroups(){
   });
   $("gcount").textContent=ar(picked.length)+" من "+ar(cfg.g.length);
 }
+function nrm(s){return String(s||"").replace(/[ً-ْـ]/g,"").replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/\s+/g," ").trim().toLowerCase()}
+function visP(){const qs=nrm(($("pSearch")||{}).value||"");const P=cfg.p||[];return (qs?P.filter(q=>nrm(pLabel(q)+" "+q[1]).includes(qs)):P).map(q=>q[1])}
 function fillPeople(){
   const box=$("people");box.innerHTML="";
   const P=cfg.p||[];
   pickedP=pickedP.filter(x=>P.some(q=>q[1]===x));
   $("noP").hidden=P.length>0;
-  P.forEach(q=>{
+  const qs=nrm(($("pSearch")||{}).value||"");
+  const shown=qs?P.filter(q=>nrm(pLabel(q)+" "+q[1]).includes(qs)):P;
+  const fd=$("pFound");if(fd){fd.hidden=!qs;fd.textContent=shown.length?("نتائج البحث: "+ar(shown.length)+" من "+ar(P.length)):"لا توجد نتائج مطابقة"}
+  shown.forEach(q=>{
     const on=pickedP.includes(q[1]),row=document.createElement("div");row.className="prow";
     const l=document.createElement("label");l.className="g"+(on?" on":"");
     l.innerHTML='<input type="checkbox"'+(on?" checked":"")+'><span>'+esc(pLabel(q))+' <small>'+esc(q[1])+'</small></span>';
@@ -757,8 +765,9 @@ document.querySelectorAll("#prio button").forEach(b=>b.onclick=()=>setPrio(+b.da
 $("all").onclick=()=>{pushUndo("تحديد كل القروبات");picked=cfg.g.map(g=>g[0]);store.set("p_picked",picked);fillGroups();renderSend()};
 $("none").onclick=()=>{pushUndo("إلغاء تحديد القروبات");picked=[];store.set("p_picked",picked);fillGroups();renderSend()};
 $("copy").onclick=copy;
-$("pAll").onclick=()=>{pushUndo("تحديد كل الأفراد");pickedP=(cfg.p||[]).map(q=>q[1]);store.set("p_pickedP",pickedP);fillPeople();renderSend()};
-$("pNone").onclick=()=>{pushUndo("إلغاء تحديد الأفراد");pickedP=[];store.set("p_pickedP",pickedP);fillPeople();renderSend()};
+$("pAll").onclick=()=>{pushUndo("تحديد الأفراد");pickedP=[...new Set([...pickedP,...visP()])];store.set("p_pickedP",pickedP);fillPeople();renderSend()};
+$("pNone").onclick=()=>{pushUndo("إلغاء تحديد الأفراد");const v=visP();pickedP=pickedP.filter(x=>!v.includes(x));store.set("p_pickedP",pickedP);fillPeople();renderSend()};
+$("pSearch").oninput=()=>fillPeople();
 $("pAdd").onclick=()=>{
   const ph=normPhone($("pPhone").value);
   if(!ph){toast("اكتب رقم جوال صحيحًا مثل ٠٥٠١٢٣٤٥٦٧");return}
