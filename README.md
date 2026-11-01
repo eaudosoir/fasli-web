@@ -2,11 +2,11 @@
 
 إدارة صفك بسهولة. افتح الرابط من Safari على الآيفون، ثم «مشاركة ← إضافة إلى الشاشة الرئيسية».
 
-https://eaudosoir.github.io/fasli-web/
+https://weekly.weyasmo.com/
 
 لا تحتوي هذه النسخة أي بيانات طلاب؛ كل البيانات تُحفظ على جوال المعلم فقط.
 تُبنى من مستودع fasli-app (فرع demo-web) بالأمر: `python3 tools/build_web.py`
 
-نسخة العرض ببيانات وهمية: https://eaudosoir.github.io/fasli-web/demo/
+نسخة العرض ببيانات وهمية: https://weekly.weyasmo.com/demo/
 
 تصميم وبرمجة: أ. عبدالله ال عواد
