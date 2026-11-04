@@ -141,6 +141,48 @@ code { direction: ltr; unicode-bidi: isolate; font-family: var(--font-code); fon
 
 .band { background: var(--accent); color: var(--on-accent); border-radius: 18px; padding: 22px 20px 18px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
 :focus-visible { outline: 3px solid var(--ink-soft); outline-offset: 3px; }
+
+/* sequential reveal */
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.qcard { animation: rise .6s both; }
+.qcard .qtop { animation: rise .5s both; }
+.qcard .qtext { animation: rise .6s .25s both; }
+.qcard .opt { animation: rise .5s calc(.6s + var(--i, 0) * .25s) both; }
+.fb { animation: rise .5s both; }
+#nextbtn { animation: rise .5s .9s both; }
+.reveal { animation: rise .7s 1s both; }
+
+/* cinematic full-screen reveal of the picked student */
+.cine { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 50% 50%, #12337f 0, #06122d 55%, #01040d 100%); color: #fff; overflow: hidden; opacity: 0; transition: opacity .45s; cursor: pointer; padding: 24px; }
+.cine.show { opacity: 1; }
+.cine .rays { position: absolute; left: 50%; top: 50%; width: 220vmax; height: 220vmax; margin: -110vmax 0 0 -110vmax; background: repeating-conic-gradient(from 0deg, rgba(140,185,255,0) 0deg 9deg, rgba(140,185,255,.24) 12deg, rgba(140,185,255,0) 15deg 30deg); -webkit-mask-image: radial-gradient(circle, #000 0, transparent 38%); mask-image: radial-gradient(circle, #000 0, transparent 38%); animation: spin 26s linear infinite; opacity: 0; }
+.cine.show .rays { opacity: 1; transition: opacity 1.4s .3s; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.cine .flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+.cine.show .flash { animation: flash 1s .75s ease-out; }
+@keyframes flash { 0% { opacity: 0; } 12% { opacity: .5; } 100% { opacity: 0; } }
+.cine .bar { position: absolute; left: 0; right: 0; height: 13vh; background: #000; transition: transform .8s cubic-bezier(.2,.8,.2,1); }
+.cine .bar.t { top: 0; transform: translateY(-100%); }
+.cine .bar.b { bottom: 0; transform: translateY(100%); }
+.cine.show .bar { transform: none; }
+.cine-in { position: relative; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 18px; max-width: 100%; }
+.cine-k { margin: 0; font-size: clamp(20px, 3.2vw, 34px); color: #9cc3ff; opacity: 0; }
+.cine.show .cine-k { animation: rise .8s .5s both; }
+.cine-name { margin: 0; font-size: clamp(56px, 15vw, 210px); line-height: 1.4; display: flex; flex-wrap: wrap; gap: 0 .3em; justify-content: center; }
+.cine-name .w { display: inline-block; opacity: 0; background: linear-gradient(100deg, #fff 38%, #9fc4ff 50%, #fff 62%); background-size: 260% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.cine.show .cine-name .w { animation: nameIn 1.3s cubic-bezier(.16,.84,.24,1) calc(.9s + var(--i, 0) * .28s) both, shine 2.4s 2.4s ease-in-out infinite; }
+@keyframes nameIn { from { opacity: 0; transform: scale(.35); filter: blur(26px); } 60% { opacity: 1; filter: blur(0); } to { opacity: 1; transform: scale(1); filter: blur(0); } }
+@keyframes shine { from { background-position: 130% 0; } to { background-position: -30% 0; } }
+.cine-h { margin: 0; font-size: 20px; color: #7fa6e8; opacity: 0; }
+.cine.show .cine-h { animation: rise .6s 2.4s both; }
+@media (prefers-reduced-motion: reduce) {
+  .cine, .cine * { animation: none !important; transition: none !important; }
+  .cine .w, .cine-k, .cine-h { opacity: 1 !important; transform: none !important; filter: none !important; }
+  .cine .rays, .cine .flash { display: none; }
+  .cine .bar { transform: none; }
+  .qcard, .qcard *, .fb, #nextbtn, .reveal { animation: none !important; }
+}
+
 /* desktop: wide two-column layout */
 @media (min-width: 1000px) {
   body { font-size: 22px; }
@@ -152,6 +194,7 @@ code { direction: ltr; unicode-bidi: isolate; font-family: var(--font-code); fon
   .wrap > section:nth-of-type(1) { grid-column: 1; grid-row: 2; }
   .wrap > section:nth-of-type(2) { grid-column: 2; grid-row: 2; position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow: auto; }
   .wrap > section:nth-of-type(3) { grid-column: 1 / -1; grid-row: 3; }
+  .wrap:not(.has-board) > section:nth-of-type(1) { grid-column: 1 / -1; }
   .field { padding: 26px; min-height: 260px; display: flex; align-items: center; }
   .field .chips { width: 100%; gap: 14px; }
   .chip { font-size: 23px; min-height: 52px; padding: 2px 24px; }
@@ -165,7 +208,7 @@ code { direction: ltr; unicode-bidi: isolate; font-family: var(--font-code); fon
 
 </head>
 <body>
-<div class="wrap">
+<div class="wrap" id="wrap">
   <header style="display:flex;flex-direction:column;gap:12px">
     <div class="sig">
       <i class="sig-rule"></i>
@@ -176,7 +219,7 @@ code { direction: ltr; unicode-bidi: isolate; font-family: var(--font-code); fon
       </div>
     </div>
     <div><h1>مناقشة الطلاب</h1>
-    <p class="lead">اختر نوع المناقشة، ثم اضغط «اختر طالبًا» ليتحرك الكشّاف بين الأسماء ويستقر على طالب واحد. يُطرح عليه سؤال، وإن أخطأ فتصله تغذية راجعة وفرصة ثانية.</p></div>
+    <p class="lead">اختر نوع المناقشة، ثم اضغط «اختر طالبًا» ليتحرك الكشّاف بين الأسماء ويستقر على طالب واحد فيظهر اسمه بكامل الشاشة. يُطرح عليه سؤال، وإن أخطأ فتصله تغذية راجعة وفرصة ثانية.</p></div>
   </header>
 
   <section class="card" aria-labelledby="h-arena">
@@ -195,7 +238,7 @@ code { direction: ltr; unicode-bidi: isolate; font-family: var(--font-code); fon
     <div id="qarea" hidden></div>
   </section>
 
-  <section class="card" aria-labelledby="h-board">
+  <section class="card" id="sec-board" aria-labelledby="h-board" hidden>
     <h2 id="h-board">النتائج</h2>
     <div class="stats" id="stats"></div>
     <div class="scroll" id="board"></div>
@@ -305,6 +348,11 @@ code { direction: ltr; unicode-bidi: isolate; font-family: var(--font-code); fon
       </div>
     </div>
   </footer>
+</div>
+
+<div class="cine" id="cine" hidden role="dialog" aria-modal="true" aria-label="الطالب المختار">
+  <div class="rays"></div><div class="flash"></div><div class="bar t"></div><div class="bar b"></div>
+  <div class="cine-in"><p class="cine-k">الطالب المختار</p><h2 class="cine-name" id="cine-name"></h2><p class="cine-h">اضغط للمتابعة</p></div>
 </div>
 
 <script>
@@ -422,7 +470,7 @@ code { direction: ltr; unicode-bidi: isolate; font-family: var(--font-code); fon
 
   function pick() {
     if (S.busy || !S.names.length || !filtered().length) return;
-    S.busy = true; hideQ(); renderPickState();
+    S.busy = true; S.started = true; hideQ(); renderPickState();
     var avail = availableNames();
     var target = avail[Math.floor(Math.random() * avail.length)];
     Object.keys(chipEls).forEach(function (n) { chipEls[n].classList.remove("picked", "lit"); });
@@ -436,9 +484,12 @@ code { direction: ltr; unicode-bidi: isolate; font-family: var(--font-code); fon
       tEl.classList.add("picked");
       field.style.setProperty("--r", "74px");
       S.picked[target] = true; S.lastPos = center(tEl);
-      S.busy = false; persist();
+      persist();
       announce("تم اختيار الطالب: " + target);
-      showQ(target); renderPickState();
+      renderPickState();
+      setTimeout(function () {
+        cinema(target).then(function () { S.busy = false; showQ(target); renderPickState(); });
+      }, reduce ? 300 : 800);
     }
     if (reduce) { var cc = center(tEl); setPos(cc.x, cc.y); finish(); return; }
 
@@ -452,8 +503,29 @@ code { direction: ltr; unicode-bidi: isolate; font-family: var(--font-code); fon
     })();
   }
 
+  /* ---------- cinematic reveal ---------- */
+  function cinema(name) {
+    return new Promise(function (res) {
+      var c = $("cine"), n = $("cine-name"), t0 = Date.now(), done = false, timer;
+      n.innerHTML = "";
+      name.split(/\s+/).forEach(function (w, i) { var sp = el("span", "w", w); sp.style.setProperty("--i", i); n.appendChild(sp); });
+      c.hidden = false; c.classList.remove("show"); void c.offsetWidth;
+      requestAnimationFrame(function () { c.classList.add("show"); });
+      function close() {
+        if (done) return; done = true; clearTimeout(timer);
+        document.removeEventListener("keydown", key); c.removeEventListener("click", click);
+        c.classList.remove("show");
+        setTimeout(function () { c.hidden = true; res(); }, 450);
+      }
+      function click() { if (Date.now() - t0 > 1400) close(); }
+      function key(e) { if (e.key === "Escape" || e.key === "Enter" || e.key === " ") { e.preventDefault(); close(); } }
+      c.addEventListener("click", click); document.addEventListener("keydown", key);
+      timer = setTimeout(close, reduce ? 1800 : 4600);
+    });
+  }
+
   /* ---------- question ---------- */
-  function hideQ() { var q = $("qarea"); q.hidden = true; q.innerHTML = ""; S.cur = null; }
+  function hideQ() { clearTimeout(S.enableT); var q = $("qarea"); q.hidden = true; q.innerHTML = ""; S.cur = null; }
 
   function showQ(name) {
     var area = $("qarea"); area.innerHTML = ""; area.hidden = false;
@@ -461,6 +533,7 @@ code { direction: ltr; unicode-bidi: isolate; font-family: var(--font-code); fon
     var card = el("div", "qcard");
     if (!q) { card.appendChild(el("p", "", "لا توجد أسئلة لهذا النوع.")); area.appendChild(card); return; }
     S.cur = { name: name, q: q, tries: 0, done: false, wrong: {} };
+    var c0 = S.cur;
     var top = el("div", "qtop");
     top.appendChild(el("span", "pill", "الطالب: " + name));
     top.appendChild(el("span", "pill", MODES[q.tag] || "سؤال"));
@@ -468,9 +541,10 @@ code { direction: ltr; unicode-bidi: isolate; font-family: var(--font-code); fon
     card.appendChild(top);
     card.appendChild(el("p", "qtext", q.q));
     var opts = el("div", "opts"); opts.id = "opts";
+    var cnt = 0;
     q.o.forEach(function (t, i) {
       if (!t) return;
-      var b = el("button", "opt"); b.type = "button"; b.dataset.i = i;
+      var b = el("button", "opt"); b.type = "button"; b.dataset.i = i; b.disabled = true; b.style.setProperty("--i", cnt++);
       b.appendChild(el("b", "", LET[i] + "."));
       b.appendChild(el("span", "", t));
       b.addEventListener("click", function () { answer(i); });
@@ -483,6 +557,10 @@ code { direction: ltr; unicode-bidi: isolate; font-family: var(--font-code); fon
     nxt.addEventListener("click", function () { hideQ(); $("pick").focus(); });
     card.appendChild(nxt);
     area.appendChild(card);
+    S.enableT = setTimeout(function () {
+      var all = document.querySelectorAll("#opts .opt");
+      for (var k = 0; k < all.length; k++) if (!c0.wrong[all[k].dataset.i]) all[k].disabled = false;
+    }, reduce ? 0 : 900 + cnt * 250);
     if (area.scrollIntoView) area.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "nearest" });
   }
 
@@ -532,6 +610,10 @@ code { direction: ltr; unicode-bidi: isolate; font-family: var(--font-code); fon
   }
   function renderBoard() {
     var keys = Object.keys(S.scores);
+    var sec = $("sec-board"), show = keys.length > 0 || !!S.backup;
+    if (show && sec.hidden) { sec.hidden = false; if (!reduce && S.started) { sec.classList.add("reveal"); } }
+    if (!show) sec.hidden = true;
+    $("wrap").classList.toggle("has-board", show);
     var t = totals();
     $("stats").textContent = t.n ? "عدد الإجابات: " + ar(t.n) + "، صحيحة: " + ar(t.ok) + "، بتلميح: " + ar(t.assist) + "، خاطئة: " + ar(t.wrong) : "";
     var box = $("board"); box.innerHTML = "";
