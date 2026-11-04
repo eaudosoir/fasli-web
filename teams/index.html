@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>بوابة المعلمين — النشر لطلاب القادسية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&family=Pinyon+Script&family=Montserrat:wght@600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF4FB; --card:#E3EEFB; --card-b:#C7DCF5; --ink:#102A43; --mute:#486581;
+  --blue:#1F5FBF; --blue-d:#174A96; --on-blue:#fff; --field:#fff; --line:#B6CDEA;
+  --ok:#1B7F4B; --bad:#B42318; --warn:#9A6700;
+  --sig1:#0F8B8D; --sig2:#1F6F96; --siglab:#2D5961; --sigdiv:#8CC9C4; --sigrule:#2A9D9A;
+}
+@media (prefers-color-scheme:dark){
+  :root{ --bg:#0B1624; --card:#122338; --card-b:#1F3A5C; --ink:#E6EEF8; --mute:#9DB4CE; --blue:#4C8DFF; --blue-d:#6FA3FF; --on-blue:#08162A;
+    --field:#0D1B2E; --line:#27466D; --ok:#4CC38A; --bad:#FF8A80; --warn:#E3B341;
+    --sig1:#7FF0DD; --sig2:#9CCBFF; --siglab:#D5F1EC; --sigdiv:#5FB8B0; --sigrule:#5FB8B0; }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Naskh Arabic","Segoe UI",serif;font-weight:700;font-size:19px;line-height:1.9}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px 28px}
+.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.sig{display:flex;align-items:center;gap:12px;direction:ltr}
+.sig .nm{white-space:nowrap;font-family:"Pinyon Script",cursive;font-weight:400;font-size:30px;line-height:1;background:linear-gradient(90deg,var(--sig1),var(--sig2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sig .dv{width:1px;height:28px;background:var(--sigdiv)}
+.sig .lb{font-family:Montserrat,sans-serif;font-weight:600;font-size:8px;letter-spacing:.18em;line-height:1.35;color:var(--siglab);text-transform:uppercase}
+.sig.sm .nm{font-size:24px}
+.btn-link{white-space:nowrap;background:none;border:0;color:var(--blue);font:inherit;cursor:pointer;min-height:44px;padding:0 8px}
+h1{font-size:28px;line-height:1.5;margin:22px 0 4px}
+.lead{margin:0 0 18px;color:var(--mute);font-size:18px}
+.card{background:var(--card);border:1px solid var(--card-b);border-radius:16px;padding:18px;margin:0 0 16px}
+.card h2{font-size:22px;margin:0 0 10px}
+label{display:block;margin:12px 0 6px}
+.req{color:var(--bad)}
+input[type=password],input[type=text],textarea{width:100%;font:inherit;font-size:19px;color:var(--ink);background:var(--field);border:2px solid var(--line);border-radius:12px;padding:10px 14px;min-height:48px}
+textarea{min-height:170px;resize:vertical;line-height:1.9}
+input:focus,textarea:focus,button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.row{display:flex;gap:8px;align-items:stretch}
+.row input{flex:1}
+.chips{display:flex;flex-wrap:wrap;gap:10px}
+.chip{position:relative}
+.chip input{position:absolute;opacity:0;inset:0;width:100%;height:100%;cursor:pointer;margin:0}
+.chip span{display:flex;align-items:center;justify-content:center;min-width:76px;min-height:48px;padding:0 18px;border:2px solid var(--line);border-radius:12px;background:var(--field)}
+.chip input:checked+span{background:var(--blue);border-color:var(--blue);color:var(--on-blue)}
+.chip input:focus-visible+span{outline:3px solid var(--blue);outline-offset:2px}
+.btn{font:inherit;font-size:20px;min-height:52px;border:0;border-radius:14px;padding:0 24px;cursor:pointer;background:var(--blue);color:var(--on-blue)}
+.btn:hover{background:var(--blue-d)}
+.btn.alt{background:transparent;color:var(--blue);border:2px solid var(--blue)}
+.btn.bad{background:var(--bad);color:#fff}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.hint{font-size:16px;color:var(--mute);margin:4px 0 0}
+.warn{color:var(--warn);font-size:16px;margin:6px 0 0;display:none}
+.err{color:var(--bad);margin:8px 0 0;min-height:1.2em}
+.tabs{display:flex;gap:8px;margin:0 0 14px}
+.tab{flex:1;font:inherit;min-height:48px;border-radius:12px;border:2px solid var(--line);background:var(--field);color:var(--ink);cursor:pointer}
+.tab[aria-selected=true]{background:var(--blue);border-color:var(--blue);color:var(--on-blue)}
+.item{background:var(--field);border:1px solid var(--line);border-radius:14px;padding:14px;margin:0 0 12px}
+.item .meta{color:var(--mute);font-size:16px}
+.item .t{font-size:21px;margin:4px 0}
+.item .b{white-space:pre-wrap;font-weight:400}
+.item .act{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.badge{display:inline-block;border-radius:999px;padding:0 12px;font-size:15px;border:1px solid var(--line)}
+.empty{text-align:center;color:var(--mute);padding:26px 8px}
+.band{background:var(--blue);color:var(--on-blue);border-radius:16px;padding:16px 18px;margin:18px 0}
+.band b{display:block;font-size:21px}
+.toast{position:fixed;inset-inline:16px;bottom:18px;max-width:560px;margin:0 auto;background:var(--ink);color:var(--bg);border-radius:14px;padding:12px 16px;display:none;z-index:20}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;padding:16px;z-index:30}
+.modal .box{background:var(--bg);border-radius:16px;padding:20px;max-width:460px;width:100%}
+.offline{background:var(--warn);color:#fff;text-align:center;padding:6px;display:none}
+footer{margin-top:28px;border-top:1px solid var(--sigrule);padding-top:16px;display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--mute);font-size:15px;text-align:center}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="offline" id="offline" role="status">لا يوجد اتصال بالإنترنت</div>
+<div class="top">
+  <div class="sig" aria-label="teacher abdullah — Design &amp; Programming"><span class="nm">teacher abdullah</span><span class="dv"></span><span class="lb">Design<br>&amp; Programming</span></div>
+  <button class="btn-link hidden" id="logout">تسجيل الخروج</button>
+</div>
+
+<div class="wrap">
+  <h1>بوابة المعلمين</h1>
+  <p class="lead">أرسل المحتوى إلى قناة شعبتك في تيمز، ويصل الطلاب بعد موافقة المشرف.</p>
+
+  <!-- الدخول -->
+  <section class="card" id="loginCard">
+    <h2>الدخول</h2>
+    <label for="pin">الرقم السري <span class="req">*</span></label>
+    <div class="row">
+      <input id="pin" type="password" autocomplete="off" aria-describedby="capsWarn">
+      <button class="btn alt" id="showPin" type="button" aria-pressed="false">إظهار</button>
+    </div>
+    <p class="warn" id="capsWarn">مفتاح الحروف الكبيرة (Caps Lock) مُفعَّل.</p>
+    <p class="err" id="loginErr" role="alert"></p>
+    <button class="btn" id="loginBtn" type="button">دخول</button>
+    <p class="hint">نسيت الرقم السري؟ تواصل مع المشرف أ. عبدالله لإصدار رقم جديد.</p>
+  </section>
+
+  <!-- بعد الدخول -->
+  <div id="app" class="hidden">
+    <p class="lead" id="hello"></p>
+    <div class="tabs hidden" id="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" id="tabSend">إرسال محتوى</button>
+      <button class="tab" role="tab" aria-selected="false" id="tabInbox">صندوق الوارد <span id="pendingCount"></span></button>
+    </div>
+
+    <section id="sendPane">
+      <form class="card" id="form" novalidate>
+        <h2>محتوى جديد</h2>
+        <fieldset style="border:0;padding:0;margin:0">
+          <legend style="padding:0">الصف <span class="req">*</span></legend>
+          <div class="chips" id="grades">
+            <label class="chip"><input type="radio" name="grade" value="رابع"><span>رابع</span></label>
+            <label class="chip"><input type="radio" name="grade" value="خامس"><span>خامس</span></label>
+            <label class="chip"><input type="radio" name="grade" value="سادس"><span>سادس</span></label>
+          </div>
+        </fieldset>
+        <fieldset style="border:0;padding:0;margin:12px 0 0">
+          <legend style="padding:0">الشعبة <span class="req">*</span> <span class="hint">(يمكن اختيار أكثر من شعبة)</span></legend>
+          <div class="chips" id="sections">
+            <label class="chip"><input type="checkbox" value="أ"><span>أ</span></label>
+            <label class="chip"><input type="checkbox" value="ب"><span>ب</span></label>
+            <label class="chip"><input type="checkbox" value="ج"><span>ج</span></label>
+          </div>
+        </fieldset>
+        <label for="title">العنوان <span class="req">*</span></label>
+        <input id="title" type="text" maxlength="100">
+        <p class="hint" id="titleCount"></p>
+        <label for="body">النص <span class="req">*</span></label>
+        <textarea id="body" maxlength="2500"></textarea>
+        <p class="hint" id="bodyCount"></p>
+        <p class="hint">لا تكتب أسماء طلاب أو أرقام جوالات أو أي بيانات شخصية.</p>
+        <p class="err" id="formErr" role="alert"></p>
+        <button class="btn" id="sendBtn" type="submit">إرسال للمراجعة</button>
+      </form>
+    </section>
+
+    <section id="inboxPane" class="hidden">
+      <div class="card">
+        <h2>بانتظار موافقتك</h2>
+        <div id="pendingList"></div>
+        <button class="btn alt" id="refresh" type="button">تحديث</button>
+      </div>
+      <div class="card">
+        <h2>آخر ما عولج</h2>
+        <div id="recentList"></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="band"><b>اقتراحي للبداية</b>١. اختر الصف والشعبة. ٢. اكتب عنوانًا واضحًا ونصًا مختصرًا. ٣. أرسل، وسيصل الطلاب بعد موافقة المشرف.</div>
+
+  <footer>
+    <div class="sig sm"><span class="nm">teacher abdullah</span><span class="dv"></span><span class="lb">Design<br>&amp; Programming</span></div>
+    <div>ابتدائية القادسية · لا تُشارَك الأرقام السرية مع أحد</div>
+  </footer>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+<div class="modal" id="modal" role="dialog" aria-modal="true"><div class="box">
+  <p id="modalText" style="margin-top:0"></p>
+  <div class="act" style="display:flex;gap:10px"><button class="btn" id="modalOk" type="button">تأكيد</button><button class="btn alt" id="modalNo" type="button">إلغاء</button></div>
+</div></div>
+
+<script>
+/* ===== الإعداد: ضع رابط تطبيق الويب (Apps Script) هنا ===== */
+const API_URL = "https://script.google.com/macros/s/AKfycbyP1luRSFyDwjVAmTYHsR0EY7f1lFJV2PHUSNtjyboSVSSTS2HGxBktZNwxXpxu8Pl9/exec";
+const IDLE_MS = 15 * 60 * 1000;
+
+const $ = id => document.getElementById(id);
+const toAr = s => String(s).replace(/[0-9]/g, d => "٠١٢٣٤٥٦٧٨٩"[d]);
+const fmtDate = iso => { try { return new Intl.DateTimeFormat("ar-SA-u-ca-gregory-nu-arab", {day:"numeric", month:"long", year:"numeric"}).format(new Date(iso)); } catch(e){ return ""; } };
+let session = null, idleTimer = null;
+
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.style.display="block"; clearTimeout(toast._t); toast._t=setTimeout(()=>t.style.display="none",3800); }
+function confirmBox(text){ return new Promise(res=>{ $("modalText").textContent=text; $("modal").style.display="flex"; $("modalOk").focus();
+  const done=v=>{ $("modal").style.display="none"; $("modalOk").onclick=$("modalNo").onclick=null; res(v); };
+  $("modalOk").onclick=()=>done(true); $("modalNo").onclick=()=>done(false); }); }
+
+async function api(payload){
+  if (API_URL.startsWith("PASTE_")) throw new Error("لم يُضبط رابط الخدمة بعد");
+  if (!navigator.onLine) throw new Error("لا يوجد اتصال بالإنترنت");
+  const r = await fetch(API_URL, { method:"POST", headers:{ "Content-Type":"text/plain;charset=utf-8" }, body: JSON.stringify(payload) });
+  const j = await r.json();
+  if (!j.ok) throw new Error(j.error || "حدث خطأ");
+  return j;
+}
+
+function resetIdle(){ clearTimeout(idleTimer); if(session) idleTimer=setTimeout(()=>{ logout(); toast("انتهت الجلسة بسبب عدم النشاط"); }, IDLE_MS); }
+["click","keydown","touchstart"].forEach(ev=>document.addEventListener(ev,resetIdle,{passive:true}));
+window.addEventListener("online",()=>$("offline").style.display="none");
+window.addEventListener("offline",()=>$("offline").style.display="block");
+
+/* الدخول */
+$("showPin").onclick=()=>{ const p=$("pin"); const show=p.type==="password"; p.type=show?"text":"password"; $("showPin").textContent=show?"إخفاء":"إظهار"; $("showPin").setAttribute("aria-pressed",show); };
+$("pin").addEventListener("keyup",e=>{ $("capsWarn").style.display=(e.getModifierState&&e.getModifierState("CapsLock"))?"block":"none"; });
+$("pin").addEventListener("keydown",e=>{ if(e.key==="Enter") $("loginBtn").click(); });
+$("loginBtn").onclick=async()=>{
+  const pin=$("pin").value.trim(); $("loginErr").textContent="";
+  if(!pin){ $("loginErr").textContent="اكتب الرقم السري"; return; }
+  $("loginBtn").disabled=true; $("loginBtn").textContent="جارٍ التحقق…";
+  try{
+    const j=await api({action:"whoami",pin});
+    session={pin,role:j.role,name:j.name,subject:j.subject||""};
+    $("pin").value=""; showApp();
+  }catch(e){ $("loginErr").textContent=e.message; }
+  finally{ $("loginBtn").disabled=false; $("loginBtn").textContent="دخول"; }
+};
+function logout(){ session=null; $("app").classList.add("hidden"); $("loginCard").classList.remove("hidden"); $("logout").classList.add("hidden"); $("pin").type="password"; $("showPin").textContent="إظهار"; }
+$("logout").onclick=logout;
+
+function showApp(){
+  $("loginCard").classList.add("hidden"); $("app").classList.remove("hidden"); $("logout").classList.remove("hidden");
+  $("hello").textContent = session.role==="admin" ? "أهلًا أ. عبدالله، أنت المشرف." : ("أهلًا " + session.name + (session.subject?" — مادة "+session.subject:""));
+  $("tabs").classList.toggle("hidden", session.role!=="admin");
+  selectTab("send"); resetIdle();
+  if(session.role==="admin") loadInbox();
+}
+function selectTab(which){
+  const send=which==="send";
+  $("sendPane").classList.toggle("hidden",!send); $("inboxPane").classList.toggle("hidden",send);
+  $("tabSend").setAttribute("aria-selected",send); $("tabInbox").setAttribute("aria-selected",!send);
+}
+$("tabSend").onclick=()=>selectTab("send");
+$("tabInbox").onclick=()=>{ selectTab("inbox"); loadInbox(); };
+
+/* الإرسال */
+function counter(inp,out,max){ const f=()=>{ out.textContent=toAr(inp.value.length)+" / "+toAr(max)+" حرف"; }; inp.addEventListener("input",f); f(); }
+counter($("title"),$("titleCount"),100); counter($("body"),$("bodyCount"),2500);
+$("form").addEventListener("submit",async e=>{
+  e.preventDefault(); $("formErr").textContent="";
+  const grade=(document.querySelector('input[name=grade]:checked')||{}).value;
+  const sections=[...document.querySelectorAll('#sections input:checked')].map(x=>x.value);
+  const title=$("title").value.trim(), body=$("body").value.trim();
+  if(!grade) return $("formErr").textContent="اختر الصف";
+  if(!sections.length) return $("formErr").textContent="اختر شعبة واحدة على الأقل";
+  if(!title) return $("formErr").textContent="اكتب العنوان";
+  if(!body) return $("formErr").textContent="اكتب النص";
+  const ok=await confirmBox("سيُرسل إلى: "+grade+" — شعبة "+sections.join(" و ")+"\nهل تريد المتابعة؟");
+  if(!ok) return;
+  $("sendBtn").disabled=true; $("sendBtn").textContent="جارٍ الإرسال…";
+  try{
+    const j=await api({action:"submit",pin:session.pin,grade,sections,title,body});
+    toast("تم الإرسال للمراجعة ("+toAr(j.count)+" شعبة)");
+    $("form").reset(); $("titleCount").textContent=toAr(0)+" / "+toAr(100)+" حرف"; $("bodyCount").textContent=toAr(0)+" / "+toAr(2500)+" حرف";
+    if(session.role==="admin") loadInbox();
+  }catch(err){ $("formErr").textContent=err.message; }
+  finally{ $("sendBtn").disabled=false; $("sendBtn").textContent="إرسال للمراجعة"; }
+});
+
+/* صندوق الوارد (المشرف) */
+function itemHtml(r,withActions){
+  const d=document.createElement("div"); d.className="item";
+  const meta=document.createElement("div"); meta.className="meta";
+  meta.textContent=r.grade+" — شعبة "+r.section+" · "+r.teacher+(r.subject?" · "+r.subject:"")+" · "+fmtDate(r.date);
+  const t=document.createElement("div"); t.className="t"; t.textContent=r.title;
+  const b=document.createElement("div"); b.className="b"; b.textContent=r.body;
+  d.append(meta,t,b);
+  if(withActions){
+    const a=document.createElement("div"); a.className="act";
+    const p=document.createElement("button"); p.className="btn"; p.textContent="نشر في القناة";
+    const x=document.createElement("button"); x.className="btn alt"; x.textContent="رفض";
+    p.onclick=()=>act("publish",r,p); x.onclick=()=>act("reject",r,x);
+    a.append(p,x); d.append(a);
+  } else { const s=document.createElement("span"); s.className="badge"; s.textContent=r.status; d.append(s); }
+  return d;
+}
+async function act(kind,r,btn){
+  const msg = kind==="publish" ? "سيظهر المنشور لطلاب "+r.grade+" شعبة "+r.section+" ولا يمكن حذفه من الصفحة. هل تؤكد النشر؟" : "هل تؤكد رفض هذا المحتوى؟";
+  if(!(await confirmBox(msg))) return;
+  btn.disabled=true;
+  try{
+    const j=await api({action:kind,pin:session.pin,ids:[r.id]});
+    if(kind==="publish" && j.results && !j.results[0].ok) throw new Error(j.results[0].error);
+    toast(kind==="publish"?"تم النشر في القناة":"تم الرفض"); loadInbox();
+  }catch(e){ toast(e.message); btn.disabled=false; }
+}
+async function loadInbox(){
+  try{
+    const j=await api({action:"list",pin:session.pin});
+    const pl=$("pendingList"), rl=$("recentList"); pl.replaceChildren(); rl.replaceChildren();
+    $("pendingCount").textContent = j.pending.length ? "("+toAr(j.pending.length)+")" : "";
+    if(!j.pending.length){ const e=document.createElement("div"); e.className="empty"; e.textContent="لا يوجد محتوى بانتظار الموافقة"; pl.append(e); }
+    j.pending.forEach(r=>pl.append(itemHtml(r,true)));
+    if(!j.recent.length){ const e=document.createElement("div"); e.className="empty"; e.textContent="لا يوجد سجل بعد"; rl.append(e); }
+    j.recent.forEach(r=>rl.append(itemHtml(r,false)));
+  }catch(e){ toast(e.message); }
+}
+$("refresh").onclick=loadInbox;
+</script>
+</body>
+</html>
