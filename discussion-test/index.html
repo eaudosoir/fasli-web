@@ -239,6 +239,15 @@ tr.me td { background: rgba(47, 111, 224, .2); }
 .chips .chip.dot { border-radius: 50% 50% 50% 50% / 56% 56% 44% 44%; --bc: #3f7be0; }
 .chips .chip.dot::after { content: ""; position: absolute; left: 50%; bottom: -8px; margin-left: -6px; border: 6px solid transparent; border-top: 0; border-bottom: 9px solid var(--bc); }
 
+/* class picker */
+.l2 { font-size: 19px; color: var(--ink-soft); margin-top: 4px; }
+.grade-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+.grade-row .gl { min-width: 4.2em; font-size: 20px; }
+.clsbtn { font: inherit; font-size: 20px; min-height: 52px; min-width: 96px; cursor: pointer; color: var(--ink); background: var(--field); border: 2px solid var(--line); border-radius: 14px; padding: 2px 16px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.clsbtn .cnt { font-size: 15px; background: var(--card); border-radius: 999px; padding: 0 9px; min-width: 1.6em; text-align: center; }
+.clsbtn[aria-checked="true"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.clsbtn[aria-checked="true"] .cnt { background: rgba(255,255,255,.25); }
+.clsbtn.empty { opacity: .8; }
 /* sequential reveal */
 @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 .qcard { animation: rise .6s both; }
@@ -321,6 +330,9 @@ tr.me td { background: rgba(47, 111, 224, .2); }
   <section class="card" aria-labelledby="h-arena">
     <h2 id="h-arena">ساحة المناقشة</h2>
     <p class="hint">اختر نوع المناقشة ثم ابدأ. تُفتح المناقشة بكامل الشاشة، ولا تظهر فيها أسماء الطلاب إلا لحظة الاختيار.</p>
+    <div class="l2">الفصل</div>
+    <div class="classes" id="classes" role="radiogroup" aria-label="الفصل"></div>
+    <div class="l2">نوع المناقشة</div>
     <div class="modes" id="modes" role="radiogroup" aria-label="نوع المناقشة"></div>
     <label class="toggle"><input type="checkbox" id="norepeat" checked> لا يتكرر اختيار الطالب حتى ينتهي الجميع</label>
     <div class="row">
@@ -354,6 +366,8 @@ tr.me td { background: rgba(47, 111, 224, .2); }
     <details open>
       <summary>أسماء الطلاب</summary>
       <div class="stack">
+        <label class="l" for="names-cls">الفصل الذي تُضاف إليه الأسماء</label>
+        <select id="names-cls"></select>
         <p class="hint" id="namesnote"></p>
         <label class="l" for="names">اسم طالب في كل سطر</label>
         <textarea id="names" autocomplete="off"></textarea>
@@ -474,7 +488,7 @@ tr.me td { background: rgba(47, 111, 224, .2); }
   var KEY = "ds_v1";
   function load() { try { var v = localStorage.getItem(KEY); return v ? JSON.parse(v) : null; } catch (e) { return null; } }
   function persist() {
-    try { localStorage.setItem(KEY, JSON.stringify({ names: S.names, namesSample: S.namesSample, questions: S.questions, scores: S.scores, mode: S.mode, noRepeat: S.noRepeat, backup: S.backup })); } catch (e) {}
+    try { saveCur(); localStorage.setItem(KEY, JSON.stringify({ classes: CD, cls: S.cls, questions: S.questions, mode: S.mode, noRepeat: S.noRepeat })); } catch (e) {}
   }
 
   /* ---------- sample data (marked as examples) ---------- */
@@ -488,17 +502,42 @@ tr.me td { background: rgba(47, 111, 224, .2); }
     ];
   }
 
-  var saved = load();
+  var CLASSES = [];
+  [["رابع", "4"], ["خامس", "5"], ["سادس", "6"]].forEach(function (g) {
+    ["أ", "ب", "ج"].forEach(function (sec) { CLASSES.push({ k: g[1] + sec, label: g[0] + " " + sec, grade: g[0] }); });
+  });
+  function clsLabel(k) { for (var i = 0; i < CLASSES.length; i++) if (CLASSES[i].k === k) return CLASSES[i].label; return ""; }
+  function blankCls() { return { names: [], sample: false, scores: {}, backup: null }; }
+
+  var saved = load() || {};
+  var CD = {};
+  CLASSES.forEach(function (c) { CD[c.k] = blankCls(); });
+  if (saved.classes) {
+    CLASSES.forEach(function (c) {
+      var d = saved.classes[c.k];
+      if (d) CD[c.k] = { names: Array.isArray(d.names) ? d.names : [], sample: !!d.sample, scores: d.scores || {}, backup: d.backup || null };
+    });
+  } else if (saved.names && saved.names.length) {
+    CD["4أ"] = { names: saved.names, sample: !!saved.namesSample, scores: saved.scores || {}, backup: saved.backup || null };
+  } else {
+    CD["4أ"] = { names: sampleNames(), sample: true, scores: {}, backup: null };
+  }
+  var firstCls = CLASSES.some(function (c) { return c.k === saved.cls; }) ? saved.cls : "4أ";
   var S = {
-    names: saved && saved.names && saved.names.length ? saved.names : sampleNames(),
-    namesSample: saved ? !!saved.namesSample : true,
-    questions: saved && saved.questions && saved.questions.length ? saved.questions : sampleQs(),
-    scores: (saved && saved.scores) || {},
-    mode: (saved && saved.mode) || "lesson",
-    noRepeat: saved ? saved.noRepeat !== false : true,
-    backup: (saved && saved.backup) || null,
+    cls: firstCls,
+    names: CD[firstCls].names, namesSample: CD[firstCls].sample, scores: CD[firstCls].scores, backup: CD[firstCls].backup,
+    questions: saved.questions && saved.questions.length ? saved.questions : sampleQs(),
+    mode: saved.mode || "lesson",
+    noRepeat: saved.noRepeat !== false,
     picked: {}, round: 1, busy: false, cur: null, queue: [], editIdx: -1, lastPos: null
   };
+  function saveCur() { CD[S.cls] = { names: S.names, sample: S.namesSample, scores: S.scores, backup: S.backup }; }
+  function switchCls(k) {
+    if (S.busy || k === S.cls) return;
+    saveCur(); S.cls = k; var d = CD[k];
+    S.names = d.names; S.namesSample = d.sample; S.scores = d.scores; S.backup = d.backup;
+    S.picked = {}; S.round = 1; S.lastPos = null; hideQ(); persist(); renderAll();
+  }
 
   /* ---------- helpers ---------- */
   function filtered() {
@@ -512,6 +551,28 @@ tr.me td { background: rgba(47, 111, 224, .2); }
     return S.queue.length ? S.questions[S.queue.pop()] : null;
   }
   function announce(t) { $("sr").textContent = t; }
+
+  /* ---------- classes ---------- */
+  function renderClasses() {
+    var box = $("classes"); box.innerHTML = "";
+    ["رابع", "خامس", "سادس"].forEach(function (g) {
+      var row = el("div", "grade-row"); row.appendChild(el("span", "gl", g));
+      CLASSES.filter(function (c) { return c.grade === g; }).forEach(function (c) {
+        var n = c.k === S.cls ? S.names.length : CD[c.k].names.length;
+        var b = el("button", "clsbtn" + (n ? "" : " empty")); b.type = "button"; b.setAttribute("role", "radio");
+        b.setAttribute("aria-checked", c.k === S.cls ? "true" : "false");
+        b.setAttribute("aria-label", c.label + "، " + (n ? ar(n) + " طالبًا" : "بلا أسماء"));
+        b.appendChild(el("span", "", c.label.split(" ")[1])); b.appendChild(el("span", "cnt", ar(n)));
+        b.addEventListener("click", function () { switchCls(c.k); });
+        row.appendChild(b);
+      });
+      box.appendChild(row);
+    });
+    var sel = $("names-cls");
+    if (!sel.options.length) CLASSES.forEach(function (c) { var o = document.createElement("option"); o.value = c.k; o.textContent = c.label; sel.appendChild(o); });
+    sel.value = S.cls;
+  }
+  $("names-cls").addEventListener("change", function () { switchCls(this.value); });
 
   /* ---------- modes ---------- */
   function renderModes() {
@@ -541,9 +602,9 @@ tr.me td { background: rgba(47, 111, 224, .2); }
     var btn = $("pick");
     btn.disabled = S.busy || !S.names.length || !nq;
     var msg = "";
-    if (!S.names.length) msg = "لا توجد أسماء.";
+    if (!S.names.length) msg = "لا توجد أسماء في فصل " + clsLabel(S.cls) + ".";
     else if (!nq) msg = "لا توجد أسئلة لهذا النوع، أضف أسئلة من قسم الإعداد.";
-    else msg = "الجولة " + ar(S.round) + "، الأسئلة المتاحة: " + ar(nq);
+    else msg = clsLabel(S.cls) + " — الجولة " + ar(S.round) + "، الأسئلة المتاحة: " + ar(nq);
     $("round").textContent = msg; $("stinfo").textContent = msg;
     $("startbtn").disabled = !S.names.length || !nq;
   }
@@ -804,7 +865,7 @@ tr.me td { background: rgba(47, 111, 224, .2); }
     } else fallback();
   }
   $("copyrep").addEventListener("click", function () {
-    var t = totals(), lines = ["تقرير المناقشة — " + (MODES[S.mode] || ""), "التاريخ: " + dateStr(), "عدد الإجابات: " + ar(t.n) + " (صحيحة " + ar(t.ok) + "، بتلميح " + ar(t.assist) + "، خاطئة " + ar(t.wrong) + ")", ""];
+    var t = totals(), lines = ["تقرير المناقشة — فصل " + clsLabel(S.cls) + " — " + (MODES[S.mode] || ""), "التاريخ: " + dateStr(), "عدد الإجابات: " + ar(t.n) + " (صحيحة " + ar(t.ok) + "، بتلميح " + ar(t.assist) + "، خاطئة " + ar(t.wrong) + ")", ""];
     Object.keys(S.scores).forEach(function (k) { var s = S.scores[k]; lines.push(k + ": صحيحة " + ar(s.ok) + " | بتلميح " + ar(s.assist) + " | خاطئة " + ar(s.wrong)); });
     copyText(lines.join("\n"), $("boardmsg"), "تم نسخ التقرير.");
   });
@@ -827,7 +888,7 @@ tr.me td { background: rgba(47, 111, 224, .2); }
   /* ---------- names ---------- */
   function renderNames() {
     $("names").value = S.names.join("\n");
-    $("namesnote").textContent = (S.namesSample ? "هذه أسماء تجريبية، استبدلها بأسماء طلابك. " : "") + "عدد الطلاب: " + ar(S.names.length);
+    $("namesnote").textContent = "فصل " + clsLabel(S.cls) + ". " + (S.namesSample ? "هذه أسماء تجريبية، استبدلها بأسماء طلابك. " : "") + "عدد الطلاب: " + ar(S.names.length);
   }
   $("savenames").addEventListener("click", function () {
     var seen = {}, out = [];
@@ -836,7 +897,7 @@ tr.me td { background: rgba(47, 111, 224, .2); }
     if (!out.length) { m.textContent = "اكتب اسمًا واحدًا على الأقل."; m.className = "msg err"; return; }
     if (out.length > 80) { m.textContent = "الحد الأقصى ٨٠ اسمًا في الجلسة الواحدة."; m.className = "msg err"; return; }
     S.names = out; S.namesSample = false; S.picked = {}; S.round = 1; S.lastPos = null;
-    persist(); renderNames(); renderChips(); renderPickState(); hideQ(); $("field").classList.remove("on");
+    persist(); renderNames(); renderClasses(); renderChips(); renderPickState(); hideQ(); $("field").classList.remove("on");
     m.textContent = "تم حفظ " + ar(out.length) + " اسمًا."; m.className = "msg";
   });
   $("norepeat").addEventListener("change", function () {
@@ -915,19 +976,27 @@ tr.me td { background: rgba(47, 111, 224, .2); }
 
   /* ---------- backup ---------- */
   $("bk-copy").addEventListener("click", function () {
-    copyText(JSON.stringify({ v: 1, names: S.names, questions: S.questions, scores: S.scores }), $("bk-msg"), "تم نسخ النسخة الاحتياطية. الصقها في ملف واحفظه.");
+    copyText((saveCur(), JSON.stringify({ v: 2, classes: CD, questions: S.questions })), $("bk-msg"), "تم نسخ النسخة الاحتياطية. الصقها في ملف واحفظه.");
   });
   $("bk-restore").addEventListener("click", function () {
     var m = $("bk-msg"); m.className = "msg err";
     try {
       var d = JSON.parse($("bk-text").value);
-      if (!d || !Array.isArray(d.names) || !Array.isArray(d.questions)) throw new Error("bad");
-      S.names = d.names.map(String); S.namesSample = false;
+      if (!d || !Array.isArray(d.questions)) throw new Error("bad");
+      if (d.classes && typeof d.classes === "object") {
+        CLASSES.forEach(function (c) {
+          var x = d.classes[c.k];
+          CD[c.k] = x ? { names: (x.names || []).map(String), sample: false, scores: x.scores || {}, backup: null } : blankCls();
+        });
+      } else if (Array.isArray(d.names)) {
+        CD[S.cls] = { names: d.names.map(String), sample: false, scores: d.scores || {}, backup: null };
+      } else throw new Error("bad");
+      var dd = CD[S.cls]; S.names = dd.names; S.namesSample = false; S.scores = dd.scores; S.backup = null;
       S.questions = d.questions.filter(function (q) { return q && q.q && Array.isArray(q.o) && typeof q.c === "number"; });
-      S.scores = d.scores && typeof d.scores === "object" ? d.scores : {};
       S.picked = {}; S.round = 1; S.queue = []; S.lastPos = null;
       persist(); renderAll(); hideQ(); $("field").classList.remove("on");
-      m.className = "msg"; m.textContent = "تمت الاستعادة: " + ar(S.names.length) + " اسمًا و" + ar(S.questions.length) + " سؤالًا.";
+      var tot = 0; CLASSES.forEach(function (c) { tot += CD[c.k].names.length; });
+      m.className = "msg"; m.textContent = "تمت الاستعادة: " + ar(tot) + " اسمًا و" + ar(S.questions.length) + " سؤالًا.";
     } catch (e) { m.textContent = "النص غير صالح. انسخ النسخة الاحتياطية كاملة كما هي."; }
   });
 
@@ -948,7 +1017,7 @@ tr.me td { background: rgba(47, 111, 224, .2); }
   $("startbtn").addEventListener("click", openStage);
   $("exitbtn").addEventListener("click", closeStage);
   document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !$("stage").hidden && $("cine").hidden) closeStage(); });
-  function renderAll() { renderModes(); renderChips(); renderPickState(); renderBoard(); renderNames(); renderQList(); $("norepeat").checked = S.noRepeat; }
+  function renderAll() { renderClasses(); renderModes(); renderChips(); renderPickState(); renderBoard(); renderNames(); renderQList(); $("norepeat").checked = S.noRepeat; }
   renderAll();
   window.addEventListener("resize", function () { S.lastPos = null; });
 })();
