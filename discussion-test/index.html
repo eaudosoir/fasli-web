@@ -248,6 +248,14 @@ tr.me td { background: rgba(47, 111, 224, .2); }
 .clsbtn[aria-checked="true"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
 .clsbtn[aria-checked="true"] .cnt { background: rgba(255,255,255,.25); }
 .clsbtn.empty { opacity: .8; }
+
+/* name balls */
+.stage .chips { width: 100%; max-width: 1500px; margin-inline: auto; gap: 16px; }
+.chips .chip.dot { border-radius: 50%; width: var(--dot, 100px); height: var(--dot, 100px); display: inline-flex; align-items: center; justify-content: center; text-align: center; line-height: 1.2; color: #fff; font-weight: 800; padding: 0; text-shadow: 0 1px 4px rgba(0,0,0,.6), 0 0 2px rgba(0,0,0,.5); flex: none; }
+.chips .chip.dot::after { display: none; }
+.chips .chip.dot .nm { display: flex; flex-direction: column; align-items: center; max-width: 90%; overflow-wrap: anywhere; }
+.chips .chip.dot.picked { transform: scale(1.5); }
+
 /* sequential reveal */
 @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 .qcard { animation: rise .6s both; }
@@ -588,12 +596,20 @@ tr.me td { background: rgba(47, 111, 224, .2); }
 
   /* ---------- chips ---------- */
   var chipEls = {};
+  function shortName(n) { var p = String(n).trim().split(/\s+/); return p.length > 1 ? p[0] + " " + p[p.length - 1] : p[0]; }
   function renderChips() {
     var box = $("chips"); box.innerHTML = ""; chipEls = {};
-    var n = S.names.length;
-    box.style.setProperty("--dot", (n <= 12 ? 72 : n <= 30 ? 56 : n <= 50 ? 44 : 34) + "px");
+    var n = S.names.length, f = $("field");
+    var W = Math.max(f.clientWidth - 40, 240), H = Math.max(f.clientHeight - 40, 200);
+    var d = n ? Math.floor(Math.min(170, Math.max(70, Math.sqrt(W * H / n) * 0.78))) : 100;
+    box.style.setProperty("--dot", d + "px");
     S.names.forEach(function (nm) {
       var c = el("span", "chip dot" + (S.noRepeat && S.picked[nm] ? " done" : ""));
+      var parts = shortName(nm).split(" "), L = 3;
+      var nmEl = el("span", "nm");
+      parts.forEach(function (w) { nmEl.appendChild(el("span", "", w)); L = Math.max(L, w.length); });
+      c.style.fontSize = Math.max(11, Math.min(d * 0.23, (d * 0.84) / (L * 0.5))) + "px";
+      c.appendChild(nmEl);
       chipEls[nm] = c; box.appendChild(c);
     });
   }
@@ -654,7 +670,7 @@ tr.me td { background: rgba(47, 111, 224, .2); }
       announce("تم اختيار الطالب: " + target);
       renderPickState();
       setTimeout(function () {
-        cinema(target).then(function () { S.busy = false; showQ(target); renderPickState(); });
+        cinema(shortName(target)).then(function () { S.busy = false; showQ(target); renderPickState(); });
       }, reduce ? 300 : 800);
     }
     if (reduce) { var cc = center(tEl); setPos(cc.x, cc.y); finish(); return; }
@@ -722,7 +738,7 @@ tr.me td { background: rgba(47, 111, 224, .2); }
   }
   function topPills(card, c0) {
     var top = el("div", "qtop");
-    top.appendChild(pill("الطالب: " + c0.name)); top.appendChild(pill(MODES[c0.q.tag] || "سؤال"));
+    top.appendChild(pill("الطالب: " + shortName(c0.name))); top.appendChild(pill(MODES[c0.q.tag] || "سؤال"));
     if (c0.q.sample) top.appendChild(pill("سؤال تجريبي"));
     card.appendChild(top);
   }
@@ -809,7 +825,7 @@ tr.me td { background: rgba(47, 111, 224, .2); }
     var s = S.scores[c.name] || { ok: 0, assist: 0, wrong: 0 };
     swap(function (card) {
       card.appendChild(el("h2", "", "النتائج"));
-      card.appendChild(el("p", "hint", "نتيجة " + c.name + ": صحيحة " + ar(s.ok) + "، بتلميح " + ar(s.assist) + "، خاطئة " + ar(s.wrong)));
+      card.appendChild(el("p", "hint", "نتيجة " + shortName(c.name) + ": صحيحة " + ar(s.ok) + "، بتلميح " + ar(s.assist) + "، خاطئة " + ar(s.wrong)));
       var sc = el("div", "scroll"); sc.appendChild(buildTable(c.name)); card.appendChild(sc);
       var row = el("div", "row center");
       var b1 = el("button", "btn big", "اختر طالبًا آخر"); b1.type = "button"; b1.id = "nextbtn";
@@ -835,7 +851,7 @@ tr.me td { background: rgba(47, 111, 224, .2); }
     var body = el("tbody");
     keys.forEach(function (k) {
       var sc = S.scores[k], r = el("tr", k === hl ? "me" : "");
-      r.appendChild(el("td", "", k)); r.appendChild(el("td", "n", ar(sc.ok))); r.appendChild(el("td", "n", ar(sc.assist))); r.appendChild(el("td", "n", ar(sc.wrong)));
+      r.appendChild(el("td", "", shortName(k))); r.appendChild(el("td", "n", ar(sc.ok))); r.appendChild(el("td", "n", ar(sc.assist))); r.appendChild(el("td", "n", ar(sc.wrong)));
       body.appendChild(r);
     });
     tb.appendChild(body); return tb;
@@ -1019,7 +1035,7 @@ tr.me td { background: rgba(47, 111, 224, .2); }
   document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !$("stage").hidden && $("cine").hidden) closeStage(); });
   function renderAll() { renderClasses(); renderModes(); renderChips(); renderPickState(); renderBoard(); renderNames(); renderQList(); $("norepeat").checked = S.noRepeat; }
   renderAll();
-  window.addEventListener("resize", function () { S.lastPos = null; });
+  window.addEventListener("resize", function () { S.lastPos = null; if (!$("stage").hidden && !S.busy && !$("stage").classList.contains("asking")) { renderChips(); $("field").classList.remove("on"); } });
 })();
 </script>
 
