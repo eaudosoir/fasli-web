@@ -25,6 +25,7 @@ html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Naskh Arabic","Segoe UI",serif;font-weight:700;font-size:19px;line-height:1.9}
 .wrap{max-width:760px;margin:0 auto;padding:0 16px 28px}
 .top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.top:has(#logout.hidden){display:none}
 .sig{display:flex;align-items:center;gap:12px;direction:ltr}
 .sig .nm{white-space:nowrap;font-family:"Pinyon Script",cursive;font-weight:400;font-size:30px;line-height:1;background:linear-gradient(90deg,var(--sig1),var(--sig2));-webkit-background-clip:text;background-clip:text;color:transparent}
 .sig .dv{width:1px;height:28px;background:var(--sigdiv)}
@@ -79,7 +80,6 @@ footer{margin-top:28px;border-top:1px solid var(--sigrule);padding-top:16px;disp
 <body>
 <div class="offline" id="offline" role="status">لا يوجد اتصال بالإنترنت</div>
 <div class="top">
-  <div class="sig" aria-label="teacher abdullah — Design &amp; Programming"><span class="nm">teacher abdullah</span><span class="dv"></span><span class="lb">Design<br>&amp; Programming</span></div>
   <button class="btn-link hidden" id="logout">تسجيل الخروج</button>
 </div>
 
