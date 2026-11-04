@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<title>مناقشة الطلاب</title>
+<title>نجم الحصة</title>
 
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@500;700&family=Pinyon+Script&family=Montserrat:wght@600&display=swap">
 <style>
@@ -161,6 +161,11 @@ code { direction: ltr; unicode-bidi: isolate; font-family: var(--font-code); fon
 .stage .qcard { color: var(--ink); background: var(--field); }
 .stage .qcard .hint { color: var(--ink-soft); }
 .chips .chip.dot { min-height: 0; width: var(--dot, 56px); height: var(--dot, 56px); padding: 0; border: 0; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #bcd8ff, #3f7be0); box-shadow: 0 0 16px rgba(110,164,255,.55); font-size: 0; }
+.chips .chip.dot:nth-child(5n+1) { background: radial-gradient(circle at 35% 30%, #fff3b0, #ffb703); box-shadow: 0 0 18px rgba(255,183,3,.6); }
+.chips .chip.dot:nth-child(5n+2) { background: radial-gradient(circle at 35% 30%, #ffd1e8, #ff4f9a); box-shadow: 0 0 18px rgba(255,79,154,.6); }
+.chips .chip.dot:nth-child(5n+3) { background: radial-gradient(circle at 35% 30%, #c8ffe6, #19c37d); box-shadow: 0 0 18px rgba(25,195,125,.6); }
+.chips .chip.dot:nth-child(5n+4) { background: radial-gradient(circle at 35% 30%, #d6e6ff, #3f7be0); box-shadow: 0 0 18px rgba(63,123,224,.6); }
+.chips .chip.dot:nth-child(5n+5) { background: radial-gradient(circle at 35% 30%, #ead1ff, #9b51e0); box-shadow: 0 0 18px rgba(155,81,224,.6); }
 .chips .chip.dot.done { opacity: .25; }
 .chips .chip.dot.lit { background: radial-gradient(circle at 35% 30%, #fff, #bcd8ff); }
 .chips .chip.dot.picked { animation: none; transform: scale(2.1); background: radial-gradient(circle at 35% 30%, #fff, #8fbaff); box-shadow: 0 0 0 6px rgba(127,178,255,.4), 0 0 44px #9fc4ff; }
@@ -179,6 +184,35 @@ code { direction: ltr; unicode-bidi: isolate; font-family: var(--font-code); fon
 .stage .qcard .hint { text-align: center; font-size: 22px; }
 .row.center { justify-content: center; }
 tr.me td { background: rgba(47, 111, 224, .2); }
+
+
+/* kid-friendly hero and colors */
+.hero { position: relative; overflow: hidden; isolation: isolate; border-radius: 26px; padding: clamp(26px, 6vw, 60px) 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; color: #fff;
+  background: linear-gradient(135deg, #1747b8 0%, #4a3fe0 55%, #8a3ff0 100%); }
+.hero::before { content: ""; position: absolute; left: 50%; top: -30%; width: 150%; height: 170%; transform: translateX(-50%); z-index: -1;
+  background: conic-gradient(from 180deg at 50% 0%, transparent 160deg, rgba(255,255,255,.22) 175deg, rgba(255,255,255,.22) 185deg, transparent 200deg); animation: sweep 6s ease-in-out infinite alternate; }
+@keyframes sweep { from { transform: translateX(-50%) rotate(-14deg); } to { transform: translateX(-50%) rotate(14deg); } }
+.hero h1 { color: #fff; font-size: clamp(54px, 11vw, 120px); line-height: 1.3; text-shadow: 0 5px 0 rgba(0,0,0,.22), 0 0 36px rgba(255,210,63,.55); }
+.bigstar { width: clamp(74px, 13vw, 140px); height: auto; filter: drop-shadow(0 6px 0 rgba(0,0,0,.2)); animation: bob 2.4s ease-in-out infinite; }
+@keyframes bob { 50% { transform: translateY(-10px) rotate(7deg); } }
+.deco { position: absolute; z-index: -1; width: var(--s, 34px); height: auto; animation: floaty var(--t, 5s) ease-in-out infinite; }
+@keyframes floaty { 50% { transform: translateY(-14px) rotate(16deg); } }
+.mode[data-k="lesson"][aria-checked="true"] { background: #15803d; border-color: #15803d; }
+.mode[data-k="review"][aria-checked="true"] { background: #c2410c; border-color: #c2410c; }
+.mode[data-k="unit"][aria-checked="true"] { background: #be185d; border-color: #be185d; }
+.mode { font-size: 21px; min-height: 52px; }
+#startbtn, #pick { background: linear-gradient(135deg, #ffd23f, #ff9f1c); color: #3a2400; border-radius: 18px; box-shadow: 0 6px 0 #c77700; font-size: 30px; min-height: 72px; padding: 6px 44px; animation: pulse 2s ease-in-out infinite; }
+#startbtn[disabled], #pick[disabled] { animation: none; }
+#startbtn:active, #pick:active { transform: translateY(4px); box-shadow: 0 2px 0 #c77700; }
+@keyframes pulse { 50% { transform: scale(1.045); } }
+.stage::before { content: ""; position: fixed; inset: 0; pointer-events: none; animation: tw 3.2s ease-in-out infinite alternate;
+  background-image: radial-gradient(2px 2px at 8% 18%, #fff, transparent), radial-gradient(3px 3px at 22% 72%, #ffe9a0, transparent), radial-gradient(2px 2px at 35% 30%, #fff, transparent), radial-gradient(3px 3px at 52% 84%, #fff, transparent), radial-gradient(2px 2px at 64% 12%, #ffe9a0, transparent), radial-gradient(3px 3px at 78% 58%, #fff, transparent), radial-gradient(2px 2px at 90% 26%, #bcd8ff, transparent), radial-gradient(2px 2px at 14% 46%, #bcd8ff, transparent), radial-gradient(3px 3px at 44% 52%, #fff, transparent), radial-gradient(2px 2px at 86% 88%, #ffe9a0, transparent); }
+@keyframes tw { from { opacity: .35; } to { opacity: 1; } }
+.stage > * { position: relative; }
+.cf-layer { position: fixed; inset: 0; z-index: 1100; pointer-events: none; overflow: hidden; }
+.cf { position: absolute; top: -20px; width: 11px; height: 17px; border-radius: 3px; animation: fall var(--d, 3s) cubic-bezier(.3,.6,.5,1) var(--dl, 0s) both; }
+@keyframes fall { to { transform: translate(var(--x, 0), 108vh) rotate(var(--r, 720deg)); opacity: .9; } }
+@media (prefers-reduced-motion: reduce) { .hero::before, .bigstar, .deco, #startbtn, #pick, .stage::before { animation: none !important; } .cf-layer { display: none; } }
 
 /* sequential reveal */
 @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
@@ -226,9 +260,6 @@ tr.me td { background: rgba(47, 111, 224, .2); }
   body { font-size: 22px; }
   .wrap { max-width: 1320px; display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); gap: 24px; align-items: start; }
   .wrap > header, .wrap > footer { grid-column: 1 / -1; }
-  .wrap > header { flex-direction: row; align-items: center; justify-content: space-between; gap: 32px; }
-  .wrap > header .sig { order: 2; }
-  .wrap > header > div:not(.sig) { order: 1; }
   .wrap > section:nth-of-type(1) { grid-column: 1; grid-row: 2; }
   .wrap > section:nth-of-type(2) { grid-column: 2; grid-row: 2; position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow: auto; }
   .wrap > section:nth-of-type(3) { grid-column: 1 / -1; grid-row: 3; }
@@ -247,17 +278,19 @@ tr.me td { background: rgba(47, 111, 224, .2); }
 </head>
 <body>
 <div class="wrap" id="wrap">
-  <header style="display:flex;flex-direction:column;gap:12px">
-    <div class="sig">
-      <i class="sig-rule"></i>
-      <div class="sig-row">
-        <span class="sig-name">teacher abdullah</span>
-        <i class="sig-bar"></i>
-        <span class="sig-label">Design<br>&amp; Programming</span>
-      </div>
-    </div>
-    <div><h1>مناقشة الطلاب</h1>
-    <p class="lead">اضغط «ابدأ المناقشة» لتُفتح بكامل الشاشة. تظهر نقاط مضيئة بلا أسماء، ويتحرك الكشّاف بينها ويستقر على نقطة، فيظهر اسم الطالب بحركة سينمائية، ثم يُطرح عليه سؤال خياراته تظهر واحدًا بعد الآخر.</p></div>
+  <header class="hero" aria-labelledby="ttl">
+    <svg class="deco" style="top:10%;right:7%;--s:46px;--t:4.2s" viewBox="0 0 24 24" aria-hidden="true"><path fill="#ffd23f" d="M12 .6l3.4 7.2 7.8.9-5.8 5.4 1.6 7.8L12 18l-7 3.9 1.6-7.8L.8 8.7l7.8-.9z"/></svg>
+    <svg class="deco" style="top:58%;right:16%;--s:30px;--t:5.5s" viewBox="0 0 24 24" aria-hidden="true"><path fill="#ff6fb1" d="M12 .6l3.4 7.2 7.8.9-5.8 5.4 1.6 7.8L12 18l-7 3.9 1.6-7.8L.8 8.7l7.8-.9z"/></svg>
+    <svg class="deco" style="top:14%;left:9%;--s:38px;--t:4.8s" viewBox="0 0 24 24" aria-hidden="true"><path fill="#3ddc97" d="M12 .6l3.4 7.2 7.8.9-5.8 5.4 1.6 7.8L12 18l-7 3.9 1.6-7.8L.8 8.7l7.8-.9z"/></svg>
+    <svg class="deco" style="top:62%;left:6%;--s:52px;--t:6s" viewBox="0 0 24 24" aria-hidden="true"><path fill="#ff9f43" d="M12 .6l3.4 7.2 7.8.9-5.8 5.4 1.6 7.8L12 18l-7 3.9 1.6-7.8L.8 8.7l7.8-.9z"/></svg>
+    <svg class="deco" style="top:30%;left:20%;--s:22px;--t:5s" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#ff6fb1"/></svg>
+    <svg class="deco" style="top:20%;right:22%;--s:18px;--t:4s" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#3ddc97"/></svg>
+    <svg class="deco" style="top:74%;left:26%;--s:20px;--t:5.8s" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#ffd23f"/></svg>
+    <svg class="deco" style="top:42%;right:5%;--s:26px;--t:4.6s" viewBox="0 0 24 24" aria-hidden="true"><path fill="#7fe3ff" d="M9 2h6v7h7v6h-7v7H9v-7H2V9h7z"/></svg>
+    <svg class="deco" style="top:8%;left:30%;--s:22px;--t:5.2s" viewBox="0 0 24 24" aria-hidden="true"><path fill="#ffd23f" d="M9 2h6v7h7v6h-7v7H9v-7H2V9h7z"/></svg>
+    <svg class="deco" style="top:78%;right:30%;--s:24px;--t:6.2s" viewBox="0 0 24 24" aria-hidden="true"><path fill="#ff9f43" d="M9 2h6v7h7v6h-7v7H9v-7H2V9h7z"/></svg>
+    <svg class="bigstar" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff3a8"/><stop offset="1" stop-color="#ffb100"/></linearGradient></defs><path fill="url(#sg)" stroke="#fff" stroke-width=".6" stroke-linejoin="round" d="M12 .6l3.4 7.2 7.8.9-5.8 5.4 1.6 7.8L12 18l-7 3.9 1.6-7.8L.8 8.7l7.8-.9z"/></svg>
+    <h1 id="ttl">نجم الحصة</h1>
   </header>
 
   <section class="card" aria-labelledby="h-arena">
@@ -383,7 +416,7 @@ tr.me td { background: rgba(47, 111, 224, .2); }
   </footer>
 </div>
 
-<div class="stage" id="stage" hidden role="dialog" aria-modal="true" aria-label="المناقشة">
+<div class="stage" id="stage" hidden role="dialog" aria-modal="true" aria-label="نجم الحصة">
   <div class="stage-top"><span class="stage-info" id="stinfo"></span><button type="button" class="btn soft" id="exitbtn">إنهاء المناقشة</button></div>
   <div class="stage-main">
     <div class="field" id="field"><div class="chips" id="chips" aria-hidden="true"></div><div class="dim" id="dim"></div></div>
@@ -392,6 +425,8 @@ tr.me td { background: rgba(47, 111, 224, .2); }
   </div>
   <div id="qarea" hidden></div>
 </div>
+
+<div class="cf-layer" id="cf" aria-hidden="true"></div>
 
 <div class="cine" id="cine" hidden role="dialog" aria-modal="true" aria-label="الطالب المختار">
   <div class="rays"></div><div class="flash"></div><div class="bar t"></div><div class="bar b"></div>
@@ -458,7 +493,7 @@ tr.me td { background: rgba(47, 111, 224, .2); }
     var box = $("modes"); box.innerHTML = "";
     ["lesson", "review", "unit"].forEach(function (k) {
       var b = el("button", "mode", MODES[k]);
-      b.type = "button"; b.setAttribute("role", "radio");
+      b.type = "button"; b.dataset.k = k; b.setAttribute("role", "radio");
       b.setAttribute("aria-checked", S.mode === k ? "true" : "false");
       b.addEventListener("click", function () { if (S.busy) return; S.mode = k; S.queue = []; hideQ(); persist(); renderModes(); renderPickState(); });
       box.appendChild(b);
@@ -548,6 +583,21 @@ tr.me td { background: rgba(47, 111, 224, .2); }
     })();
   }
 
+  /* ---------- confetti ---------- */
+  function confetti(n) {
+    if (reduce) return;
+    var L = $("cf"), cols = ["#ffd23f", "#ff4f9a", "#19c37d", "#3f9bff", "#9b51e0", "#ff9f1c", "#ffffff"];
+    for (var i = 0; i < n; i++) {
+      var p = el("i", "cf");
+      p.style.left = (Math.random() * 100) + "vw"; p.style.background = cols[i % cols.length];
+      p.style.setProperty("--x", (Math.random() * 240 - 120) + "px"); p.style.setProperty("--r", (Math.random() * 900 - 450) + "deg");
+      p.style.setProperty("--d", (2.4 + Math.random() * 1.8) + "s"); p.style.setProperty("--dl", (Math.random() * .6) + "s");
+      if (i % 3 === 0) { p.style.borderRadius = "50%"; p.style.width = "12px"; p.style.height = "12px"; }
+      L.appendChild(p);
+    }
+    setTimeout(function () { L.innerHTML = ""; }, 5200);
+  }
+
   /* ---------- cinematic reveal ---------- */
   function cinema(name) {
     return new Promise(function (res) {
@@ -556,6 +606,7 @@ tr.me td { background: rgba(47, 111, 224, .2); }
       name.split(/\s+/).forEach(function (w, i) { var sp = el("span", "w", w); sp.style.setProperty("--i", i); n.appendChild(sp); });
       c.hidden = false; c.classList.remove("show"); void c.offsetWidth;
       requestAnimationFrame(function () { c.classList.add("show"); });
+      setTimeout(function () { if (!done) confetti(70); }, reduce ? 0 : 1500);
       function close() {
         if (done) return; done = true; clearTimeout(timer);
         document.removeEventListener("keydown", key); c.removeEventListener("click", click);
@@ -634,6 +685,7 @@ tr.me td { background: rgba(47, 111, 224, .2); }
       box.appendChild(el("p", "t", title));
       lines.forEach(function (t) { if (t) box.appendChild(el("p", "", t)); });
       card.appendChild(box);
+      if (kind === "ok") confetti(60);
       actionBtn(card, next === "retry" ? "حاول مرة أخرى" : "عرض النتيجة", "nextbtn", next === "retry" ? screenOptions : screenResult);
     });
   }
