@@ -142,12 +142,50 @@ code { direction: ltr; unicode-bidi: isolate; font-family: var(--font-code); fon
 .band { background: var(--accent); color: var(--on-accent); border-radius: 18px; padding: 22px 20px 18px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
 :focus-visible { outline: 3px solid var(--ink-soft); outline-offset: 3px; }
 
+
+/* full-screen discussion stage */
+.stage { position: fixed; inset: 0; z-index: 900; display: flex; flex-direction: column; gap: 12px; background: radial-gradient(circle at 50% 40%, #0f2f75 0, #071a42 55%, #030b1f 100%); color: #e3eeff; overflow: auto; direction: rtl;
+  padding-top: max(16px, env(safe-area-inset-top, 0px)); padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.stage-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex: none; }
+.stage-info { font-size: 20px; color: #9cc3ff; }
+.stage-main { flex: 1; display: flex; flex-direction: column; gap: 16px; min-height: 0; align-items: center; justify-content: center; }
+.stage .field { background: transparent; border: 0; width: 100%; flex: 1; min-height: 240px; display: flex; align-items: center; justify-content: center; padding: 16px; }
+.stage .dim { border-radius: 0; }
+.stage.asking .stage-main { display: none; }
+.stage #qarea { flex: 1; display: flex; align-items: center; justify-content: center; }
+.stage #qarea[hidden] { display: none; }
+.stage .qcard { width: min(1000px, 100%); }
+.stage .status { color: #9cc3ff; text-align: center; }
+.stage-top .btn.soft { background: rgba(255,255,255,.1); color: #e3eeff; border-color: rgba(255,255,255,.25); }
+.stage .qcard { color: var(--ink); background: var(--field); }
+.stage .qcard .hint { color: var(--ink-soft); }
+.chips .chip.dot { min-height: 0; width: var(--dot, 56px); height: var(--dot, 56px); padding: 0; border: 0; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #bcd8ff, #3f7be0); box-shadow: 0 0 16px rgba(110,164,255,.55); font-size: 0; }
+.chips .chip.dot.done { opacity: .25; }
+.chips .chip.dot.lit { background: radial-gradient(circle at 35% 30%, #fff, #bcd8ff); }
+.chips .chip.dot.picked { animation: none; transform: scale(2.1); background: radial-gradient(circle at 35% 30%, #fff, #8fbaff); box-shadow: 0 0 0 6px rgba(127,178,255,.4), 0 0 44px #9fc4ff; }
+
+
+/* one element at a time inside the stage */
+.stage .qcard { padding: clamp(20px, 4vw, 40px); align-items: stretch; gap: 20px; }
+.stage .qcard > .qtop { justify-content: center; }
+.qtext.big { font-size: clamp(32px, 5.2vw, 68px); line-height: 1.6; text-align: center; }
+.stage .qtext:not(.big) { font-size: clamp(24px, 3vw, 36px); text-align: center; }
+.stage .qcard > .btn { align-self: center; }
+.stage .fb { text-align: center; padding: clamp(18px, 3vw, 36px); }
+.stage .fb .t { font-size: clamp(30px, 4.4vw, 54px); line-height: 1.5; }
+.stage .fb p { font-size: clamp(22px, 2.6vw, 32px); }
+.stage .qcard h2 { margin: 0; font-size: clamp(30px, 4vw, 48px); text-align: center; }
+.stage .qcard .hint { text-align: center; font-size: 22px; }
+.row.center { justify-content: center; }
+tr.me td { background: rgba(47, 111, 224, .2); }
+
 /* sequential reveal */
 @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 .qcard { animation: rise .6s both; }
 .qcard .qtop { animation: rise .5s both; }
 .qcard .qtext { animation: rise .6s .25s both; }
-.qcard .opt { animation: rise .5s calc(.6s + var(--i, 0) * .25s) both; }
+.qcard .opt { animation: rise .5s calc(.9s + var(--i, 0) * .6s) both; }
 .fb { animation: rise .5s both; }
 #nextbtn { animation: rise .5s .9s both; }
 .reveal { animation: rise .7s 1s both; }
@@ -219,23 +257,18 @@ code { direction: ltr; unicode-bidi: isolate; font-family: var(--font-code); fon
       </div>
     </div>
     <div><h1>مناقشة الطلاب</h1>
-    <p class="lead">اختر نوع المناقشة، ثم اضغط «اختر طالبًا» ليتحرك الكشّاف بين الأسماء ويستقر على طالب واحد فيظهر اسمه بكامل الشاشة. يُطرح عليه سؤال، وإن أخطأ فتصله تغذية راجعة وفرصة ثانية.</p></div>
+    <p class="lead">اضغط «ابدأ المناقشة» لتُفتح بكامل الشاشة. تظهر نقاط مضيئة بلا أسماء، ويتحرك الكشّاف بينها ويستقر على نقطة، فيظهر اسم الطالب بحركة سينمائية، ثم يُطرح عليه سؤال خياراته تظهر واحدًا بعد الآخر.</p></div>
   </header>
 
   <section class="card" aria-labelledby="h-arena">
     <h2 id="h-arena">ساحة المناقشة</h2>
+    <p class="hint">اختر نوع المناقشة ثم ابدأ. تُفتح المناقشة بكامل الشاشة، ولا تظهر فيها أسماء الطلاب إلا لحظة الاختيار.</p>
     <div class="modes" id="modes" role="radiogroup" aria-label="نوع المناقشة"></div>
     <label class="toggle"><input type="checkbox" id="norepeat" checked> لا يتكرر اختيار الطالب حتى ينتهي الجميع</label>
-    <div class="field" id="field">
-      <div class="chips" id="chips" role="list" aria-label="أسماء الطلاب"></div>
-      <div class="dim" id="dim"></div>
-    </div>
     <div class="row">
-      <button type="button" class="btn big" id="pick">اختر طالبًا</button>
+      <button type="button" class="btn big" id="startbtn">ابدأ المناقشة</button>
       <span class="status" id="round"></span>
     </div>
-    <div class="status" id="sr" role="status" aria-live="polite"></div>
-    <div id="qarea" hidden></div>
   </section>
 
   <section class="card" id="sec-board" aria-labelledby="h-board" hidden>
@@ -350,6 +383,16 @@ code { direction: ltr; unicode-bidi: isolate; font-family: var(--font-code); fon
   </footer>
 </div>
 
+<div class="stage" id="stage" hidden role="dialog" aria-modal="true" aria-label="المناقشة">
+  <div class="stage-top"><span class="stage-info" id="stinfo"></span><button type="button" class="btn soft" id="exitbtn">إنهاء المناقشة</button></div>
+  <div class="stage-main">
+    <div class="field" id="field"><div class="chips" id="chips" aria-hidden="true"></div><div class="dim" id="dim"></div></div>
+    <button type="button" class="btn big" id="pick">اختر طالبًا</button>
+    <div class="status" id="sr" role="status" aria-live="polite"></div>
+  </div>
+  <div id="qarea" hidden></div>
+</div>
+
 <div class="cine" id="cine" hidden role="dialog" aria-modal="true" aria-label="الطالب المختار">
   <div class="rays"></div><div class="flash"></div><div class="bar t"></div><div class="bar b"></div>
   <div class="cine-in"><p class="cine-k">الطالب المختار</p><h2 class="cine-name" id="cine-name"></h2><p class="cine-h">اضغط للمتابعة</p></div>
@@ -426,11 +469,11 @@ code { direction: ltr; unicode-bidi: isolate; font-family: var(--font-code); fon
   var chipEls = {};
   function renderChips() {
     var box = $("chips"); box.innerHTML = ""; chipEls = {};
-    if (!S.names.length) { box.appendChild(el("div", "empty", "أضف أسماء الطلاب من قسم «إعداد الجلسة» لتبدأ.")); return; }
-    S.names.forEach(function (n) {
-      var c = el("span", "chip" + (S.noRepeat && S.picked[n] ? " done" : ""), n);
-      c.setAttribute("role", "listitem");
-      chipEls[n] = c; box.appendChild(c);
+    var n = S.names.length;
+    box.style.setProperty("--dot", (n <= 12 ? 72 : n <= 30 ? 56 : n <= 50 ? 44 : 34) + "px");
+    S.names.forEach(function (nm) {
+      var c = el("span", "chip dot" + (S.noRepeat && S.picked[nm] ? " done" : ""));
+      chipEls[nm] = c; box.appendChild(c);
     });
   }
   function renderPickState() {
@@ -441,7 +484,8 @@ code { direction: ltr; unicode-bidi: isolate; font-family: var(--font-code); fon
     if (!S.names.length) msg = "لا توجد أسماء.";
     else if (!nq) msg = "لا توجد أسئلة لهذا النوع، أضف أسئلة من قسم الإعداد.";
     else msg = "الجولة " + ar(S.round) + "، الأسئلة المتاحة: " + ar(nq);
-    $("round").textContent = msg;
+    $("round").textContent = msg; $("stinfo").textContent = msg;
+    $("startbtn").disabled = !S.names.length || !nq;
   }
 
   /* ---------- spotlight ---------- */
@@ -475,14 +519,15 @@ code { direction: ltr; unicode-bidi: isolate; font-family: var(--font-code); fon
     var target = avail[Math.floor(Math.random() * avail.length)];
     Object.keys(chipEls).forEach(function (n) { chipEls[n].classList.remove("picked", "lit"); });
     renderChips();
-    var field = $("field"); field.classList.add("on"); field.style.setProperty("--r", "46px");
+    var field = $("field"); field.classList.add("on");
     var tEl = chipEls[target], names = S.names;
+    var dotW = tEl.offsetWidth || 56; field.style.setProperty("--r", Math.round(dotW * 0.9) + "px");
     var start = S.lastPos || { x: field.clientWidth / 2, y: field.clientHeight / 2 };
     setPos(start.x, start.y);
 
     function finish() {
       tEl.classList.add("picked");
-      field.style.setProperty("--r", "74px");
+      field.style.setProperty("--r", Math.round(dotW * 1.7) + "px");
       S.picked[target] = true; S.lastPos = center(tEl);
       persist();
       announce("تم اختيار الطالب: " + target);
@@ -525,81 +570,111 @@ code { direction: ltr; unicode-bidi: isolate; font-family: var(--font-code); fon
   }
 
   /* ---------- question ---------- */
-  function hideQ() { clearTimeout(S.enableT); var q = $("qarea"); q.hidden = true; q.innerHTML = ""; S.cur = null; }
+  function hideQ() { clearTimeout(S.enableT); $("stage").classList.remove("asking"); var q = $("qarea"); q.hidden = true; q.innerHTML = ""; S.cur = null; }
+  function pill(t) { return el("span", "pill", t); }
+  function swap(build) {
+    clearTimeout(S.enableT);
+    var area = $("qarea"); area.innerHTML = ""; area.hidden = false; $("stage").classList.add("asking");
+    var card = el("div", "qcard"); build(card); area.appendChild(card);
+    return card;
+  }
+  function topPills(card, c0) {
+    var top = el("div", "qtop");
+    top.appendChild(pill("الطالب: " + c0.name)); top.appendChild(pill(MODES[c0.q.tag] || "سؤال"));
+    if (c0.q.sample) top.appendChild(pill("سؤال تجريبي"));
+    card.appendChild(top);
+  }
+  function actionBtn(card, text, id, fn) {
+    var b = el("button", "btn big", text); b.type = "button"; b.id = id; b.addEventListener("click", fn); card.appendChild(b); return b;
+  }
 
+  /* screen 1: the question alone */
   function showQ(name) {
-    var area = $("qarea"); area.innerHTML = ""; area.hidden = false;
     var q = nextQ();
-    var card = el("div", "qcard");
-    if (!q) { card.appendChild(el("p", "", "لا توجد أسئلة لهذا النوع.")); area.appendChild(card); return; }
+    if (!q) {
+      swap(function (card) { card.appendChild(el("p", "qtext big", "لا توجد أسئلة لهذا النوع.")); actionBtn(card, "رجوع", "nextbtn", function () { hideQ(); $("pick").focus(); }); });
+      return;
+    }
     S.cur = { name: name, q: q, tries: 0, done: false, wrong: {} };
     var c0 = S.cur;
-    var top = el("div", "qtop");
-    top.appendChild(el("span", "pill", "الطالب: " + name));
-    top.appendChild(el("span", "pill", MODES[q.tag] || "سؤال"));
-    if (q.sample) top.appendChild(el("span", "pill", "سؤال تجريبي"));
-    card.appendChild(top);
-    card.appendChild(el("p", "qtext", q.q));
-    var opts = el("div", "opts"); opts.id = "opts";
-    var cnt = 0;
-    q.o.forEach(function (t, i) {
-      if (!t) return;
-      var b = el("button", "opt"); b.type = "button"; b.dataset.i = i; b.disabled = true; b.style.setProperty("--i", cnt++);
-      b.appendChild(el("b", "", LET[i] + "."));
-      b.appendChild(el("span", "", t));
-      b.addEventListener("click", function () { answer(i); });
-      opts.appendChild(b);
+    swap(function (card) {
+      topPills(card, c0);
+      card.appendChild(el("p", "qtext big", q.q));
+      var b = actionBtn(card, "عرض الخيارات", "nextbtn", screenOptions); setTimeout(function () { if (document.body.contains(b)) b.focus(); }, reduce ? 0 : 1300);
     });
-    card.appendChild(opts);
-    var fb = el("div", ""); fb.id = "fb"; fb.setAttribute("role", "status"); fb.setAttribute("aria-live", "polite");
-    card.appendChild(fb);
-    var nxt = el("button", "btn", "التالي: اختر طالبًا آخر"); nxt.type = "button"; nxt.id = "nextbtn"; nxt.hidden = true;
-    nxt.addEventListener("click", function () { hideQ(); $("pick").focus(); });
-    card.appendChild(nxt);
-    area.appendChild(card);
-    S.enableT = setTimeout(function () {
-      var all = document.querySelectorAll("#opts .opt");
-      for (var k = 0; k < all.length; k++) if (!c0.wrong[all[k].dataset.i]) all[k].disabled = false;
-    }, reduce ? 0 : 900 + cnt * 250);
-    if (area.scrollIntoView) area.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "nearest" });
+    announce("السؤال: " + q.q);
   }
 
-  function optBtn(i) { return document.querySelector('#opts .opt[data-i="' + i + '"]'); }
-  function lockAll() { var all = document.querySelectorAll("#opts .opt"); for (var k = 0; k < all.length; k++) all[k].disabled = true; }
-  function showFb(kind, title, lines) {
-    var fb = $("fb"); fb.innerHTML = "";
-    var box = el("div", "fb " + kind);
-    box.appendChild(el("p", "t", title));
-    lines.forEach(function (t) { if (t) box.appendChild(el("p", "", t)); });
-    fb.appendChild(box);
+  /* screen 2: the options appear one after another */
+  function screenOptions() {
+    var c0 = S.cur; if (!c0) return; var q = c0.q;
+    swap(function (card) {
+      topPills(card, c0);
+      card.appendChild(el("p", "qtext", q.q));
+      var opts = el("div", "opts"); opts.id = "opts"; var cnt = 0;
+      q.o.forEach(function (t, i) {
+        if (!t || c0.wrong[i]) return;
+        var b = el("button", "opt"); b.type = "button"; b.dataset.i = i; b.disabled = true; b.style.setProperty("--i", cnt++);
+        b.appendChild(el("b", "", LET[i] + ".")); b.appendChild(el("span", "", t));
+        b.addEventListener("click", function () { answer(i); });
+        opts.appendChild(b);
+      });
+      card.appendChild(opts);
+      S.enableT = setTimeout(function () {
+        var all = document.querySelectorAll("#opts .opt");
+        for (var k = 0; k < all.length; k++) all[k].disabled = false;
+      }, reduce ? 0 : 1300 + cnt * 600);
+    });
   }
+
+  /* screen 3: feedback alone */
+  function screenFb(kind, title, lines, next) {
+    swap(function (card) {
+      var box = el("div", "fb " + kind);
+      box.appendChild(el("p", "t", title));
+      lines.forEach(function (t) { if (t) box.appendChild(el("p", "", t)); });
+      card.appendChild(box);
+      actionBtn(card, next === "retry" ? "حاول مرة أخرى" : "عرض النتيجة", "nextbtn", next === "retry" ? screenOptions : screenResult);
+    });
+  }
+
   function record(name, res) {
     var s = S.scores[name] || (S.scores[name] = { ok: 0, assist: 0, wrong: 0 });
     s[res]++; persist(); renderBoard();
   }
-  function finishQ() { lockAll(); var n = $("nextbtn"); n.hidden = false; n.focus(); }
 
   function answer(i) {
-    var c = S.cur; if (!c || c.done || c.wrong[i]) return;
-    var q = c.q, b = optBtn(i);
+    var c = S.cur; if (!c || c.done || c.wrong[i]) return; var q = c.q;
     if (i === q.c) {
-      c.done = true; b.classList.add("right");
-      var res = c.tries === 0 ? "ok" : "assist";
-      record(c.name, res);
-      showFb("ok", c.tries === 0 ? "أحسنت، إجابة صحيحة." : "أحسنت، وصلت إلى الإجابة الصحيحة.", [q.fb]);
-      finishQ();
+      c.done = true; record(c.name, c.tries === 0 ? "ok" : "assist");
+      screenFb("ok", c.tries === 0 ? "أحسنت، إجابة صحيحة." : "أحسنت، وصلت إلى الإجابة الصحيحة.", ["الإجابة: " + q.o[q.c], q.fb], "result");
     } else {
-      c.tries++; c.wrong[i] = true; b.classList.add("wrong"); b.disabled = true;
+      c.tries++; c.wrong[i] = true;
       var open = 0; q.o.forEach(function (t, k) { if (t && !c.wrong[k]) open++; });
       if (c.tries === 1 && open > 1) {
-        showFb("warn", "ليست الإجابة الصحيحة، حاول مرة أخرى.", [q.hint ? "تلميح: " + q.hint : "", q.fb]);
+        screenFb("warn", "ليست الإجابة الصحيحة، حاول مرة أخرى.", [q.hint ? "تلميح: " + q.hint : "فكّر في الدرس مرة أخرى."], "retry");
       } else {
-        c.done = true; optBtn(q.c).classList.add("right");
-        record(c.name, "wrong");
-        showFb("warn", "الإجابة الصحيحة هي: " + q.o[q.c], [q.fb, "لا بأس، المحاولة تُقرّبنا من الفهم."]);
-        finishQ();
+        c.done = true; record(c.name, "wrong");
+        screenFb("warn", "الإجابة الصحيحة هي: " + q.o[q.c], [q.fb, "لا بأس، المحاولة تُقرّبنا من الفهم."], "result");
       }
     }
+  }
+
+  /* screen 4: results alone */
+  function screenResult() {
+    var c = S.cur; if (!c) return;
+    var s = S.scores[c.name] || { ok: 0, assist: 0, wrong: 0 };
+    swap(function (card) {
+      card.appendChild(el("h2", "", "النتائج"));
+      card.appendChild(el("p", "hint", "نتيجة " + c.name + ": صحيحة " + ar(s.ok) + "، بتلميح " + ar(s.assist) + "، خاطئة " + ar(s.wrong)));
+      var sc = el("div", "scroll"); sc.appendChild(buildTable(c.name)); card.appendChild(sc);
+      var row = el("div", "row center");
+      var b1 = el("button", "btn big", "اختر طالبًا آخر"); b1.type = "button"; b1.id = "nextbtn";
+      b1.addEventListener("click", function () { hideQ(); $("pick").focus(); });
+      var b2 = el("button", "btn soft big", "إنهاء المناقشة"); b2.type = "button"; b2.addEventListener("click", closeStage);
+      row.appendChild(b1); row.appendChild(b2); card.appendChild(row);
+      b1.focus();
+    });
   }
 
   /* ---------- board ---------- */
@@ -607,6 +682,20 @@ code { direction: ltr; unicode-bidi: isolate; font-family: var(--font-code); fon
     var t = { ok: 0, assist: 0, wrong: 0, n: 0 };
     Object.keys(S.scores).forEach(function (k) { var s = S.scores[k]; t.ok += s.ok; t.assist += s.assist; t.wrong += s.wrong; });
     t.n = t.ok + t.assist + t.wrong; return t;
+  }
+  function buildTable(hl) {
+    var keys = Object.keys(S.scores);
+    keys.sort(function (a, b) { var x = S.scores[a], y = S.scores[b]; return (y.ok - x.ok) || (y.assist - x.assist) || (x.wrong - y.wrong); });
+    var tb = el("table"), th = el("tr");
+    ["الطالب", "صحيحة", "بتلميح", "خاطئة"].forEach(function (h) { th.appendChild(el("th", "", h)); });
+    var thead = el("thead"); thead.appendChild(th); tb.appendChild(thead);
+    var body = el("tbody");
+    keys.forEach(function (k) {
+      var sc = S.scores[k], r = el("tr", k === hl ? "me" : "");
+      r.appendChild(el("td", "", k)); r.appendChild(el("td", "n", ar(sc.ok))); r.appendChild(el("td", "n", ar(sc.assist))); r.appendChild(el("td", "n", ar(sc.wrong)));
+      body.appendChild(r);
+    });
+    tb.appendChild(body); return tb;
   }
   function renderBoard() {
     var keys = Object.keys(S.scores);
@@ -619,17 +708,7 @@ code { direction: ltr; unicode-bidi: isolate; font-family: var(--font-code); fon
     var box = $("board"); box.innerHTML = "";
     if (!keys.length) { box.appendChild(el("p", "hint", "لم يُسجَّل شيء بعد. اضغط «اختر طالبًا» لتبدأ المناقشة، وتظهر هنا نتيجة كل طالب.")); }
     else {
-      keys.sort(function (a, b) { var x = S.scores[a], y = S.scores[b]; return (y.ok - x.ok) || (y.assist - x.assist) || (x.wrong - y.wrong); });
-      var tb = el("table"); var th = el("tr");
-      ["الطالب", "صحيحة", "بتلميح", "خاطئة"].forEach(function (h) { th.appendChild(el("th", "", h)); });
-      var thead = el("thead"); thead.appendChild(th); tb.appendChild(thead);
-      var body = el("tbody");
-      keys.forEach(function (k) {
-        var s = S.scores[k], r = el("tr");
-        r.appendChild(el("td", "", k)); r.appendChild(el("td", "n", ar(s.ok))); r.appendChild(el("td", "n", ar(s.assist))); r.appendChild(el("td", "n", ar(s.wrong)));
-        body.appendChild(r);
-      });
-      tb.appendChild(body); box.appendChild(tb);
+      box.appendChild(buildTable());
     }
     $("restorebtn").hidden = !S.backup;
     $("copyrep").disabled = !keys.length;
@@ -771,6 +850,22 @@ code { direction: ltr; unicode-bidi: isolate; font-family: var(--font-code); fon
   });
 
   $("pick").addEventListener("click", pick);
+  function openStage() {
+    if (!S.names.length || !filtered().length) return;
+    var st = $("stage"); st.hidden = false; document.documentElement.style.overflow = "hidden";
+    S.lastPos = null; hideQ(); renderChips(); $("field").classList.remove("on"); renderPickState();
+    try { var d = document.documentElement; if (d.requestFullscreen) { var pr = d.requestFullscreen(); if (pr && pr.catch) pr.catch(function () {}); } } catch (e) {}
+    $("pick").focus();
+  }
+  function closeStage() {
+    if (S.busy) return;
+    hideQ(); $("stage").hidden = true; document.documentElement.style.overflow = "";
+    try { if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen(); } catch (e) {}
+    renderBoard(); $("startbtn").focus();
+  }
+  $("startbtn").addEventListener("click", openStage);
+  $("exitbtn").addEventListener("click", closeStage);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !$("stage").hidden && $("cine").hidden) closeStage(); });
   function renderAll() { renderModes(); renderChips(); renderPickState(); renderBoard(); renderNames(); renderQList(); $("norepeat").checked = S.noRepeat; }
   renderAll();
   window.addEventListener("resize", function () { S.lastPos = null; });
