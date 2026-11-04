@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>مناقشة الطلاب</title>
 <meta name="robots" content="noindex, nofollow">
+<title>مناقشة الطلاب</title>
 
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@500;700&family=Pinyon+Script&family=Montserrat:wght@600&display=swap">
 <style>
@@ -40,6 +40,7 @@
   --dim: rgba(2, 8, 20, 0.8);
   color-scheme: dark;
 }
+[hidden] { display: none !important; }
 html { direction: rtl; }
 body {
   background: var(--bg); color: var(--ink);
@@ -140,6 +141,24 @@ code { direction: ltr; unicode-bidi: isolate; font-family: var(--font-code); fon
 
 .band { background: var(--accent); color: var(--on-accent); border-radius: 18px; padding: 22px 20px 18px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
 :focus-visible { outline: 3px solid var(--ink-soft); outline-offset: 3px; }
+/* desktop: wide two-column layout */
+@media (min-width: 1000px) {
+  body { font-size: 22px; }
+  .wrap { max-width: 1320px; display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+  .wrap > header, .wrap > footer { grid-column: 1 / -1; }
+  .wrap > header { flex-direction: row; align-items: center; justify-content: space-between; gap: 32px; }
+  .wrap > header .sig { order: 2; }
+  .wrap > header > div:not(.sig) { order: 1; }
+  .wrap > section:nth-of-type(1) { grid-column: 1; grid-row: 2; }
+  .wrap > section:nth-of-type(2) { grid-column: 2; grid-row: 2; position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow: auto; }
+  .wrap > section:nth-of-type(3) { grid-column: 1 / -1; grid-row: 3; }
+  .field { padding: 26px; min-height: 260px; display: flex; align-items: center; }
+  .field .chips { width: 100%; gap: 14px; }
+  .chip { font-size: 23px; min-height: 52px; padding: 2px 24px; }
+  .qtext { font-size: 32px; }
+  .opt { font-size: 24px; min-height: 66px; }
+  .btn.big { font-size: 28px; min-height: 66px; padding: 6px 44px; }
+}
 @media (prefers-reduced-motion: reduce) { .chip, .dim { transition: none; } .chip.picked { animation: none; } }
 </style>
 
@@ -156,8 +175,8 @@ code { direction: ltr; unicode-bidi: isolate; font-family: var(--font-code); fon
         <span class="sig-label">Design<br>&amp; Programming</span>
       </div>
     </div>
-    <h1>مناقشة الطلاب</h1>
-    <p class="lead">اختر نوع المناقشة، ثم اضغط «اختر طالبًا» ليتحرك الكشّاف بين الأسماء ويستقر على طالب واحد. يُطرح عليه سؤال، وإن أخطأ فتصله تغذية راجعة وفرصة ثانية.</p>
+    <div><h1>مناقشة الطلاب</h1>
+    <p class="lead">اختر نوع المناقشة، ثم اضغط «اختر طالبًا» ليتحرك الكشّاف بين الأسماء ويستقر على طالب واحد. يُطرح عليه سؤال، وإن أخطأ فتصله تغذية راجعة وفرصة ثانية.</p></div>
   </header>
 
   <section class="card" aria-labelledby="h-arena">
