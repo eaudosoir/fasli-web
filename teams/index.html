@@ -26,6 +26,11 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Naskh Arab
 .wrap{max-width:760px;margin:0 auto;padding:0 16px 28px}
 .top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .top:has(#logout.hidden){display:none}
+.linkbox{border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:12px;background:var(--card,transparent)}
+.linkbox .fn{font-weight:700;margin-bottom:8px;word-break:break-all}
+.linkbox .u{direction:ltr;text-align:left;font-size:13px;word-break:break-all;color:var(--mute);margin:6px 0 10px}
+.linkbox .act{display:flex;flex-wrap:wrap;gap:8px}
+progress{width:100%;height:10px;margin-top:10px}
 .sig{display:flex;align-items:center;gap:12px;direction:ltr}
 .sig .nm{white-space:nowrap;font-family:"Pinyon Script",cursive;font-weight:400;font-size:30px;line-height:1;background:linear-gradient(90deg,var(--sig1),var(--sig2));-webkit-background-clip:text;background-clip:text;color:transparent}
 .sig .dv{width:1px;height:28px;background:var(--sigdiv)}
@@ -104,9 +109,10 @@ footer{margin-top:28px;border-top:1px solid var(--sigrule);padding-top:16px;disp
   <!-- بعد الدخول -->
   <div id="app" class="hidden">
     <p class="lead" id="hello"></p>
-    <div class="tabs hidden" id="tabs" role="tablist">
+    <div class="tabs" id="tabs" role="tablist">
       <button class="tab" role="tab" aria-selected="true" id="tabSend">إرسال محتوى</button>
-      <button class="tab" role="tab" aria-selected="false" id="tabInbox">صندوق الوارد <span id="pendingCount"></span></button>
+      <button class="tab" role="tab" aria-selected="false" id="tabFile">تحويل ملف إلى رابط</button>
+      <button class="tab hidden" role="tab" aria-selected="false" id="tabInbox">صندوق الوارد <span id="pendingCount"></span></button>
     </div>
 
     <section id="sendPane">
@@ -138,6 +144,20 @@ footer{margin-top:28px;border-top:1px solid var(--sigrule);padding-top:16px;disp
         <p class="err" id="formErr" role="alert"></p>
         <button class="btn" id="sendBtn" type="submit">إرسال للمراجعة</button>
       </form>
+    </section>
+
+    <section id="filePane" class="hidden">
+      <div class="card">
+        <h2>تحويل ملف إلى رابط</h2>
+        <p class="hint">ارفع الملف فيصلك رابط للمعاينة ورابط للتحميل، وتستطيع إدراجه في نص المحتوى. الأنواع المسموحة: صور، PDF، وورد، بوربوينت، إكسل. الحد الأقصى ١٠ ميجابايت.</p>
+        <label for="fileInp">اختر الملف <span class="req">*</span></label>
+        <input id="fileInp" type="file" accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.doc,.docx,.ppt,.pptx,.xls,.xlsx">
+        <p class="hint">لا ترفع ملفات فيها أسماء طلاب أو درجاتهم أو بيانات شخصية. من لديه الرابط يستطيع فتح الملف.</p>
+        <p class="err" id="fileErr" role="alert"></p>
+        <button class="btn" id="fileBtn" type="button">رفع وإنشاء الرابط</button>
+        <progress id="fileProg" class="hidden" max="100"></progress>
+        <div id="fileResults"></div>
+      </div>
     </section>
 
     <section id="inboxPane" class="hidden">
@@ -217,16 +237,17 @@ $("logout").onclick=logout;
 function showApp(){
   $("loginCard").classList.add("hidden"); $("app").classList.remove("hidden"); $("logout").classList.remove("hidden");
   $("hello").textContent = session.role==="admin" ? "أهلًا أ. عبدالله، أنت المشرف." : ("أهلًا " + session.name + (session.subject?" — مادة "+session.subject:""));
-  $("tabs").classList.toggle("hidden", session.role!=="admin");
+  $("tabInbox").classList.toggle("hidden", session.role!=="admin");
   selectTab("send"); resetIdle();
   if(session.role==="admin") loadInbox();
 }
 function selectTab(which){
-  const send=which==="send";
-  $("sendPane").classList.toggle("hidden",!send); $("inboxPane").classList.toggle("hidden",send);
-  $("tabSend").setAttribute("aria-selected",send); $("tabInbox").setAttribute("aria-selected",!send);
+  [["send","sendPane","tabSend"],["file","filePane","tabFile"],["inbox","inboxPane","tabInbox"]].forEach(([k,pane,tab])=>{
+    $(pane).classList.toggle("hidden",k!==which); $(tab).setAttribute("aria-selected",k===which);
+  });
 }
 $("tabSend").onclick=()=>selectTab("send");
+$("tabFile").onclick=()=>selectTab("file");
 $("tabInbox").onclick=()=>{ selectTab("inbox"); loadInbox(); };
 
 /* الإرسال */
@@ -252,6 +273,43 @@ $("form").addEventListener("submit",async e=>{
   }catch(err){ $("formErr").textContent=err.message; }
   finally{ $("sendBtn").disabled=false; $("sendBtn").textContent="إرسال للمراجعة"; }
 });
+
+/* تحويل الملفات إلى روابط */
+const MAX_FILE = 10 * 1024 * 1024;
+const OK_EXT = ["pdf","jpg","jpeg","png","gif","webp","doc","docx","ppt","pptx","xls","xlsx"];
+function fmtSize(n){ return n>=1048576 ? toAr((n/1048576).toFixed(1))+" ميجابايت" : toAr(Math.max(1,Math.round(n/1024)))+" كيلوبايت"; }
+function fileToBase64(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(String(r.result).split(",")[1]||""); r.onerror=()=>rej(new Error("تعذّرت قراءة الملف")); r.readAsDataURL(file); }); }
+async function copyText(t){ try{ await navigator.clipboard.writeText(t); toast("تم نسخ الرابط"); }catch(e){ const a=document.createElement("textarea"); a.value=t; document.body.append(a); a.select(); try{ document.execCommand("copy"); toast("تم نسخ الرابط"); }catch(_){ toast("تعذّر النسخ، انسخ الرابط يدويًا"); } a.remove(); } }
+function linkCard(j){
+  const d=document.createElement("div"); d.className="linkbox";
+  const fn=document.createElement("div"); fn.className="fn"; fn.textContent=j.name+" · "+fmtSize(j.size);
+  const mk=(label,url,cls)=>{ const w=document.createElement("div"); const l=document.createElement("div"); l.textContent=label; l.style.fontWeight="700";
+    const u=document.createElement("div"); u.className="u"; u.textContent=url;
+    const a=document.createElement("div"); a.className="act";
+    const o=document.createElement("a"); o.className="btn alt"; o.href=url; o.target="_blank"; o.rel="noopener"; o.textContent="فتح";
+    const c=document.createElement("button"); c.type="button"; c.className="btn alt"; c.textContent="نسخ الرابط"; c.onclick=()=>copyText(url);
+    a.append(o,c); w.append(l,u,a); return w; };
+  d.append(fn, mk("رابط المعاينة",j.viewUrl), mk("رابط التحميل المباشر",j.downloadUrl));
+  const ins=document.createElement("button"); ins.type="button"; ins.className="btn"; ins.style.marginTop="12px"; ins.textContent="إدراج رابط المعاينة في نص المحتوى";
+  ins.onclick=()=>{ const b=$("body"); const line=j.name+": "+j.viewUrl; b.value=(b.value.trim()?b.value.trim()+"\n":"")+line; b.dispatchEvent(new Event("input")); selectTab("send"); toast("أُدرج الرابط في النص"); };
+  d.append(ins); return d;
+}
+$("fileBtn").onclick=async()=>{
+  $("fileErr").textContent="";
+  const f=$("fileInp").files[0];
+  if(!f) return $("fileErr").textContent="اختر ملفًا أولًا";
+  const ext=(f.name.split(".").pop()||"").toLowerCase();
+  if(!OK_EXT.includes(ext)) return $("fileErr").textContent="نوع الملف غير مسموح";
+  if(f.size>MAX_FILE) return $("fileErr").textContent="حجم الملف أكبر من ١٠ ميجابايت";
+  if(f.size===0) return $("fileErr").textContent="الملف فارغ";
+  $("fileBtn").disabled=true; $("fileBtn").textContent="جارٍ الرفع…"; $("fileProg").classList.remove("hidden"); $("fileProg").removeAttribute("value");
+  try{
+    const data=await fileToBase64(f);
+    const j=await api({action:"upload",pin:session.pin,name:f.name,mime:f.type||"",data});
+    $("fileResults").prepend(linkCard(j)); $("fileInp").value=""; toast("تم إنشاء الرابط");
+  }catch(e){ $("fileErr").textContent=e.message; }
+  finally{ $("fileBtn").disabled=false; $("fileBtn").textContent="رفع وإنشاء الرابط"; $("fileProg").classList.add("hidden"); }
+};
 
 /* صندوق الوارد (المشرف) */
 function itemHtml(r,withActions){
