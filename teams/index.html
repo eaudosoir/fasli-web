@@ -158,6 +158,8 @@ footer{margin-top:28px;border-top:1px solid var(--sigrule);padding-top:16px;disp
       <div class="card">
         <h2>آخر ما عولج</h2>
         <div id="recentList"></div>
+        <button class="btn alt" id="clearRecent" type="button">تصفير الوارد</button>
+        <p class="hint">يخفي سجل ما عولج من القائمة لتبدأ نظيفة. لا يُحذف شيء، وتبقى البيانات محفوظة في الجدول.</p>
       </div>
     </section>
   </div>
@@ -321,6 +323,10 @@ async function loadInbox(){
   }catch(e){ toast(e.message); }
 }
 $("refresh").onclick=loadInbox;
+$("clearRecent").onclick=async()=>{
+  if(!(await confirmBox("سيُخفى سجل ما عولج من قائمة الوارد (لا يُحذف شيء ولا يتأثر المنتظر). هل تريد المتابعة؟"))) return;
+  try{ await api({action:"clearrecent",pin:session.pin}); toast("تم تصفير الوارد"); loadInbox(); }catch(e){ toast(e.message); }
+};
 </script>
 </body>
 </html>
