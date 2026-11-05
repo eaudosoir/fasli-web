@@ -111,7 +111,6 @@ footer{margin-top:28px;border-top:1px solid var(--sigrule);padding-top:16px;disp
     <p class="lead" id="hello"></p>
     <div class="tabs" id="tabs" role="tablist">
       <button class="tab" role="tab" aria-selected="true" id="tabSend">إرسال محتوى</button>
-      <button class="tab" role="tab" aria-selected="false" id="tabFile">تحويل ملف إلى رابط</button>
       <button class="tab hidden" role="tab" aria-selected="false" id="tabInbox">صندوق الوارد <span id="pendingCount"></span></button>
     </div>
 
@@ -141,24 +140,14 @@ footer{margin-top:28px;border-top:1px solid var(--sigrule);padding-top:16px;disp
         <textarea id="body" maxlength="2500"></textarea>
         <p class="hint" id="bodyCount"></p>
         <p class="hint">لا تكتب أسماء طلاب أو أرقام جوالات أو أي بيانات شخصية.</p>
+        <label for="attachInp">إرفاق ملف (اختياري)</label>
+        <input id="attachInp" type="file" accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.doc,.docx,.ppt,.pptx,.xls,.xlsx">
+        <p class="hint">يُضاف رابط معاينة ورابط تحميل للملف إلى نص الرسالة تلقائيًا (صور، PDF، وورد، بوربوينت، إكسل، حتى ١٠ ميجابايت). لا ترفع ملفات فيها أسماء طلاب أو درجاتهم؛ من لديه الرابط يستطيع فتح الملف.</p>
         <p class="err" id="formErr" role="alert"></p>
         <button class="btn" id="sendBtn" type="submit">إرسال للمراجعة</button>
       </form>
     </section>
 
-    <section id="filePane" class="hidden">
-      <div class="card">
-        <h2>تحويل ملف إلى رابط</h2>
-        <p class="hint">ارفع الملف فيصلك رابط للمعاينة ورابط للتحميل، وتستطيع إدراجه في نص المحتوى. الأنواع المسموحة: صور، PDF، وورد، بوربوينت، إكسل. الحد الأقصى ١٠ ميجابايت.</p>
-        <label for="fileInp">اختر الملف <span class="req">*</span></label>
-        <input id="fileInp" type="file" accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.doc,.docx,.ppt,.pptx,.xls,.xlsx">
-        <p class="hint">لا ترفع ملفات فيها أسماء طلاب أو درجاتهم أو بيانات شخصية. من لديه الرابط يستطيع فتح الملف.</p>
-        <p class="err" id="fileErr" role="alert"></p>
-        <button class="btn" id="fileBtn" type="button">رفع وإنشاء الرابط</button>
-        <progress id="fileProg" class="hidden" max="100"></progress>
-        <div id="fileResults"></div>
-      </div>
-    </section>
 
     <section id="inboxPane" class="hidden">
       <div class="card">
@@ -242,12 +231,11 @@ function showApp(){
   if(session.role==="admin") loadInbox();
 }
 function selectTab(which){
-  [["send","sendPane","tabSend"],["file","filePane","tabFile"],["inbox","inboxPane","tabInbox"]].forEach(([k,pane,tab])=>{
+  [["send","sendPane","tabSend"],["inbox","inboxPane","tabInbox"]].forEach(([k,pane,tab])=>{
     $(pane).classList.toggle("hidden",k!==which); $(tab).setAttribute("aria-selected",k===which);
   });
 }
 $("tabSend").onclick=()=>selectTab("send");
-$("tabFile").onclick=()=>selectTab("file");
 $("tabInbox").onclick=()=>{ selectTab("inbox"); loadInbox(); };
 
 /* الإرسال */
@@ -262,13 +250,28 @@ $("form").addEventListener("submit",async e=>{
   if(!sections.length) return $("formErr").textContent="اختر شعبة واحدة على الأقل";
   if(!title) return $("formErr").textContent="اكتب العنوان";
   if(!body) return $("formErr").textContent="اكتب النص";
-  const ok=await confirmBox("سيُرسل إلى: "+grade+" — شعبة "+sections.join(" و ")+"\nهل تريد المتابعة؟");
+  const af=$("attachInp").files[0];
+  if(af){
+    const ext=(af.name.split(".").pop()||"").toLowerCase();
+    if(!OK_EXT.includes(ext)) return $("formErr").textContent="نوع الملف المرفق غير مسموح";
+    if(af.size>MAX_FILE) return $("formErr").textContent="حجم الملف أكبر من ١٠ ميجابايت";
+    if(af.size===0) return $("formErr").textContent="الملف المرفق فارغ";
+    if(body.length>2000) return $("formErr").textContent="النص طويل؛ اختصره ليتسع لروابط الملف (٢٠٠٠ حرف كحد أقصى مع المرفق)";
+  }
+  const ok=await confirmBox("سيُرسل إلى: "+grade+" — شعبة "+sections.join(" و ")+(af?"\nمع المرفق: "+af.name:"")+"\nهل تريد المتابعة؟");
   if(!ok) return;
-  $("sendBtn").disabled=true; $("sendBtn").textContent="جارٍ الإرسال…";
+  $("sendBtn").disabled=true; $("sendBtn").textContent=af?"جارٍ رفع الملف…":"جارٍ الإرسال…";
   try{
-    const j=await api({action:"submit",pin:session.pin,grade,sections,title,body});
+    let fullBody=body;
+    if(af){
+      const data=await fileToBase64(af);
+      const u=await api({action:"upload",pin:session.pin,name:af.name,mime:af.type||"",data});
+      fullBody=body+"\n\nمرفق: "+u.name+"\nمعاينة: "+u.viewUrl+"\nتحميل: "+u.downloadUrl;
+      $("sendBtn").textContent="جارٍ الإرسال…";
+    }
+    const j=await api({action:"submit",pin:session.pin,grade,sections,title,body:fullBody});
     toast("تم الإرسال للمراجعة ("+toAr(j.count)+" شعبة)");
-    $("form").reset(); $("titleCount").textContent=toAr(0)+" / "+toAr(100)+" حرف"; $("bodyCount").textContent=toAr(0)+" / "+toAr(2500)+" حرف";
+    $("form").reset(); $("attachInp").value=""; $("titleCount").textContent=toAr(0)+" / "+toAr(100)+" حرف"; $("bodyCount").textContent=toAr(0)+" / "+toAr(2500)+" حرف";
     if(session.role==="admin") loadInbox();
   }catch(err){ $("formErr").textContent=err.message; }
   finally{ $("sendBtn").disabled=false; $("sendBtn").textContent="إرسال للمراجعة"; }
@@ -279,38 +282,6 @@ const MAX_FILE = 10 * 1024 * 1024;
 const OK_EXT = ["pdf","jpg","jpeg","png","gif","webp","doc","docx","ppt","pptx","xls","xlsx"];
 function fmtSize(n){ return n>=1048576 ? toAr((n/1048576).toFixed(1))+" ميجابايت" : toAr(Math.max(1,Math.round(n/1024)))+" كيلوبايت"; }
 function fileToBase64(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(String(r.result).split(",")[1]||""); r.onerror=()=>rej(new Error("تعذّرت قراءة الملف")); r.readAsDataURL(file); }); }
-async function copyText(t){ try{ await navigator.clipboard.writeText(t); toast("تم نسخ الرابط"); }catch(e){ const a=document.createElement("textarea"); a.value=t; document.body.append(a); a.select(); try{ document.execCommand("copy"); toast("تم نسخ الرابط"); }catch(_){ toast("تعذّر النسخ، انسخ الرابط يدويًا"); } a.remove(); } }
-function linkCard(j){
-  const d=document.createElement("div"); d.className="linkbox";
-  const fn=document.createElement("div"); fn.className="fn"; fn.textContent=j.name+" · "+fmtSize(j.size);
-  const mk=(label,url,cls)=>{ const w=document.createElement("div"); const l=document.createElement("div"); l.textContent=label; l.style.fontWeight="700";
-    const u=document.createElement("div"); u.className="u"; u.textContent=url;
-    const a=document.createElement("div"); a.className="act";
-    const o=document.createElement("a"); o.className="btn alt"; o.href=url; o.target="_blank"; o.rel="noopener"; o.textContent="فتح";
-    const c=document.createElement("button"); c.type="button"; c.className="btn alt"; c.textContent="نسخ الرابط"; c.onclick=()=>copyText(url);
-    a.append(o,c); w.append(l,u,a); return w; };
-  d.append(fn, mk("رابط المعاينة",j.viewUrl), mk("رابط التحميل المباشر",j.downloadUrl));
-  const ins=document.createElement("button"); ins.type="button"; ins.className="btn"; ins.style.marginTop="12px"; ins.textContent="إدراج رابط المعاينة في نص المحتوى";
-  ins.onclick=()=>{ const b=$("body"); const line=j.name+": "+j.viewUrl; b.value=(b.value.trim()?b.value.trim()+"\n":"")+line; b.dispatchEvent(new Event("input")); selectTab("send"); toast("أُدرج الرابط في النص"); };
-  d.append(ins); return d;
-}
-$("fileBtn").onclick=async()=>{
-  $("fileErr").textContent="";
-  const f=$("fileInp").files[0];
-  if(!f) return $("fileErr").textContent="اختر ملفًا أولًا";
-  const ext=(f.name.split(".").pop()||"").toLowerCase();
-  if(!OK_EXT.includes(ext)) return $("fileErr").textContent="نوع الملف غير مسموح";
-  if(f.size>MAX_FILE) return $("fileErr").textContent="حجم الملف أكبر من ١٠ ميجابايت";
-  if(f.size===0) return $("fileErr").textContent="الملف فارغ";
-  $("fileBtn").disabled=true; $("fileBtn").textContent="جارٍ الرفع…"; $("fileProg").classList.remove("hidden"); $("fileProg").removeAttribute("value");
-  try{
-    const data=await fileToBase64(f);
-    const j=await api({action:"upload",pin:session.pin,name:f.name,mime:f.type||"",data});
-    $("fileResults").prepend(linkCard(j)); $("fileInp").value=""; toast("تم إنشاء الرابط");
-  }catch(e){ $("fileErr").textContent=e.message; }
-  finally{ $("fileBtn").disabled=false; $("fileBtn").textContent="رفع وإنشاء الرابط"; $("fileProg").classList.add("hidden"); }
-};
-
 /* صندوق الوارد (المشرف) */
 function itemHtml(r,withActions){
   const d=document.createElement("div"); d.className="item";
