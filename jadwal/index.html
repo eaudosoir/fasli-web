@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>جداول المعلمين ليومي الأربعاء والخميس</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* الفكرة: بطاقة زرقاء هادئة لكل معلم، بداخلها صفّان (الأربعاء والخميس) على ست حصص */
+:root{
+  --bg:#f3f7fd; --card:#ffffff; --soft:#e6effc; --line:#c5d6f2;
+  --ink:#0d2f6e; --blue:#1553b7; --muted:#4f6690;
+  --wait-bg:#fde7e2; --wait-ink:#a3271a;
+  --font:"Noto Naskh Arabic","Traditional Arabic","Geeza Pro","Segoe UI",serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0b1526; --card:#12203a; --soft:#1a2d50; --line:#2c4474;
+    --ink:#dbe8ff; --blue:#8db8ff; --muted:#9db3d8;
+    --wait-bg:#4a1f1a; --wait-ink:#ffb8ac;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0b1526; --card:#12203a; --soft:#1a2d50; --line:#2c4474;
+  --ink:#dbe8ff; --blue:#8db8ff; --muted:#9db3d8;
+  --wait-bg:#4a1f1a; --wait-ink:#ffb8ac;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-weight:700;font-size:18px;line-height:1.6}
+.wrap{max-width:1180px;margin:0 auto;padding:24px 16px 48px;display:flex;flex-direction:column;gap:18px}
+header h1{margin:0;font-size:clamp(28px,5vw,42px);color:var(--blue);text-wrap:balance;line-height:1.35}
+header p{margin:6px 0 0;color:var(--muted);font-size:19px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.bar input{flex:1 1 240px;font:inherit;padding:10px 14px;border:2px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink)}
+.seg{display:flex;border:2px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)}
+.seg button{font:inherit;border:0;background:transparent;color:var(--ink);padding:10px 16px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--blue);color:var(--card)}
+.bar input:focus-visible,.seg button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,520px),1fr));gap:16px}
+.card{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px;break-inside:avoid}
+.card h2{margin:0;font-size:24px;color:var(--blue);display:flex;align-items:center;gap:10px}
+.no{display:inline-grid;place-items:center;min-width:38px;height:38px;border-radius:10px;background:var(--soft);font-size:19px;color:var(--ink)}
+.tw{overflow-x:auto}
+table{width:100%;min-width:470px;border-collapse:separate;border-spacing:4px;table-layout:fixed;font-variant-numeric:tabular-nums}
+thead th{font-size:16px;color:var(--muted);padding:2px}
+thead th:first-child,tbody th{width:104px}
+tbody th{text-align:right;background:var(--soft);border-radius:10px;padding:6px 10px;font-size:19px}
+tbody th small{display:block;font-size:13px;color:var(--muted);font-weight:400}
+td{text-align:center;border-radius:10px;padding:6px 2px;vertical-align:middle;height:64px}
+td b{display:block;font-size:19px}
+td span{display:block;font-size:14px;font-weight:400}
+td.c{background:var(--soft)}
+td.e{color:var(--line);border:2px dashed var(--line);font-weight:400}
+td.w{background:var(--wait-bg);color:var(--wait-ink)}
+td.w b{font-size:15px} td.w span{font-size:18px;font-weight:700}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.note{background:var(--blue);color:var(--card);border-radius:16px;padding:16px 20px;font-size:18px}
+.note ul{margin:6px 0 0;padding-inline-start:22px;font-weight:400}
+.empty{display:none;color:var(--muted)}
+[hidden]{display:none!important}
+@media print{.bar{display:none} body{font-size:14px} .grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>جداول المعلمين ليومي الأربعاء والخميس</h1>
+<p>ابتدائية القادسية، جدول ١٤٤٨. لكل معلم حصصه الست في اليومين: الفصل ثم المادة.</p>
+</header>
+<div class="bar">
+<input id="q" type="search" placeholder="ابحث باسم المعلم" aria-label="ابحث باسم المعلم">
+<div class="seg" role="group" aria-label="اليوم المعروض">
+<button type="button" data-d="all" aria-pressed="true">اليومان</button>
+<button type="button" data-d="wed" aria-pressed="false">الأربعاء</button>
+<button type="button" data-d="thu" aria-pressed="false">الخميس</button>
+</div>
+</div>
+<p class="empty" id="empty">لا يوجد معلم بهذا الاسم.</p>
+<main class="grid" id="grid">
+<article class="card" data-name="إبراهيم فايع">
+<h2><span class="no">١</span>إبراهيم فايع</h2>
+<div class="tw"><table><thead><tr><th scope="col">اليوم</th><th scope="col">١</th><th scope="col">٢</th><th scope="col">٣</th><th scope="col">٤</th><th scope="col">٥</th><th scope="col">٦</th></tr></thead><tbody><tr data-day="wed"><th scope="row">الأربعاء<small>٤ حصص + ١ انتظار</small></th><td class="c"><b>٥/أ</b><span>الإسلامية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٦/ب</b><span>البدنية</span></td><td class="w"><b>انتظار</b><span>٣</span></td><td class="c"><b>٥/ج</b><span>الإسلامية</span></td><td class="c"><b>٥/ب</b><span>الإسلامية</span></td></tr><tr data-day="thu"><th scope="row">الخميس<small>٣ حصص + ١ انتظار</small></th><td class="c"><b>٥/ب</b><span>الإسلامية</span></td><td class="w"><b>انتظار</b><span>٢</span></td><td class="c"><b>٥/أ</b><span>الإسلامية</span></td><td class="c"><b>٥/ج</b><span>الإسلامية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td></tr></tbody></table></div>
+</article>
+<article class="card" data-name="أحمد الهاشمي">
+<h2><span class="no">٢</span>أحمد الهاشمي</h2>
+<div class="tw"><table><thead><tr><th scope="col">اليوم</th><th scope="col">١</th><th scope="col">٢</th><th scope="col">٣</th><th scope="col">٤</th><th scope="col">٥</th><th scope="col">٦</th></tr></thead><tbody><tr data-day="wed"><th scope="row">الأربعاء<small>٣ حصص + ١ انتظار</small></th><td class="w"><b>انتظار</b><span>١</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٥/ج</b><span>البدنية</span></td><td class="c"><b>٢/أ</b><span>العربية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٢/أ</b><span>الرياضيات</span></td></tr><tr data-day="thu"><th scope="row">الخميس<small>٣ حصص + ١ انتظار</small></th><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٢/أ</b><span>العربية</span></td><td class="c"><b>٢/أ</b><span>الرياضيات</span></td><td class="w"><b>انتظار</b><span>٣</span></td><td class="c"><b>٢/أ</b><span>العربية</span></td><td class="e"><span class="sr">فراغ</span>—</td></tr></tbody></table></div>
+</article>
+<article class="card" data-name="حسن عبود">
+<h2><span class="no">٣</span>حسن عبود</h2>
+<div class="tw"><table><thead><tr><th scope="col">اليوم</th><th scope="col">١</th><th scope="col">٢</th><th scope="col">٣</th><th scope="col">٤</th><th scope="col">٥</th><th scope="col">٦</th></tr></thead><tbody><tr data-day="wed"><th scope="row">الأربعاء<small>٣ حصص + ١ انتظار</small></th><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٥/ب</b><span>الإنجليزية</span></td><td class="c"><b>٥/ج</b><span>الإنجليزية</span></td><td class="w"><b>انتظار</b><span>٣</span></td><td class="c"><b>١/ب</b><span>الإنجليزية</span></td></tr><tr data-day="thu"><th scope="row">الخميس<small>٤ حصص</small></th><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٤/ب</b><span>الفنية</span></td><td class="c"><b>٥/ب</b><span>الإنجليزية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٥/أ</b><span>الإنجليزية</span></td><td class="c"><b>٥/ج</b><span>الإنجليزية</span></td></tr></tbody></table></div>
+</article>
+<article class="card" data-name="حسين ال…">
+<h2><span class="no">٤</span>حسين ال…</h2>
+<div class="tw"><table><thead><tr><th scope="col">اليوم</th><th scope="col">١</th><th scope="col">٢</th><th scope="col">٣</th><th scope="col">٤</th><th scope="col">٥</th><th scope="col">٦</th></tr></thead><tbody><tr data-day="wed"><th scope="row">الأربعاء<small>٤ حصص</small></th><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٣/ب</b><span>العربية</span></td><td class="c"><b>٣/أ</b><span>العربية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٣/ج</b><span>العربية</span></td><td class="c"><b>٣/ب</b><span>العربية</span></td></tr><tr data-day="thu"><th scope="row">الخميس<small>٤ حصص + ١ انتظار</small></th><td class="c"><b>٣/ب</b><span>العربية</span></td><td class="c"><b>٣/ج</b><span>العربية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٣/أ</b><span>العربية</span></td><td class="c"><b>٣/ج</b><span>العربية</span></td><td class="w"><b>انتظار</b><span>٢</span></td></tr></tbody></table></div>
+</article>
+<article class="card" data-name="رياض طه">
+<h2><span class="no">٥</span>رياض طه</h2>
+<div class="tw"><table><thead><tr><th scope="col">اليوم</th><th scope="col">١</th><th scope="col">٢</th><th scope="col">٣</th><th scope="col">٤</th><th scope="col">٥</th><th scope="col">٦</th></tr></thead><tbody><tr data-day="wed"><th scope="row">الأربعاء<small>٤ حصص + ١ انتظار</small></th><td class="c"><b>٣/ج</b><span>الإسلامية</span></td><td class="c"><b>١/ب</b><span>الإسلامية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٣/أ</b><span>الإسلامية</span></td><td class="c"><b>٣/ب</b><span>الإسلامية</span></td><td class="w"><b>انتظار</b><span>٣</span></td></tr><tr data-day="thu"><th scope="row">الخميس<small>٤ حصص</small></th><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٣/أ</b><span>الإسلامية</span></td><td class="c"><b>١/ب</b><span>الإسلامية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٣/ب</b><span>الإسلامية</span></td><td class="c"><b>٣/ج</b><span>الإسلامية</span></td></tr></tbody></table></div>
+</article>
+<article class="card" data-name="سعيد الأسمري">
+<h2><span class="no">٦</span>سعيد الأسمري</h2>
+<div class="tw"><table><thead><tr><th scope="col">اليوم</th><th scope="col">١</th><th scope="col">٢</th><th scope="col">٣</th><th scope="col">٤</th><th scope="col">٥</th><th scope="col">٦</th></tr></thead><tbody><tr data-day="wed"><th scope="row">الأربعاء<small>٣ حصص + ١ انتظار</small></th><td class="e"><span class="sr">فراغ</span>—</td><td class="w"><b>انتظار</b><span>٣</span></td><td class="c"><b>٢/ب</b><span>الرياضيات</span></td><td class="c"><b>٢/ب</b><span>العربية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٢/ب</b><span>العربية</span></td></tr><tr data-day="thu"><th scope="row">الخميس<small>٤ حصص + ١ انتظار</small></th><td class="c"><b>٢/ب</b><span>العربية</span></td><td class="c"><b>٢/ب</b><span>الحياتية</span></td><td class="w"><b>انتظار</b><span>١</span></td><td class="c"><b>٢/ب</b><span>العربية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٢/ب</b><span>الرياضيات</span></td></tr></tbody></table></div>
+</article>
+<article class="card" data-name="سعيد محيا">
+<h2><span class="no">٧</span>سعيد محيا</h2>
+<div class="tw"><table><thead><tr><th scope="col">اليوم</th><th scope="col">١</th><th scope="col">٢</th><th scope="col">٣</th><th scope="col">٤</th><th scope="col">٥</th><th scope="col">٦</th></tr></thead><tbody><tr data-day="wed"><th scope="row">الأربعاء<small>٣ حصص + ١ انتظار</small></th><td class="c"><b>٦/ب</b><span>العربية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="w"><b>انتظار</b><span>٣</span></td><td class="c"><b>٦/ج</b><span>العربية</span></td><td class="c"><b>٦/أ</b><span>العربية</span></td><td class="e"><span class="sr">فراغ</span>—</td></tr><tr data-day="thu"><th scope="row">الخميس<small>٣ حصص + ١ انتظار</small></th><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٦/ج</b><span>العربية</span></td><td class="w"><b>انتظار</b><span>٢</span></td><td class="c"><b>٦/ب</b><span>العربية</span></td><td class="c"><b>٦/أ</b><span>العربية</span></td></tr></tbody></table></div>
+</article>
+<article class="card" data-name="عامر العمري">
+<h2><span class="no">٨</span>عامر العمري</h2>
+<div class="tw"><table><thead><tr><th scope="col">اليوم</th><th scope="col">١</th><th scope="col">٢</th><th scope="col">٣</th><th scope="col">٤</th><th scope="col">٥</th><th scope="col">٦</th></tr></thead><tbody><tr data-day="wed"><th scope="row">الأربعاء<small>٤ حصص</small></th><td class="c"><b>٢/ب</b><span>الإسلامية</span></td><td class="c"><b>٢/ج</b><span>الإسلامية</span></td><td class="c"><b>١/أ</b><span>الإسلامية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٢/أ</b><span>الإسلامية</span></td><td class="e"><span class="sr">فراغ</span>—</td></tr><tr data-day="thu"><th scope="row">الخميس<small>٣ حصص</small></th><td class="c"><b>٢/أ</b><span>الإسلامية</span></td><td class="c"><b>١/أ</b><span>الإسلامية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٢/ب</b><span>الإسلامية</span></td><td class="e"><span class="sr">فراغ</span>—</td></tr></tbody></table></div>
+</article>
+<article class="card" data-name="عايض محمد">
+<h2><span class="no">٩</span>عايض محمد</h2>
+<div class="tw"><table><thead><tr><th scope="col">اليوم</th><th scope="col">١</th><th scope="col">٢</th><th scope="col">٣</th><th scope="col">٤</th><th scope="col">٥</th><th scope="col">٦</th></tr></thead><tbody><tr data-day="wed"><th scope="row">الأربعاء<small>٣ حصص + ١ انتظار</small></th><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٦/أ</b><span>الإسلامية</span></td><td class="w"><b>انتظار</b><span>٢</span></td><td class="c"><b>٦/ب</b><span>الإسلامية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٦/ج</b><span>الإسلامية</span></td></tr><tr data-day="thu"><th scope="row">الخميس<small>٣ حصص + ١ انتظار</small></th><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٦/أ</b><span>الإسلامية</span></td><td class="c"><b>٦/ب</b><span>الإسلامية</span></td><td class="w"><b>انتظار</b><span>١</span></td><td class="c"><b>٦/ج</b><span>الإسلامية</span></td></tr></tbody></table></div>
+</article>
+<article class="card" data-name="عبدالرحمن القحطاني">
+<h2><span class="no">١٠</span>عبدالرحمن القحطاني</h2>
+<div class="tw"><table><thead><tr><th scope="col">اليوم</th><th scope="col">١</th><th scope="col">٢</th><th scope="col">٣</th><th scope="col">٤</th><th scope="col">٥</th><th scope="col">٦</th></tr></thead><tbody><tr data-day="wed"><th scope="row">الأربعاء<small>٣ حصص + ١ انتظار</small></th><td class="c"><b>٤/ب</b><span>العربية</span></td><td class="w"><b>انتظار</b><span>٢</span></td><td class="c"><b>٤/ج</b><span>العربية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٤/أ</b><span>العربية</span></td><td class="e"><span class="sr">فراغ</span>—</td></tr><tr data-day="thu"><th scope="row">الخميس<small>٤ حصص</small></th><td class="c"><b>٤/أ</b><span>العربية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٤/أ</b><span>الحياتية</span></td><td class="c"><b>٤/ب</b><span>العربية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٤/ج</b><span>العربية</span></td></tr></tbody></table></div>
+</article>
+<article class="card" data-name="عبدالرحمن محمد">
+<h2><span class="no">١١</span>عبدالرحمن محمد</h2>
+<div class="tw"><table><thead><tr><th scope="col">اليوم</th><th scope="col">١</th><th scope="col">٢</th><th scope="col">٣</th><th scope="col">٤</th><th scope="col">٥</th><th scope="col">٦</th></tr></thead><tbody><tr data-day="wed"><th scope="row">الأربعاء<small>٣ حصص + ١ انتظار</small></th><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٥/ب</b><span>العلوم</span></td><td class="c"><b>٢/أ</b><span>العلوم</span></td><td class="w"><b>انتظار</b><span>٢</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٥/أ</b><span>العلوم</span></td></tr><tr data-day="thu"><th scope="row">الخميس<small>٣ حصص + ١ انتظار</small></th><td class="c"><b>٥/ج</b><span>العلوم</span></td><td class="c"><b>٥/ب</b><span>العلوم</span></td><td class="w"><b>انتظار</b><span>٣</span></td><td class="c"><b>٢/أ</b><span>العلوم</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td></tr></tbody></table></div>
+</article>
+<article class="card" data-name="عبدالكريم حنبص">
+<h2><span class="no">١٢</span>عبدالكريم حنبص</h2>
+<div class="tw"><table><thead><tr><th scope="col">اليوم</th><th scope="col">١</th><th scope="col">٢</th><th scope="col">٣</th><th scope="col">٤</th><th scope="col">٥</th><th scope="col">٦</th></tr></thead><tbody><tr data-day="wed"><th scope="row">الأربعاء<small>٣ حصص + ١ انتظار</small></th><td class="w"><b>انتظار</b><span>٣</span></td><td class="c"><b>٢/أ</b><span>الإنجليزية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٦/ب</b><span>الإنجليزية</span></td><td class="c"><b>٦/أ</b><span>الإنجليزية</span></td></tr><tr data-day="thu"><th scope="row">الخميس<small>٤ حصص + ١ انتظار</small></th><td class="w"><b>انتظار</b><span>١</span></td><td class="c"><b>٦/أ</b><span>الإنجليزية</span></td><td class="c"><b>٦/ب</b><span>الإنجليزية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٦/ج</b><span>الإنجليزية</span></td><td class="c"><b>٢/أ</b><span>الإنجليزية</span></td></tr></tbody></table></div>
+</article>
+<article class="card" data-name="عبدالله العواد">
+<h2><span class="no">١٣</span>عبدالله العواد</h2>
+<div class="tw"><table><thead><tr><th scope="col">اليوم</th><th scope="col">١</th><th scope="col">٢</th><th scope="col">٣</th><th scope="col">٤</th><th scope="col">٥</th><th scope="col">٦</th></tr></thead><tbody><tr data-day="wed"><th scope="row">الأربعاء<small>٣ حصص + ١ انتظار</small></th><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٦/ج</b><span>الاجتماعية</span></td><td class="c"><b>٥/أ</b><span>الاجتماعية</span></td><td class="w"><b>انتظار</b><span>١</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٤/ج</b><span>الاجتماعية</span></td></tr><tr data-day="thu"><th scope="row">الخميس<small>٤ حصص + ١ انتظار</small></th><td class="c"><b>٦/ب</b><span>الاجتماعية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٥/ج</b><span>الاجتماعية</span></td><td class="c"><b>٦/أ</b><span>الاجتماعية</span></td><td class="w"><b>انتظار</b><span>٣</span></td><td class="c"><b>٤/ب</b><span>الاجتماعية</span></td></tr></tbody></table></div>
+</article>
+<article class="card" data-name="عبدالله مطلق">
+<h2><span class="no">١٤</span>عبدالله مطلق</h2>
+<div class="tw"><table><thead><tr><th scope="col">اليوم</th><th scope="col">١</th><th scope="col">٢</th><th scope="col">٣</th><th scope="col">٤</th><th scope="col">٥</th><th scope="col">٦</th></tr></thead><tbody><tr data-day="wed"><th scope="row">الأربعاء<small>٤ حصص</small></th><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٤/ب</b><span>الإسلامية</span></td><td class="c"><b>٦/ج</b><span>البدنية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٤/ج</b><span>الإسلامية</span></td><td class="c"><b>٤/أ</b><span>الإسلامية</span></td></tr><tr data-day="thu"><th scope="row">الخميس<small>٣ حصص + ١ انتظار</small></th><td class="w"><b>انتظار</b><span>٣</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٤/ج</b><span>الإسلامية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٤/ب</b><span>الإسلامية</span></td><td class="c"><b>٤/أ</b><span>الإسلامية</span></td></tr></tbody></table></div>
+</article>
+<article class="card" data-name="عبدالوهاب عسيري">
+<h2><span class="no">١٥</span>عبدالوهاب عسيري</h2>
+<div class="tw"><table><thead><tr><th scope="col">اليوم</th><th scope="col">١</th><th scope="col">٢</th><th scope="col">٣</th><th scope="col">٤</th><th scope="col">٥</th><th scope="col">٦</th></tr></thead><tbody><tr data-day="wed"><th scope="row">الأربعاء<small>٠ حصص + ١ انتظار</small></th><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td><td class="w"><b>انتظار</b><span>٢</span></td></tr><tr data-day="thu"><th scope="row">الخميس<small>٠ حصص + ١ انتظار</small></th><td class="e"><span class="sr">فراغ</span>—</td><td class="w"><b>انتظار</b><span>١</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td></tr></tbody></table></div>
+</article>
+<article class="card" data-name="علي ظافر">
+<h2><span class="no">١٦</span>علي ظافر</h2>
+<div class="tw"><table><thead><tr><th scope="col">اليوم</th><th scope="col">١</th><th scope="col">٢</th><th scope="col">٣</th><th scope="col">٤</th><th scope="col">٥</th><th scope="col">٦</th></tr></thead><tbody><tr data-day="wed"><th scope="row">الأربعاء<small>٤ حصص</small></th><td class="c"><b>١/أ</b><span>العربية</span></td><td class="c"><b>١/أ</b><span>الرياضيات</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>١/أ</b><span>العربية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>١/أ</b><span>الحياتية</span></td></tr><tr data-day="thu"><th scope="row">الخميس<small>٣ حصص</small></th><td class="c"><b>١/أ</b><span>العربية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>١/أ</b><span>الرياضيات</span></td><td class="c"><b>١/أ</b><span>العربية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td></tr></tbody></table></div>
+</article>
+<article class="card" data-name="محمد أحمد">
+<h2><span class="no">١٧</span>محمد أحمد</h2>
+<div class="tw"><table><thead><tr><th scope="col">اليوم</th><th scope="col">١</th><th scope="col">٢</th><th scope="col">٣</th><th scope="col">٤</th><th scope="col">٥</th><th scope="col">٦</th></tr></thead><tbody><tr data-day="wed"><th scope="row">الأربعاء<small>٤ حصص + ١ انتظار</small></th><td class="c"><b>٤/ج</b><span>الرياضيات</span></td><td class="c"><b>٤/أ</b><span>الرياضيات</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٤/أ</b><span>الرياضيات</span></td><td class="c"><b>٤/ب</b><span>الرياضيات</span></td><td class="w"><b>انتظار</b><span>١</span></td></tr><tr data-day="thu"><th scope="row">الخميس<small>٣ حصص + ١ انتظار</small></th><td class="c"><b>٤/ب</b><span>الرياضيات</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="w"><b>انتظار</b><span>٢</span></td><td class="c"><b>٤/ج</b><span>الرياضيات</span></td><td class="c"><b>٤/أ</b><span>الرياضيات</span></td><td class="e"><span class="sr">فراغ</span>—</td></tr></tbody></table></div>
+</article>
+<article class="card" data-name="محمد الحرملي">
+<h2><span class="no">١٨</span>محمد الحرملي</h2>
+<div class="tw"><table><thead><tr><th scope="col">اليوم</th><th scope="col">١</th><th scope="col">٢</th><th scope="col">٣</th><th scope="col">٤</th><th scope="col">٥</th><th scope="col">٦</th></tr></thead><tbody><tr data-day="wed"><th scope="row">الأربعاء<small>٤ حصص</small></th><td class="c"><b>٥/ج</b><span>الرياضيات</span></td><td class="c"><b>٥/أ</b><span>الرياضيات</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٥/ب</b><span>الرياضيات</span></td><td class="c"><b>٥/ج</b><span>الرياضيات</span></td></tr><tr data-day="thu"><th scope="row">الخميس<small>٣ حصص + ١ انتظار</small></th><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٥/أ</b><span>الرياضيات</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٥/ب</b><span>الرياضيات</span></td><td class="c"><b>٥/ج</b><span>الرياضيات</span></td><td class="w"><b>انتظار</b><span>٣</span></td></tr></tbody></table></div>
+</article>
+<article class="card" data-name="محمد العمري">
+<h2><span class="no">١٩</span>محمد العمري</h2>
+<div class="tw"><table><thead><tr><th scope="col">اليوم</th><th scope="col">١</th><th scope="col">٢</th><th scope="col">٣</th><th scope="col">٤</th><th scope="col">٥</th><th scope="col">٦</th></tr></thead><tbody><tr data-day="wed"><th scope="row">الأربعاء<small>٣ حصص + ١ انتظار</small></th><td class="c"><b>٦/ج</b><span>الرقمية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٤/أ</b><span>الرقمية</span></td><td class="c"><b>٥/ب</b><span>الرقمية</span></td><td class="w"><b>انتظار</b><span>٢</span></td><td class="e"><span class="sr">فراغ</span>—</td></tr><tr data-day="thu"><th scope="row">الخميس<small>٤ حصص</small></th><td class="c"><b>٦/ج</b><span>الرقمية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٤/ب</b><span>الرقمية</span></td><td class="c"><b>٤/أ</b><span>الرقمية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٥/أ</b><span>الرقمية</span></td></tr></tbody></table></div>
+</article>
+<article class="card" data-name="محمد قاسم">
+<h2><span class="no">٢٠</span>محمد قاسم</h2>
+<div class="tw"><table><thead><tr><th scope="col">اليوم</th><th scope="col">١</th><th scope="col">٢</th><th scope="col">٣</th><th scope="col">٤</th><th scope="col">٥</th><th scope="col">٦</th></tr></thead><tbody><tr data-day="wed"><th scope="row">الأربعاء<small>٤ حصص</small></th><td class="c"><b>٥/ب</b><span>العربية</span></td><td class="c"><b>٥/ج</b><span>العربية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٥/أ</b><span>العربية</span></td><td class="c"><b>٥/أ</b><span>الحياتية</span></td><td class="e"><span class="sr">فراغ</span>—</td></tr><tr data-day="thu"><th scope="row">الخميس<small>٣ حصص + ١ انتظار</small></th><td class="w"><b>انتظار</b><span>٢</span></td><td class="c"><b>٥/ج</b><span>العربية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٥/أ</b><span>العربية</span></td><td class="c"><b>٥/ب</b><span>العربية</span></td><td class="e"><span class="sr">فراغ</span>—</td></tr></tbody></table></div>
+</article>
+<article class="card" data-name="محمد مشبب">
+<h2><span class="no">٢١</span>محمد مشبب</h2>
+<div class="tw"><table><thead><tr><th scope="col">اليوم</th><th scope="col">١</th><th scope="col">٢</th><th scope="col">٣</th><th scope="col">٤</th><th scope="col">٥</th><th scope="col">٦</th></tr></thead><tbody><tr data-day="wed"><th scope="row">الأربعاء<small>٤ حصص</small></th><td class="c"><b>٦/أ</b><span>الفنية</span></td><td class="c"><b>٦/ب</b><span>العلوم</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٦/أ</b><span>العلوم</span></td><td class="c"><b>٢/ب</b><span>العلوم</span></td><td class="e"><span class="sr">فراغ</span>—</td></tr><tr data-day="thu"><th scope="row">الخميس<small>٣ حصص</small></th><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٦/ج</b><span>العلوم</span></td><td class="c"><b>٢/ب</b><span>العلوم</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٦/ب</b><span>العلوم</span></td></tr></tbody></table></div>
+</article>
+<article class="card" data-name="محمد موسى">
+<h2><span class="no">٢٢</span>محمد موسى</h2>
+<div class="tw"><table><thead><tr><th scope="col">اليوم</th><th scope="col">١</th><th scope="col">٢</th><th scope="col">٣</th><th scope="col">٤</th><th scope="col">٥</th><th scope="col">٦</th></tr></thead><tbody><tr data-day="wed"><th scope="row">الأربعاء<small>٤ حصص</small></th><td class="c"><b>٤/أ</b><span>العلوم</span></td><td class="c"><b>٤/ج</b><span>العلوم</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٤/ب</b><span>العلوم</span></td><td class="c"><b>١/أ</b><span>العلوم</span></td><td class="e"><span class="sr">فراغ</span>—</td></tr><tr data-day="thu"><th scope="row">الخميس<small>٣ حصص + ١ انتظار</small></th><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٤/ج</b><span>العلوم</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>١/ب</b><span>العلوم</span></td><td class="w"><b>انتظار</b><span>٢</span></td><td class="c"><b>١/أ</b><span>العلوم</span></td></tr></tbody></table></div>
+</article>
+<article class="card" data-name="مداوي حسن">
+<h2><span class="no">٢٣</span>مداوي حسن</h2>
+<div class="tw"><table><thead><tr><th scope="col">اليوم</th><th scope="col">١</th><th scope="col">٢</th><th scope="col">٣</th><th scope="col">٤</th><th scope="col">٥</th><th scope="col">٦</th></tr></thead><tbody><tr data-day="wed"><th scope="row">الأربعاء<small>٤ حصص</small></th><td class="c"><b>٣/ب</b><span>الرياضيات</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٣/ج</b><span>الرياضيات</span></td><td class="c"><b>٣/ب</b><span>الرياضيات</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٣/أ</b><span>الرياضيات</span></td></tr><tr data-day="thu"><th scope="row">الخميس<small>٤ حصص</small></th><td class="c"><b>٣/أ</b><span>الرياضيات</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٣/أ</b><span>الرياضيات</span></td><td class="c"><b>٣/ج</b><span>الرياضيات</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٣/ب</b><span>الرياضيات</span></td></tr></tbody></table></div>
+</article>
+<article class="card" data-name="معتق محمد">
+<h2><span class="no">٢٤</span>معتق محمد</h2>
+<div class="tw"><table><thead><tr><th scope="col">اليوم</th><th scope="col">١</th><th scope="col">٢</th><th scope="col">٣</th><th scope="col">٤</th><th scope="col">٥</th><th scope="col">٦</th></tr></thead><tbody><tr data-day="wed"><th scope="row">الأربعاء<small>٢ حصص + ١ انتظار</small></th><td class="c"><b>٢/ج</b><span>الرياضيات</span></td><td class="w"><b>انتظار</b><span>١</span></td><td class="c"><b>٢/ج</b><span>الرياضيات</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td></tr><tr data-day="thu"><th scope="row">الخميس<small>٤ حصص + ١ انتظار</small></th><td class="c"><b>٥/أ</b><span>البدنية</span></td><td class="w"><b>انتظار</b><span>٣</span></td><td class="c"><b>٢/ج</b><span>العربية</span></td><td class="c"><b>٢/ج</b><span>العربية</span></td><td class="c"><b>٢/ج</b><span>الرياضيات</span></td><td class="e"><span class="sr">فراغ</span>—</td></tr></tbody></table></div>
+</article>
+<article class="card" data-name="نايف سعيد">
+<h2><span class="no">٢٥</span>نايف سعيد</h2>
+<div class="tw"><table><thead><tr><th scope="col">اليوم</th><th scope="col">١</th><th scope="col">٢</th><th scope="col">٣</th><th scope="col">٤</th><th scope="col">٥</th><th scope="col">٦</th></tr></thead><tbody><tr data-day="wed"><th scope="row">الأربعاء<small>٣ حصص</small></th><td class="c"><b>١/ب</b><span>العربية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>١/ب</b><span>الرياضيات</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٤/ب</b><span>البدنية</span></td></tr><tr data-day="thu"><th scope="row">الخميس<small>٣ حصص</small></th><td class="c"><b>١/ب</b><span>العربية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>١/ب</b><span>العربية</span></td><td class="c"><b>١/ب</b><span>الرياضيات</span></td></tr></tbody></table></div>
+</article>
+<article class="card" data-name="سعيد يحيى">
+<h2><span class="no">٢٦</span>سعيد يحيى</h2>
+<div class="tw"><table><thead><tr><th scope="col">اليوم</th><th scope="col">١</th><th scope="col">٢</th><th scope="col">٣</th><th scope="col">٤</th><th scope="col">٥</th><th scope="col">٦</th></tr></thead><tbody><tr data-day="wed"><th scope="row">الأربعاء<small>٣ حصص + ١ انتظار</small></th><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٤/ب</b><span>الإنجليزية</span></td><td class="c"><b>٤/ج</b><span>الإنجليزية</span></td><td class="w"><b>انتظار</b><span>١</span></td><td class="c"><b>٣/ج</b><span>الإنجليزية</span></td></tr><tr data-day="thu"><th scope="row">الخميس<small>٤ حصص</small></th><td class="c"><b>٤/ج</b><span>الإنجليزية</span></td><td class="c"><b>٤/أ</b><span>الإنجليزية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٣/ب</b><span>الإنجليزية</span></td><td class="c"><b>٣/أ</b><span>الإنجليزية</span></td><td class="e"><span class="sr">فراغ</span>—</td></tr></tbody></table></div>
+</article>
+<article class="card" data-name="سلطان الفيفي">
+<h2><span class="no">٢٧</span>سلطان الفيفي</h2>
+<div class="tw"><table><thead><tr><th scope="col">اليوم</th><th scope="col">١</th><th scope="col">٢</th><th scope="col">٣</th><th scope="col">٤</th><th scope="col">٥</th><th scope="col">٦</th></tr></thead><tbody><tr data-day="wed"><th scope="row">الأربعاء<small>٤ حصص</small></th><td class="c"><b>٣/أ</b><span>الفنية</span></td><td class="c"><b>٣/أ</b><span>الفنية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>١/ب</b><span>الفنية</span></td><td class="c"><b>١/ب</b><span>الفنية</span></td><td class="e"><span class="sr">فراغ</span>—</td></tr><tr data-day="thu"><th scope="row">الخميس<small>٤ حصص</small></th><td class="c"><b>٢/ج</b><span>الفنية</span></td><td class="c"><b>٢/ج</b><span>الفنية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٤/ج</b><span>الفنية</span></td><td class="c"><b>٥/ب</b><span>الفنية</span></td></tr></tbody></table></div>
+</article>
+<article class="card" data-name="شريف عبده">
+<h2><span class="no">٢٨</span>شريف عبده</h2>
+<div class="tw"><table><thead><tr><th scope="col">اليوم</th><th scope="col">١</th><th scope="col">٢</th><th scope="col">٣</th><th scope="col">٤</th><th scope="col">٥</th><th scope="col">٦</th></tr></thead><tbody><tr data-day="wed"><th scope="row">الأربعاء<small>٤ حصص + ١ انتظار</small></th><td class="c"><b>٢/أ</b><span>البدنية</span></td><td class="c"><b>٢/ب</b><span>البدنية</span></td><td class="w"><b>انتظار</b><span>١</span></td><td class="c"><b>٣/ج</b><span>البدنية</span></td><td class="c"><b>٢/ج</b><span>البدنية</span></td><td class="e"><span class="sr">فراغ</span>—</td></tr><tr data-day="thu"><th scope="row">الخميس<small>٥ حصص</small></th><td class="c"><b>٣/ج</b><span>البدنية</span></td><td class="c"><b>١/ب</b><span>البدنية</span></td><td class="c"><b>٣/ب</b><span>البدنية</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>١/أ</b><span>البدنية</span></td><td class="c"><b>٢/ج</b><span>البدنية</span></td></tr></tbody></table></div>
+</article>
+<article class="card" data-name="أحمد عوضه">
+<h2><span class="no">٢٩</span>أحمد عوضه</h2>
+<div class="tw"><table><thead><tr><th scope="col">اليوم</th><th scope="col">١</th><th scope="col">٢</th><th scope="col">٣</th><th scope="col">٤</th><th scope="col">٥</th><th scope="col">٦</th></tr></thead><tbody><tr data-day="wed"><th scope="row">الأربعاء<small>٣ حصص + ١ انتظار</small></th><td class="w"><b>انتظار</b><span>٢</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٦/أ</b><span>الرياضيات</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٦/ج</b><span>الرياضيات</span></td><td class="c"><b>٦/ب</b><span>الرياضيات</span></td></tr><tr data-day="thu"><th scope="row">الخميس<small>٤ حصص + ١ انتظار</small></th><td class="c"><b>٦/أ</b><span>الرياضيات</span></td><td class="c"><b>٦/ب</b><span>الرياضيات</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٦/ج</b><span>الرياضيات</span></td><td class="c"><b>٦/أ</b><span>الرياضيات</span></td><td class="w"><b>انتظار</b><span>١</span></td></tr></tbody></table></div>
+</article>
+<article class="card" data-name="سعيد محمد">
+<h2><span class="no">٣٠</span>سعيد محمد</h2>
+<div class="tw"><table><thead><tr><th scope="col">اليوم</th><th scope="col">١</th><th scope="col">٢</th><th scope="col">٣</th><th scope="col">٤</th><th scope="col">٥</th><th scope="col">٦</th></tr></thead><tbody><tr data-day="wed"><th scope="row">الأربعاء<small>٥ حصص</small></th><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٣/ج</b><span>العلوم</span></td><td class="c"><b>٣/ب</b><span>العلوم</span></td><td class="c"><b>٢/ج</b><span>العلوم</span></td><td class="c"><b>٣/أ</b><span>العلوم</span></td><td class="c"><b>٢/ج</b><span>العلوم</span></td></tr><tr data-day="thu"><th scope="row">الخميس<small>٣ حصص + ١ انتظار</small></th><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٣/ب</b><span>العلوم</span></td><td class="c"><b>٣/ج</b><span>العلوم</span></td><td class="w"><b>انتظار</b><span>١</span></td><td class="e"><span class="sr">فراغ</span>—</td><td class="c"><b>٣/أ</b><span>العلوم</span></td></tr></tbody></table></div>
+</article>
+<article class="card" data-name="أحمد أبو…">
+<h2><span class="no">٣١</span>أحمد أبو…</h2>
+<div class="tw"><table><thead><tr><th scope="col">اليوم</th><th scope="col">١</th><th scope="col">٢</th><th scope="col">٣</th><th scope="col">٤</th><th scope="col">٥</th><th scope="col">٦</th></tr></thead><tbody><tr data-day="wed"><th scope="row">الأربعاء<small>لا حصص</small></th><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td></tr><tr data-day="thu"><th scope="row">الخميس<small>لا حصص</small></th><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td><td class="e"><span class="sr">فراغ</span>—</td></tr></tbody></table></div>
+</article>
+</main>
+</div>
+<script>
+(function(){
+  var q=document.getElementById('q'),cards=[].slice.call(document.querySelectorAll('.card')),empty=document.getElementById('empty');
+  function norm(s){return s.replace(/[أإآ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').trim();}
+  q.addEventListener('input',function(){
+    var v=norm(q.value),n=0;
+    cards.forEach(function(c){var ok=norm(c.dataset.name).indexOf(v)>-1;c.hidden=!ok;if(ok)n++;});
+    empty.style.display=n?'none':'block';
+  });
+  var btns=[].slice.call(document.querySelectorAll('.seg button'));
+  btns.forEach(function(b){b.addEventListener('click',function(){
+    btns.forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false');});
+    [].forEach.call(document.querySelectorAll('tr[data-day]'),function(r){r.hidden=!(b.dataset.d==='all'||r.dataset.day===b.dataset.d);});
+  });});
+})();
+</script>
+</body>
+</html>
