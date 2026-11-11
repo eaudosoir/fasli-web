@@ -65,6 +65,7 @@ button.pri{background:var(--blue);color:var(--bg);border-color:var(--blue)}
 #sList li{display:flex;align-items:center;justify-content:space-between;gap:.6em;border-bottom:1px solid var(--line);padding:.15em 0}
 #sList button{min-height:36px;font-size:.75em}
 #nStu{width:4em;text-align:center;border:2px solid var(--line);border-radius:.4em;background:var(--card2);min-height:44px}
+#nPw{width:12em;text-align:center;border:2px solid var(--line);border-radius:.4em;background:var(--card2);min-height:44px;font-family:Segoe UI,Tahoma,Arial,sans-serif;font-weight:400}
 #sName{width:12em;text-align:start;padding:0 .5em}
 /* المجموعات والنقاط */
 .g5{grid-template-columns:repeat(5,1fr)}
@@ -335,6 +336,7 @@ dialog button.ok{background:var(--ok);color:#fff;border-color:var(--ok)}
   <button id="bPick">اختيار طالب</button>
   <button id="bStars">المتميزون</button>
   <button id="bGroups">المجموعات</button>
+  <button id="bNames">فتح الأسماء</button>
   <button id="bGuide" aria-pressed="false">دليل المعلم</button>
   <button id="bReset">تصفير العرض</button>
   <button id="bTheme">فاتح / داكن</button>
@@ -817,6 +819,14 @@ body.embed header h1{font-size:1em}
   <p><button class="pri" id="roll">اختر</button> <button id="pOk" class="ok" hidden>إجابة صحيحة</button> <button id="close">إغلاق</button></p>
 </dialog>
 
+<dialog id="dlgN">
+  <h3>أسماء الطلاب</h3>
+  <p class="small">الأسماء محفوظة مشفّرة. اكتب كلمة المرور لتظهر على هذا الجهاز.</p>
+  <p><label for="nPw" class="small">كلمة المرور</label><br><input id="nPw" type="password" autocomplete="off" dir="ltr"> <button id="nShow" type="button" aria-pressed="false">إظهار</button></p>
+  <p class="small fb no" id="nErr" aria-live="polite"></p>
+  <p><button class="pri" id="nGo">فتح</button> <button id="nClose">إغلاق</button></p>
+</dialog>
+
 <dialog id="dlgG">
   <h3>المجموعات والنقاط</h3>
   <div id="gList"></div>
@@ -855,7 +865,7 @@ body.embed header h1{font-size:1em}
   }
   $('#next').onclick=function(){show(cur+1)}; $('#prev').onclick=function(){show(cur-1)};
   document.addEventListener('keydown',function(e){
-    if($('#dlg').open||$('#dlgS').open||$('#dlgG').open) return;
+    if($('#dlg').open||$('#dlgS').open||$('#dlgG').open||$('#dlgN').open) return;
     if(!$('#cel').hidden){$('#cel').click();return}
     var t=e.target.tagName; if(t==='INPUT') return;
     if(e.key==='ArrowLeft'||e.key==='PageDown'){e.preventDefault();show(cur+1)}
@@ -1001,7 +1011,7 @@ body.embed header h1{font-size:1em}
       var bt=document.createElement('button');bt.textContent=n+(st[n]>1?' ×'+ar(st[n]):'');bt.setAttribute('aria-pressed',st[n]>0);
       bt.onclick=function(){if(rmMode){if(st[n]>0){st[n]--;if(!st[n])delete st[n];sSave();sDraw()}}else{closeD(dS);award(n)}};g.appendChild(bt)});
     $('#sClear').textContent='مسح الكل';$('#sClear').dataset.sure='';
-    $('#sRm').setAttribute('aria-pressed',rmMode);$('#sHint').textContent=rmMode?'وضع الإزالة: اضغط على الاسم لحذف نجمة منه.':'اكتب اسم الطالب في الخانة واضغط «إضافة»: يأخذ نجمة ويظهر في البنر.';
+    $('#sRm').setAttribute('aria-pressed',rmMode);$('#sHint').textContent=rmMode?'وضع الإزالة: اضغط على الاسم لحذف نجمة منه.':''+(ROSTER.length?'اضغط على اسم الطالب: يأخذ نجمة ويظهر في البنر، وتأخذ مجموعته نقطة.':'اكتب اسم الطالب في الخانة واضغط «إضافة»: يأخذ نجمة ويظهر في البنر.');
   }
   function closeD(d){if(d.open){if(d.close)d.close();else d.removeAttribute('open')}}
   function award(n){
@@ -1044,6 +1054,48 @@ body.embed header h1{font-size:1em}
     $('#pOk').hidden=false;
   };
   $('#pOk').onclick=function(){if(!lastPick)return;var n=lastPick;lastPick='';closeD(dlg);award(n)};
+
+  /* فتح الأسماء المشفّرة */
+  var ENC={"s":"xkkHIYA/U0U5LjjwKlYcBQ==","i":"+9Bn9V3HKtlbrAJk","c":"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"},NKEY='asma-khamis-a-key',dN=$('#dlgN'),unlocked=false,lockT=null;
+  function b64d(x){var b=atob(x),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u}
+  function b64e(u){var x='';for(var i=0;i<u.length;i++)x+=String.fromCharCode(u[i]);return btoa(x)}
+  function gSlide(){
+    var el=$('.gsl');if(!el)return;el.innerHTML='';el.classList.toggle('gnm',!ROSTER.length);
+    GROUPS.forEach(function(g){var c=document.createElement('div');c.className='card gcard'+(g.m.length?'':' center');var h=document.createElement('h3');h.textContent=g.n;c.appendChild(h);
+      if(g.m.length){var ol=document.createElement('ol');g.m.forEach(function(i){var li=document.createElement('li');li.textContent=SHORT[i];ol.appendChild(li)});c.appendChild(ol)}el.appendChild(c)});
+  }
+  function applyRoster(d){
+    ROSTER=d.R;SHORT=d.S;GROUPS.forEach(function(g,k){g.m=d.G[k]||[]});bag=[];unlocked=true;
+    $('#nRow').hidden=true;$('#pCls').hidden=false;$('#bNames').textContent='قفل الأسماء';
+    gSlide();gDraw();sDraw();
+  }
+  function tryUnlock(pw,keyB64){
+    if(!(window.crypto&&crypto.subtle))return Promise.reject(new Error('nocrypto'));
+    var kp=keyB64?Promise.resolve(b64d(keyB64)):crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveBits']).then(function(km){return crypto.subtle.deriveBits({name:'PBKDF2',salt:b64d(ENC.s),iterations:600000,hash:'SHA-256'},km,256)}).then(function(b){return new Uint8Array(b)});
+    return kp.then(function(kb){return crypto.subtle.importKey('raw',kb,'AES-GCM',false,['decrypt']).then(function(k){return crypto.subtle.decrypt({name:'AES-GCM',iv:b64d(ENC.i)},k,b64d(ENC.c))}).then(function(pt){
+      applyRoster(JSON.parse(new TextDecoder().decode(pt)));try{localStorage.setItem(NKEY,b64e(kb))}catch(e){}})});
+  }
+  $('#bNames').onclick=function(){
+    var b=this;
+    if(unlocked){
+      if(b.dataset.sure){try{localStorage.removeItem(NKEY)}catch(e){}location.reload()}
+      else{b.dataset.sure='1';b.textContent='تأكيد القفل؟';b.classList.add('warn');clearTimeout(lockT);lockT=setTimeout(function(){b.dataset.sure='';b.textContent='قفل الأسماء';b.classList.remove('warn')},4000)}
+      return;
+    }
+    $('#nErr').textContent='';$('#nPw').value='';if(dN.showModal)dN.showModal();else dN.setAttribute('open','');$('#nPw').focus();
+  };
+  $('#nClose').onclick=function(){closeD(dN)};
+  $('#nShow').onclick=function(){var p=$('#nPw'),on=p.type==='password';p.type=on?'text':'password';this.textContent=on?'إخفاء':'إظهار';this.setAttribute('aria-pressed',on)};
+  function nGo(){
+    var pw=$('#nPw').value;if(!pw){$('#nErr').textContent='اكتب كلمة المرور.';return}
+    $('#nGo').disabled=true;$('#nErr').className='small fb';$('#nErr').textContent='جارٍ الفتح...';
+    tryUnlock(pw).then(function(){$('#nGo').disabled=false;$('#nPw').value='';closeD(dN)},function(e){$('#nGo').disabled=false;$('#nErr').className='small fb no';
+      $('#nErr').textContent=e&&e.message==='nocrypto'?'هذا المتصفح لا يدعم فتح الأسماء. استخدم كروم أو إيدج حديثًا.':'كلمة المرور غير صحيحة. تأكد من الأحرف الكبيرة والصغيرة.'});
+  }
+  $('#nGo').onclick=nGo;
+  $('#nPw').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();nGo()}
+    if(e.getModifierState&&e.getModifierState('CapsLock')){$('#nErr').className='small fb no';$('#nErr').textContent='تنبيه: مفتاح Caps Lock مفعّل.'}});
+  (function(){var k=null;try{k=localStorage.getItem(NKEY)}catch(e){}if(k)tryUnlock(null,k).catch(function(){try{localStorage.removeItem(NKEY)}catch(e){}})})();
 
   /* تصفير العرض */
   var rT=null;
