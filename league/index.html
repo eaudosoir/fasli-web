@@ -118,6 +118,17 @@ button:disabled{opacity:.6;cursor:wait}
       <div class="err" id="e-dob" hidden></div>
     </div>
 
+    <div role="group" aria-labelledby="l-hdob">
+      <span class="lbl" id="l-hdob">تاريخ الميلاد (هجري) <span class="req" aria-hidden="true">*</span>
+        <span class="hint">يُعبَّأ تلقائيًا بعد اختيار التاريخ الميلادي، وعدّله إن كان مختلفًا عمّا في نور</span></span>
+      <div class="dob">
+        <select id="hd" aria-label="اليوم الهجري" required></select>
+        <select id="hm" aria-label="الشهر الهجري" required></select>
+        <select id="hy" aria-label="السنة الهجرية" required></select>
+      </div>
+      <div class="err" id="e-hdob" hidden></div>
+    </div>
+
     <div>
       <label for="phone">رقم جوال ولي الأمر <span class="req" aria-hidden="true">*</span></label>
       <input id="phone" name="phone" type="tel" inputmode="numeric" class="num" required maxlength="10" placeholder="عشرة أرقام تبدأ بـ ٠٥" aria-describedby="e-phone">
@@ -161,6 +172,8 @@ button:disabled{opacity:.6;cursor:wait}
 /* ===== settings ===== */
 var ENDPOINT = "https://script.google.com/macros/s/AKfycbzbduqh9ywlLwkTIawfHAHrG3YwSjvkAtyVLpzGi13oCLCleEVgspuH-wIDgyXMAkyY7A/exec"; // Apps Script web app URL (write-only)
 var YEARS = [2017, 2016, 2015, 2014];
+var HYEARS = [1439, 1438, 1437, 1436, 1435];
+var HMONTHS = ["محرم","صفر","ربيع الأول","ربيع الآخر","جمادى الأولى","جمادى الآخرة","رجب","شعبان","رمضان","شوال","ذو القعدة","ذو الحجة"];
 var MONTHS = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
 
 /* ===== digits ===== */
@@ -180,6 +193,10 @@ var days = []; for (var i = 1; i <= 31; i++) days.push([i, toAr(i)]);
 fill($("d"), "اليوم", days);
 fill($("m"), "الشهر", MONTHS.map(function(n, k){ return [k + 1, n]; }));
 fill($("y"), "السنة", YEARS.map(function(v){ return [v, toAr(v)]; }));
+var hdays = []; for (var j = 1; j <= 30; j++) hdays.push([j, toAr(j)]);
+fill($("hd"), "اليوم", hdays);
+fill($("hm"), "الشهر", HMONTHS.map(function(n, k){ return [k + 1, n]; }));
+fill($("hy"), "السنة", HYEARS.map(function(v){ return [v, toAr(v)]; }));
 
 /* ===== live Arabic-Indic display for numeric fields ===== */
 ["phone", "nid"].forEach(function(id){
@@ -187,6 +204,30 @@ fill($("y"), "السنة", YEARS.map(function(v){ return [v, toAr(v)]; }));
     var pos = this.selectionStart, v = digitsOnly(this.value).slice(0, 10);
     this.value = toAr(v);
     try { this.setSelectionRange(pos, pos); } catch(e){}
+  });
+});
+
+/* ===== hijri (Umm al-Qura) ===== */
+var HFMT = null;
+try { HFMT = new Intl.DateTimeFormat("en-u-ca-islamic-umalqura-nu-latn", {day: "numeric", month: "numeric", year: "numeric", timeZone: "UTC"}); } catch(e){}
+function toHijri(y, m, d){
+  if (!HFMT) return null;
+  var p = {};
+  HFMT.formatToParts(new Date(Date.UTC(y, m - 1, d, 12))).forEach(function(x){ p[x.type] = +x.value; });
+  return (p.year && p.month && p.day) ? [p.year, p.month, p.day] : null;
+}
+function hOrd(y, m, d){ return y * 354.37 + (m - 1) * 29.53 + d; }
+var hTouched = false;
+["hd", "hm", "hy"].forEach(function(id){ $(id).addEventListener("change", function(){ hTouched = true; }); });
+["d", "m", "y"].forEach(function(id){
+  $(id).addEventListener("change", function(){
+    var d = +$("d").value, m = +$("m").value, y = +$("y").value;
+    if (!d || !m || !y) return;
+    var dt = new Date(y, m - 1, d);
+    if (dt.getFullYear() !== y || dt.getMonth() !== m - 1 || dt.getDate() !== d) return;
+    if (hTouched && $("hd").value && $("hm").value && $("hy").value) return;   // keep the parent's own edit
+    var h = toHijri(y, m, d);
+    if (h && HYEARS.indexOf(h[0]) > -1){ $("hy").value = h[0]; $("hm").value = h[1]; $("hd").value = h[2]; hTouched = false; }
   });
 });
 
@@ -221,6 +262,14 @@ function validate(){
   }
   mark(setErr("e-dob", [$("d"), $("m"), $("y")], msg), $("d"));
 
+  var hd = +$("hd").value, hm = +$("hm").value, hy = +$("hy").value, hmsg = "";
+  if (!hd || !hm || !hy) hmsg = "اختر اليوم والشهر والسنة الهجرية.";
+  else if (!msg){
+    var hc = toHijri(y, m, d);
+    if (hc && Math.abs(hOrd(hy, hm, hd) - hOrd(hc[0], hc[1], hc[2])) > 2) hmsg = "التاريخ الهجري لا يطابق التاريخ الميلادي، تأكد منهما.";
+  }
+  mark(setErr("e-hdob", [$("hd"), $("hm"), $("hy")], hmsg), $("hd"));
+
   var ph = digitsOnly($("phone").value);
   mark(setErr("e-phone", $("phone"), /^05\d{8}$/.test(ph) ? "" : "اكتب رقم الجوال من عشرة أرقام يبدأ بـ ٠٥."), $("phone"));
 
@@ -247,6 +296,7 @@ $("f").addEventListener("submit", function(ev){
   var payload = {
     name: $("name").value.trim().replace(/\s+/g, " "),
     dob: $("y").value + "-" + m + "-" + d,
+    hijri: $("hy").value + "-" + ("0" + $("hm").value).slice(-2) + "-" + ("0" + $("hd").value).slice(-2),
     phone: digitsOnly($("phone").value),
     nid: digitsOnly($("nid").value),
     skill: true
