@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#5F7F63">
+<title>ترشيح لدوري المدارس — ابتدائية القادسية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&family=Pinyon+Script&family=Montserrat:wght@600&display=swap">
+<style>
+/* Layout: one phone-first column — header, intro card, form card, closing band, signature */
+:root{
+  --bg:#F5F7F2; --card:#E3EBDC; --ink:#2F4A38; --muted:#4F6A58; --line:#B9C9B2;
+  --field:#FFFFFF; --band:#5F7F63; --band-ink:#FFFFFF; --err:#9B2C1F; --err-bg:#FBE6E2;
+  --ok-bg:#DDEFD9; --focus:#2F6B43;
+  --sig-a:#0F8B8D; --sig-b:#1F6F96; --sig-l:#2D5961; --sig-d:#8CC9C4; --sig-r:#2A9D9A;
+  --f:"Noto Naskh Arabic","Traditional Arabic",Tahoma,serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#121A15; --card:#1D2A21; --ink:#E4EFE6; --muted:#A9BFAE; --line:#34473A;
+    --field:#101712; --band:#6E9473; --band-ink:#0F1A12; --err:#FFB4A8; --err-bg:#3A1E1A;
+    --ok-bg:#1F3524; --focus:#9CD2A8;
+    --sig-a:#7FF0DD; --sig-b:#9CCBFF; --sig-l:#D5F1EC; --sig-d:#5FB8B0; --sig-r:#5FB8B0;
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f);font-weight:700;font-size:1.12rem;line-height:1.85;
+  padding:max(18px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(40px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+[hidden]{display:none!important}
+.wrap{max-width:620px;margin:0 auto;display:grid;gap:16px}
+header{display:flex;align-items:center;gap:14px}
+.ball{width:62px;height:62px;flex:none}
+.ball .a{fill:var(--band)} .ball .b{fill:var(--band-ink)}
+.school{margin:0;font-size:.95rem;color:var(--muted);line-height:1.5}
+h1{margin:0;font-size:1.55rem;line-height:1.4;text-wrap:balance}
+.card{background:var(--card);border-radius:18px;padding:18px;display:grid;gap:12px}
+.card h2{margin:0;font-size:1.2rem;line-height:1.5}
+.card p{margin:0}
+.key{background:var(--field);border-radius:12px;padding:12px 14px;border-inline-start:6px solid var(--band)}
+label,.lbl{display:block;font-size:1.02rem;margin-bottom:4px}
+.req{color:var(--err)}
+.hint{display:block;font-weight:400;color:var(--muted);font-size:.92rem;line-height:1.6}
+input[type=text],input[type=tel],select{width:100%;min-height:50px;font:inherit;font-weight:700;color:var(--ink);background:var(--field);
+  border:2px solid var(--line);border-radius:12px;padding:8px 12px;-webkit-appearance:none;appearance:none}
+select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);
+  background-position:left 18px center,left 12px center;background-size:6px 6px;background-repeat:no-repeat;padding-inline-start:34px}
+input:focus,select:focus,button:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+input[aria-invalid=true],select[aria-invalid=true]{border-color:var(--err)}
+.num{direction:ltr;text-align:right;letter-spacing:.06em}
+.dob{display:grid;grid-template-columns:1fr 1.5fr 1.2fr;gap:8px}
+.err{color:var(--err);background:var(--err-bg);border-radius:10px;padding:6px 10px;font-size:.95rem;margin-top:6px}
+.agree{display:flex;gap:12px;align-items:flex-start;background:var(--field);border:2px solid var(--line);border-radius:12px;padding:12px}
+.agree input{width:26px;height:26px;flex:none;margin-top:6px;accent-color:var(--band)}
+.agree span{line-height:1.7}
+.hp{position:absolute;inset-inline-start:-9999px;width:1px;height:1px;opacity:0}
+button{font:inherit;font-weight:700;font-size:1.15rem;min-height:54px;width:100%;border:0;border-radius:14px;padding:12px 18px;cursor:pointer;
+  background:var(--band);color:var(--band-ink)}
+button:disabled{opacity:.6;cursor:wait}
+.msg{border-radius:14px;padding:14px 16px}
+.msg.ok{background:var(--ok-bg)} .msg.bad{background:var(--err-bg);color:var(--err)}
+.band{background:var(--band);color:var(--band-ink);border-radius:18px;padding:16px 18px}
+.band b{display:block;font-size:1.15rem;margin-bottom:4px}
+.band p{margin:0;font-weight:400}
+.priv{font-weight:400;font-size:.92rem;color:var(--muted);text-align:center;margin:0}
+/* signature: bottom-left, approved size */
+.sig{direction:ltr;justify-self:start;display:flex;align-items:center;gap:12px;padding-top:10px;margin-top:4px;position:relative;
+  background:linear-gradient(90deg,transparent,var(--sig-r) 35%,var(--sig-r) 65%,transparent) top/100% 1px no-repeat}
+.sig .nm{font-family:"Pinyon Script",cursive;font-weight:400;font-size:1.3rem;line-height:1;background:linear-gradient(90deg,var(--sig-a),var(--sig-b));
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.sig .dv{width:1px;height:20px;background:var(--sig-d)}
+.sig .lb{font-family:"Montserrat",sans-serif;font-weight:600;font-size:.5rem;letter-spacing:.14em;line-height:1.35;color:var(--sig-l);text-transform:uppercase}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <svg class="ball" viewBox="0 0 100 100" aria-hidden="true">
+      <circle class="a" cx="50" cy="50" r="48"/>
+      <polygon class="b" points="50,30 62,39 57.5,53 42.5,53 38,39"/>
+      <path class="b" d="M50 30V16M62 39l13-5M57.5 53l8 11M42.5 53l-8 11M38 39l-13-5" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" style="stroke:var(--band-ink)"/>
+    </svg>
+    <div>
+      <p class="school">ابتدائية القادسية</p>
+      <h1>ترشيح للمشاركة في دوري المدارس — كرة القدم</h1>
+    </div>
+  </header>
+
+  <section class="card" aria-labelledby="t-intro">
+    <h2 id="t-intro">إلى أولياء أمور طلاب الصف السادس</h2>
+    <p>تعتزم المدرسة المشاركة في دوري المدارس لكرة القدم، ونتشرف بترشيح أبنائكم الراغبين في تمثيل المدرسة.</p>
+    <p class="key">إن كان ابنك يرى في نفسه القدرة على اللعب، ومهاراته في كرة القدم جيدة، ويرغب في المشاركة بالدوري، فنرجو تعبئة البيانات أدناه.</p>
+    <p>التسجيل لمن مستواه في كرة القدم جيد فقط. وسيُدعى المرشحون إلى تجربة أداء قبل اختيار الفريق النهائي، فالتسجيل لا يعني القبول المباشر.</p>
+  </section>
+
+  <form id="f" class="card" novalidate autocomplete="off" aria-labelledby="t-form">
+    <h2 id="t-form">بيانات الطالب</h2>
+
+    <div>
+      <label for="name">اسم الطالب الثلاثي <span class="req" aria-hidden="true">*</span></label>
+      <input id="name" name="name" type="text" required autocomplete="off" placeholder="الاسم الأول والأب والجد" aria-describedby="e-name">
+      <div class="err" id="e-name" hidden></div>
+    </div>
+
+    <div role="group" aria-labelledby="l-dob">
+      <span class="lbl" id="l-dob">تاريخ الميلاد (ميلادي) <span class="req" aria-hidden="true">*</span>
+        <span class="hint">كما هو مسجّل في نظام نور — مواليد ٢٠١٤ إلى ٢٠١٧</span></span>
+      <div class="dob">
+        <select id="d" aria-label="اليوم" required></select>
+        <select id="m" aria-label="الشهر" required></select>
+        <select id="y" aria-label="السنة" required></select>
+      </div>
+      <div class="err" id="e-dob" hidden></div>
+    </div>
+
+    <div>
+      <label for="phone">رقم جوال ولي الأمر <span class="req" aria-hidden="true">*</span></label>
+      <input id="phone" name="phone" type="tel" inputmode="numeric" class="num" required maxlength="10" placeholder="٠٥xxxxxxxx" aria-describedby="e-phone">
+      <div class="err" id="e-phone" hidden></div>
+    </div>
+
+    <div>
+      <label for="nid">رقم هوية الطالب <span class="req" aria-hidden="true">*</span>
+        <span class="hint">هوية وطنية أو إقامة، عشرة أرقام</span></label>
+      <input id="nid" name="nid" type="text" inputmode="numeric" class="num" required maxlength="10" placeholder="١٢٣٤٥٦٧٨٩٠" aria-describedby="e-nid">
+      <div class="err" id="e-nid" hidden></div>
+    </div>
+
+    <div>
+      <label class="agree" for="skill">
+        <input id="skill" type="checkbox" required aria-describedby="e-skill">
+        <span>أُقرّ بأن مهارات ابني في كرة القدم جيدة، وأرغب في ترشيحه للمشاركة في دوري المدارس. <span class="req" aria-hidden="true">*</span></span>
+      </label>
+      <div class="err" id="e-skill" hidden></div>
+    </div>
+
+    <input class="hp" id="site" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+    <button id="go" type="submit">إرسال الترشيح</button>
+    <div id="out" role="status" aria-live="polite" hidden></div>
+  </form>
+
+  <div class="band">
+    <b>بعد الإرسال</b>
+    <p>سيتواصل معك معلم المادة على الجوال المسجّل لتحديد موعد تجربة الأداء.</p>
+  </div>
+
+  <p class="priv">تُستخدم هذه البيانات لأغراض ترشيح الطلاب لدوري المدارس فقط، ولا تُعرض لأي جهة أخرى.</p>
+
+  <div class="sig" aria-label="teacher abdullah — Design and Programming">
+    <span class="nm">teacher abdullah</span><span class="dv"></span><span class="lb">Design<br>&amp; Programming</span>
+  </div>
+</div>
+
+<script>
+/* ===== settings ===== */
+var ENDPOINT = "https://script.google.com/macros/s/AKfycbzbduqh9ywlLwkTIawfHAHrG3YwSjvkAtyVLpzGi13oCLCleEVgspuH-wIDgyXMAkyY7A/exec"; // Apps Script web app URL (write-only)
+var YEARS = [2017, 2016, 2015, 2014];
+var MONTHS = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+
+/* ===== digits ===== */
+var AR = "٠١٢٣٤٥٦٧٨٩", AR2 = "۰۱۲۳۴۵۶۷۸۹";
+function toAr(s){ return String(s).replace(/[0-9]/g, function(c){ return AR[+c]; }); }
+function toEn(s){ return String(s).replace(/[٠-٩]/g, function(c){ return AR.indexOf(c); }).replace(/[۰-۹]/g, function(c){ return AR2.indexOf(c); }); }
+function digitsOnly(s){ return toEn(s).replace(/\D/g, ""); }
+function $(id){ return document.getElementById(id); }
+
+/* ===== date selects ===== */
+function fill(sel, first, items){
+  sel.innerHTML = "";
+  var o = document.createElement("option"); o.value = ""; o.textContent = first; sel.appendChild(o);
+  items.forEach(function(it){ var p = document.createElement("option"); p.value = it[0]; p.textContent = it[1]; sel.appendChild(p); });
+}
+var days = []; for (var i = 1; i <= 31; i++) days.push([i, toAr(i)]);
+fill($("d"), "اليوم", days);
+fill($("m"), "الشهر", MONTHS.map(function(n, k){ return [k + 1, n]; }));
+fill($("y"), "السنة", YEARS.map(function(v){ return [v, toAr(v)]; }));
+
+/* ===== live Arabic-Indic display for numeric fields ===== */
+["phone", "nid"].forEach(function(id){
+  $(id).addEventListener("input", function(){
+    var pos = this.selectionStart, v = digitsOnly(this.value).slice(0, 10);
+    this.value = toAr(v);
+    try { this.setSelectionRange(pos, pos); } catch(e){}
+  });
+});
+
+/* ===== validation ===== */
+function idOk(s){
+  if (!/^\d{10}$/.test(s)) return false;
+  var t = 0;
+  for (var i = 0; i < 10; i++){
+    var d = +s[i];
+    if (i % 2 === 0){ d *= 2; if (d > 9) d -= 9; }
+    t += d;
+  }
+  return t % 10 === 0;
+}
+function setErr(id, field, msg){
+  var e = $(id);
+  if (msg){ e.textContent = msg; e.hidden = false; } else { e.hidden = true; }
+  (Array.isArray(field) ? field : [field]).forEach(function(el){ if (el) el.setAttribute("aria-invalid", msg ? "true" : "false"); });
+  return !msg;
+}
+function validate(){
+  var ok = true, first = null;
+  function mark(res, el){ if (!res){ ok = false; if (!first) first = el; } }
+  var name = $("name").value.trim().replace(/\s+/g, " ");
+  mark(setErr("e-name", $("name"), name.split(" ").length >= 3 && name.length >= 8 ? "" : "اكتب اسم الطالب ثلاثيًا على الأقل."), $("name"));
+
+  var d = +$("d").value, m = +$("m").value, y = +$("y").value, msg = "";
+  if (!d || !m || !y) msg = "اختر اليوم والشهر والسنة.";
+  else {
+    var dt = new Date(y, m - 1, d);
+    if (dt.getFullYear() !== y || dt.getMonth() !== m - 1 || dt.getDate() !== d) msg = "هذا التاريخ غير موجود في التقويم.";
+  }
+  mark(setErr("e-dob", [$("d"), $("m"), $("y")], msg), $("d"));
+
+  var ph = digitsOnly($("phone").value);
+  mark(setErr("e-phone", $("phone"), /^05\d{8}$/.test(ph) ? "" : "اكتب رقم الجوال من عشرة أرقام يبدأ بـ ٠٥."), $("phone"));
+
+  var nid = digitsOnly($("nid").value);
+  mark(setErr("e-nid", $("nid"), idOk(nid) ? "" : "رقم الهوية غير صحيح، تأكد من الأرقام العشرة."), $("nid"));
+
+  mark(setErr("e-skill", $("skill"), $("skill").checked ? "" : "يلزم الإقرار بأن مستوى الطالب في كرة القدم جيد."), $("skill"));
+  if (first) first.focus();
+  return ok;
+}
+
+/* ===== submit ===== */
+function show(kind, html){
+  var o = $("out"); o.className = "msg " + kind; o.innerHTML = html; o.hidden = false;
+  o.scrollIntoView({behavior: "smooth", block: "center"});
+}
+$("f").addEventListener("submit", function(ev){
+  ev.preventDefault();
+  if ($("site").value) return;               // honeypot
+  if (!validate()) return;
+  if (!ENDPOINT || ENDPOINT.indexOf("__") === 0){ show("bad", "الصفحة غير مفعّلة بعد."); return; }
+  var btn = $("go"); btn.disabled = true; btn.textContent = "جارٍ الإرسال…";
+  var d = ("0" + $("d").value).slice(-2), m = ("0" + $("m").value).slice(-2);
+  var payload = {
+    name: $("name").value.trim().replace(/\s+/g, " "),
+    dob: $("y").value + "-" + m + "-" + d,
+    phone: digitsOnly($("phone").value),
+    nid: digitsOnly($("nid").value),
+    skill: true
+  };
+  var ctl = new AbortController(), timer = setTimeout(function(){ ctl.abort(); }, 25000);
+  fetch(ENDPOINT, {method: "POST", headers: {"Content-Type": "text/plain;charset=utf-8"}, body: JSON.stringify(payload), signal: ctl.signal, redirect: "follow"})
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      clearTimeout(timer);
+      if (j && j.ok){
+        $("f").querySelectorAll("input,select,button").forEach(function(el){ el.disabled = true; });
+        btn.textContent = "تم الإرسال";
+        show("ok", "<b>تم استلام ترشيح ابنك بنجاح.</b><br>شكرًا لك، وسنتواصل معك على الجوال المسجّل لتحديد موعد تجربة الأداء." + (j.updated ? "<br>كان رقم الهوية مسجّلًا من قبل، وتم تحديث البيانات." : ""));
+      } else {
+        throw new Error((j && j.error) || "fail");
+      }
+    })
+    .catch(function(err){
+      clearTimeout(timer);
+      btn.disabled = false; btn.textContent = "إرسال الترشيح";
+      show("bad", navigator.onLine === false
+        ? "لا يوجد اتصال بالإنترنت. تأكد من الاتصال ثم أعد المحاولة."
+        : "تعذّر الإرسال. أعد المحاولة بعد قليل، وإن تكرر ذلك فتواصل مع معلم المادة.");
+    });
+});
+</script>
+</body>
+</html>
