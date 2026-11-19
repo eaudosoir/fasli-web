@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>الاستبيان القبلي لفعاليات اليوم الدولي للتسامح | ابتدائية الغيناء | بنات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&family=Pinyon+Script&family=Montserrat:wght@600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --p:#1F6FB2; --p2:#2FA4C9; --soft:#E3F0FA; --bg:#F1F8FD; --card:#FFFFFF; --ink:#173A57; --muted:#4E6B82; --line:#C9DDEC; --accent:#FFB703;
+  --o1:#2E9E5B; --o2:#78C07A; --o3:#F2B134; --o4:#F08A4B; --o5:#E05252;
+  --sigA:#0F8B8D; --sigB:#1F6F96; --sigL:#2D5961; --sigD:#8CC9C4; --sigR:#2A9D9A;
+}
+body.girls{ --p:#A8327F; --p2:#E0689F; --soft:#FBE4F1; --bg:#FEF3F9; --ink:#4A1A3A; --muted:#7A4C69; --line:#EBC6DD; }
+@media (prefers-color-scheme:dark){
+  :root{ --bg:#0E1C29; --card:#162B3D; --soft:#1B3750; --ink:#EAF4FB; --muted:#A9C2D6; --line:#2C4A63; --sigA:#7FF0DD; --sigB:#9CCBFF; --sigL:#D5F1EC; --sigD:#5FB8B0; --sigR:#5FB8B0; }
+  body.girls{ --bg:#26101D; --card:#3A1A2D; --soft:#4D2440; --ink:#FDEAF4; --muted:#E3B7D1; --line:#6A3A58; }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Naskh Arabic","Traditional Arabic",serif;font-weight:700;font-size:20px;line-height:1.9;min-height:100vh}
+.hero{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;padding:28px 18px 70px;text-align:center;position:relative;overflow:hidden}
+.hero svg.deco{position:absolute;inset:0;width:100%;height:100%;opacity:.16}
+.hero h1{margin:6px 0 4px;font-size:1.55rem;line-height:1.7;position:relative}
+.hero .school{font-size:1rem;opacity:.95;position:relative}
+.badge{display:inline-block;background:rgba(255,255,255,.22);border:2px solid rgba(255,255,255,.55);border-radius:999px;padding:2px 18px;font-size:.95rem;position:relative;margin-top:6px}
+.wrap{max-width:720px;margin:-48px auto 0;padding:0 14px 30px;position:relative}
+.card{background:var(--card);border-radius:22px;padding:22px 20px;box-shadow:0 8px 28px rgba(0,0,0,.12);border:2px solid var(--line)}
+.card+.card{margin-top:14px}
+h2{margin:0 0 8px;font-size:1.3rem;color:var(--p)}
+body.girls h2{color:var(--p)}
+@media (prefers-color-scheme:dark){h2{color:var(--p2)}}
+p{margin:0 0 10px}
+.muted{color:var(--muted);font-size:.95rem}
+label.l{display:block;margin-bottom:6px;font-size:1.1rem}
+.req{color:#D64545}
+.codebox{display:flex;gap:10px;align-items:center;margin:8px 0 6px}
+#code{flex:1;min-width:0;font:700 1.6rem/1.4 "Noto Naskh Arabic",serif;text-align:center;direction:rtl;padding:12px 10px;border-radius:16px;border:3px solid var(--line);background:var(--bg);color:var(--ink)}
+#code:focus{outline:none;border-color:var(--p);box-shadow:0 0 0 4px color-mix(in srgb,var(--p) 25%,transparent)}
+.chip{background:var(--soft);color:var(--p);border-radius:12px;padding:4px 12px;font-size:.95rem;white-space:nowrap}
+@media (prefers-color-scheme:dark){.chip{color:var(--p2)}}
+.tip{background:var(--soft);border-radius:16px;padding:12px 14px;margin-top:12px;font-size:1rem}
+.err{color:#D64545;min-height:1.6em;font-size:1rem;margin-top:4px}
+.btn{appearance:none;border:0;border-radius:16px;min-height:52px;padding:8px 22px;font:inherit;font-size:1.15rem;cursor:pointer;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.18)}
+.btn.ghost{background:transparent;color:var(--p);border:3px solid var(--line);box-shadow:none}
+@media (prefers-color-scheme:dark){.btn.ghost{color:var(--p2)}}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn:focus-visible,.opt label:focus-visible{outline:4px solid var(--accent);outline-offset:2px}
+.row{display:flex;gap:10px;justify-content:space-between;margin-top:16px;flex-wrap:wrap}
+.prog{height:16px;background:var(--soft);border-radius:99px;overflow:hidden;margin-bottom:6px}
+.prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--p2));border-radius:99px;transition:width .35s}
+.count{font-size:.95rem;color:var(--muted);margin-bottom:12px}
+.q{font-size:1.4rem;line-height:1.9;margin:6px 0 16px}
+.opts{display:grid;gap:10px}
+@media(min-width:640px){.opts{grid-template-columns:repeat(5,1fr)}}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt label{display:flex;align-items:center;justify-content:center;gap:8px;min-height:58px;padding:8px 10px;border-radius:16px;border:3px solid var(--c);color:var(--ink);background:var(--card);cursor:pointer;text-align:center;font-size:1.1rem;line-height:1.5;transition:transform .12s,background .12s}
+.opt label:active{transform:scale(.97)}
+.opt input:checked+label{background:var(--c);color:#fff}
+.opt input:checked+label::before{content:"";width:18px;height:18px;flex:none;background:#fff;border-radius:50%;box-shadow:inset 0 0 0 5px var(--c)}
+.bigcode{font:700 2rem/1.6 "Noto Naskh Arabic",serif;direction:rtl;text-align:center;background:var(--soft);color:var(--p);border:3px dashed var(--p);border-radius:18px;padding:14px;margin:12px 0}
+@media (prefers-color-scheme:dark){.bigcode{color:var(--p2);border-color:var(--p2)}}
+.center{text-align:center}
+.ok{width:84px;height:84px;margin:0 auto 6px;display:block}
+.hide{display:none!important}
+.toast{position:fixed;bottom:18px;inset-inline:0;margin:auto;width:max-content;max-width:90%;background:var(--ink);color:var(--bg);padding:8px 18px;border-radius:99px;font-size:1rem;opacity:0;transition:opacity .25s;pointer-events:none}
+.toast.on{opacity:1}
+footer{max-width:720px;margin:0 auto;padding:6px 18px 26px;direction:ltr}
+.sig{display:inline-flex;align-items:center;gap:10px;position:relative;padding-top:8px}
+.sig::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--sigR),transparent)}
+.sig .n{font-family:"Pinyon Script",cursive;font-size:1.3rem;line-height:1;font-weight:400;background:linear-gradient(90deg,var(--sigA),var(--sigB));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sig .d{width:1px;align-self:stretch;background:var(--sigD)}
+.sig .t{font-family:"Montserrat",sans-serif;font-weight:600;font-size:.5rem;line-height:1.35;letter-spacing:.14em;color:var(--sigL);text-transform:uppercase}
+.noscript{padding:20px;text-align:center}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body class="girls">
+<header class="hero">
+  <svg class="deco" viewBox="0 0 400 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><circle cx="70" cy="40" r="60" fill="#fff"/><circle cx="340" cy="150" r="80" fill="#fff"/><circle cx="210" cy="190" r="40" fill="#fff"/></svg>
+  <div class="school">ابتدائية الغيناء</div>
+  <h1>الاستبيان القبلي لفعاليات اليوم الدولي للتسامح</h1>
+  <span class="badge">نسخة الطالبات</span>
+</header>
+
+<main class="wrap">
+  <noscript><div class="card noscript">يلزم تشغيل جافا سكربت لعرض الاستبيان.</div></noscript>
+
+  <!-- الخطوة ١: رمز الطالب -->
+  <section class="card" id="s-code">
+    <h2>عزيزتي الطالبة</h2>
+    <p>قبل أن نبدأ فعاليات يوم التسامح، نود أن نتعرف على رأيكِ وكيف تتصرفين في بعض المواقف المدرسية. اقرئي كل عبارة واختاري الإجابة التي تعبّر عنكِ. تستغرق المشاركة نحو دقيقتين.</p>
+    <label class="l" for="code">اسم الطالبة <span class="req" aria-label="مطلوب">*</span></label>
+    <div class="codebox">
+      <input id="code" type="text" lang="ar" dir="rtl" autocomplete="off" spellcheck="false" maxlength="60" placeholder="مثال: محمد أحمد" aria-describedby="codehelp codeerr">
+      <span class="chip">الاسم الثنائي</span>
+    </div>
+    <div class="err" id="codeerr" role="alert"></div>
+    <div class="tip" id="codehelp">اكتبي اسمكِ الثنائي على الأقل (الاسم الأول واسم الأب) بالأحرف العربية، وتأكدي منه جيدًا قبل أن تكملي.</div>
+    <div class="row"><span></span><button class="btn" id="b-start" type="button">ابدأ</button></div>
+  </section>
+
+  <!-- الخطوة ٢: العبارات -->
+  <section class="card hide" id="s-q" aria-live="polite">
+    <div class="prog" aria-hidden="true"><i id="bar"></i></div>
+    <div class="count" id="count"></div>
+    <div class="muted">إلى أي مدى توافق على العبارة الآتية؟</div>
+    <div class="q" id="qtext"></div>
+    <div class="opts" id="opts" role="radiogroup" aria-labelledby="qtext"></div>
+    <div class="row"><button class="btn ghost" id="b-prev" type="button">السابق</button><span></span></div>
+  </section>
+
+  <!-- الخطوة ٣: المراجعة -->
+  <section class="card hide" id="s-review">
+    <h2>راجعي اسمكِ قبل الإرسال</h2>
+    <p>تأكدي أن اسمكِ مكتوب بشكل صحيح، لأنه سيظهر في النتائج.</p>
+    <div class="bigcode" id="rcode"></div>
+    <div class="err" id="senderr" role="alert"></div>
+    <div class="row">
+      <button class="btn ghost" id="b-edit" type="button">تعديل الاسم</button>
+      <button class="btn" id="b-send" type="button">الاسم صحيح، أرسل</button>
+    </div>
+  </section>
+
+  <!-- الخطوة ٤: النجاح -->
+  <section class="card hide center" id="s-done">
+    <svg class="ok" viewBox="0 0 84 84" aria-hidden="true"><circle cx="42" cy="42" r="40" fill="var(--o1)"/><path d="M24 43l13 13 24-27" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <h2>تم الإرسال، شكرًا لك</h2>
+    <div class="bigcode" id="dcode"></div>
+    <p>شكرًا لمشاركتكِ. نلتقي في فعاليات يوم التسامح.</p>
+  </section>
+</main>
+
+<footer><div class="sig"><span class="n">teacher abdullah</span><span class="d"></span><span class="t">Design<br>&amp; Programming</span></div></footer>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const CFG = {"formId": "1FAIpQLSebHOB-o-MjyBg7hSf2Rjrfuul3_78WP453I805fTiYUen0hw", "codeEntry": 556923048, "rowEntries": [2851240, 256944594, 1190008866, 1292944190, 1356532987, 660956255, 138510767], "statements": ["أستطيع أن أشرح معنى التسامح بمثال من حياتي.", "أحترم زميلتي عندما يختلف رأيها عن رأيي.", "أستمع إلى زميلتي حتى تنتهي من كلامها عند الاختلاف.", "أختار كلمات مهذبة عندما أغضب.", "أعتذر لزميلتي إذا أخطأت في حقها.", "أدعو زميلتي إلى اللعب إذا رأيتها مستبعدة من المجموعة.", "أستطيع أن أقترح نشاطًا ينشر التسامح في المدرسة."]};
+const AR = '٠١٢٣٤٥٦٧٨٩';
+const toAr = n => String(n).replace(/\d/g, d => AR[d]);
+const $ = id => document.getElementById(id);
+const OPTS = [
+  ['أوافق بشدة','var(--o1)'],['أوافق','var(--o2)'],['محايد','var(--o3)'],['لا أوافق','var(--o4)'],['لا أوافق بشدة','var(--o5)']
+];
+const answers = new Array(CFG.statements.length).fill(null);
+let idx = 0, code = '', sending = false;
+
+function show(id){ ['s-code','s-q','s-review','s-done'].forEach(s => $(s).classList.toggle('hide', s !== id)); window.scrollTo({top:0,behavior:'smooth'}); }
+function toast(t){ const el=$('toast'); el.textContent=t; el.classList.add('on'); setTimeout(()=>el.classList.remove('on'),1800); }
+
+/* ---- رمز الطالب ---- */
+const codeEl = $('code');
+function cleanCode(v){
+  return v.replace(/[^\u0600-\u06FF\s]/g,'').replace(/\s+/g,' ').replace(/^\s/,'');
+}
+codeEl.addEventListener('input', () => {
+  const raw = codeEl.value;
+  const bad = /[A-Za-z0-9٠-٩]/.test(raw);
+  codeEl.value = cleanCode(raw);
+  $('codeerr').textContent = bad ? 'اكتب الاسم بالأحرف العربية فقط.' : '';
+});
+function validCode(c){ return c.trim().split(' ').filter(x=>x.length>=2).length>=2; }
+function goStart(){
+  const c = cleanCode(codeEl.value).trim();
+  if(!c){ $('codeerr').textContent = 'اكتب الاسم أولًا.'; codeEl.focus(); return; }
+  if(!validCode(c)){ $('codeerr').textContent = 'اكتب الاسم الثنائي على الأقل: الاسم الأول واسم الأب.'; codeEl.focus(); return; }
+  code = c; $('codeerr').textContent=''; idx = answers.findIndex(a=>a===null); if(idx<0) idx=0; renderQ(); show('s-q');
+}
+$('b-start').onclick = goStart;
+codeEl.addEventListener('keydown', e => { if(e.key==='Enter') goStart(); });
+
+/* ---- العبارات ---- */
+function renderQ(){
+  const n = CFG.statements.length;
+  $('bar').style.width = (idx/n*100)+'%';
+  $('count').textContent = 'العبارة ' + toAr(idx+1) + ' من ' + toAr(n);
+  $('qtext').textContent = CFG.statements[idx];
+  const box = $('opts'); box.innerHTML='';
+  OPTS.forEach(([t,c],i)=>{
+    const d=document.createElement('div'); d.className='opt'; d.style.setProperty('--c',c);
+    const id='o'+i;
+    d.innerHTML='<input type="radio" name="a" id="'+id+'" value="'+t+'"><label for="'+id+'">'+t+'</label>';
+    const inp=d.querySelector('input'); if(answers[idx]===t) inp.checked=true;
+    inp.addEventListener('change',()=>{ answers[idx]=t; setTimeout(next,320); });
+    box.appendChild(d);
+  });
+  $('b-prev').style.visibility = 'visible';
+}
+function next(){
+  if(idx < CFG.statements.length-1){ idx++; renderQ(); }
+  else { $('bar').style.width='100%'; $('rcode').textContent = code; show('s-review'); }
+}
+$('b-prev').onclick = () => { if(idx>0){ idx--; renderQ(); } else { show('s-code'); codeEl.focus(); } };
+$('b-edit').onclick = () => { show('s-code'); codeEl.focus(); codeEl.select(); };
+
+/* ---- الإرسال إلى نموذج Google نفسه ---- */
+$('b-send').onclick = async () => {
+  if(sending) return;
+  if(answers.some(a=>a===null)){ $('senderr').textContent='بقيت عبارات لم تُجب عنها.'; return; }
+  sending = true; const b=$('b-send'); b.disabled=true; b.textContent='جارٍ الإرسال...'; $('senderr').textContent='';
+  const body = new URLSearchParams();
+  body.append('entry.'+CFG.codeEntry, code);
+  CFG.rowEntries.forEach((e,i)=> body.append('entry.'+e, answers[i]));
+  try{
+    await fetch('https://docs.google.com/forms/d/e/'+CFG.formId+'/formResponse',{method:'POST',mode:'no-cors',body});
+    $('dcode').textContent = code; show('s-done');
+  }catch(err){
+    sending=false; b.disabled=false; b.textContent='الاسم صحيح، أرسل';
+    $('senderr').textContent = navigator.onLine ? 'تعذّر الإرسال، حاول مرة أخرى.' : 'لا يوجد اتصال بالإنترنت، تأكد منه ثم أعد المحاولة.';
+  }
+};
+</script>
+</body>
+</html>
