@@ -47,11 +47,11 @@ label,.lbl{display:block;font-size:1.02rem;margin-bottom:4px}
 .hint{display:block;font-weight:400;color:var(--muted);font-size:.92rem;line-height:1.6}
 input[type=text],input[type=tel],select{width:100%;min-height:50px;font:inherit;font-weight:700;color:var(--ink);background:var(--field);
   border:2px solid var(--line);border-radius:12px;padding:8px 12px;-webkit-appearance:none;appearance:none}
-select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);
-  background-position:left 18px center,left 12px center;background-size:6px 6px;background-repeat:no-repeat;padding-inline-start:34px}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1.5l6 6 6-6' fill='none' stroke='%234F6A58' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-position:left 12px center;background-size:14px 9px;background-repeat:no-repeat;padding-inline-start:34px}
 input:focus,select:focus,button:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 input[aria-invalid=true],select[aria-invalid=true]{border-color:var(--err)}
-.num{direction:ltr;text-align:right;letter-spacing:.06em}
+.num{direction:rtl;text-align:right;letter-spacing:.06em}
 .dob{display:grid;grid-template-columns:1fr 1.5fr 1.2fr;gap:8px}
 .err{color:var(--err);background:var(--err-bg);border-radius:10px;padding:6px 10px;font-size:.95rem;margin-top:6px}
 .agree{display:flex;gap:12px;align-items:flex-start;background:var(--field);border:2px solid var(--line);border-radius:12px;padding:12px}
@@ -120,14 +120,14 @@ button:disabled{opacity:.6;cursor:wait}
 
     <div>
       <label for="phone">رقم جوال ولي الأمر <span class="req" aria-hidden="true">*</span></label>
-      <input id="phone" name="phone" type="tel" inputmode="numeric" class="num" required maxlength="10" placeholder="٠٥xxxxxxxx" aria-describedby="e-phone">
+      <input id="phone" name="phone" type="tel" inputmode="numeric" class="num" required maxlength="10" placeholder="عشرة أرقام تبدأ بـ ٠٥" aria-describedby="e-phone">
       <div class="err" id="e-phone" hidden></div>
     </div>
 
     <div>
       <label for="nid">رقم هوية الطالب <span class="req" aria-hidden="true">*</span>
         <span class="hint">هوية وطنية أو إقامة، عشرة أرقام</span></label>
-      <input id="nid" name="nid" type="text" inputmode="numeric" class="num" required maxlength="10" placeholder="١٢٣٤٥٦٧٨٩٠" aria-describedby="e-nid">
+      <input id="nid" name="nid" type="text" inputmode="numeric" class="num" required maxlength="10" placeholder="عشرة أرقام" aria-describedby="e-nid">
       <div class="err" id="e-nid" hidden></div>
     </div>
 
