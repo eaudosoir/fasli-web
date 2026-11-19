@@ -145,7 +145,7 @@ button:disabled{opacity:.6;cursor:wait}
     <div>
       <label class="agree" for="skill">
         <input id="skill" type="checkbox" required aria-describedby="e-skill">
-        <span>أُقرّ بأن مهارات ابني في كرة القدم جيدة، وأرغب في ترشيحه للمشاركة في دوري المدارس. <span class="req" aria-hidden="true">*</span></span>
+        <span>أُقرّ بموافقتي على مشاركة ابني في دوري المدارس لكرة القدم. <span class="req" aria-hidden="true">*</span></span>
       </label>
       <div class="err" id="e-skill" hidden></div>
     </div>
@@ -276,7 +276,7 @@ function validate(){
   var nid = digitsOnly($("nid").value);
   mark(setErr("e-nid", $("nid"), idOk(nid) ? "" : "رقم الهوية غير صحيح، تأكد من الأرقام العشرة."), $("nid"));
 
-  mark(setErr("e-skill", $("skill"), $("skill").checked ? "" : "يلزم الإقرار بأن مستوى الطالب في كرة القدم جيد."), $("skill"));
+  mark(setErr("e-skill", $("skill"), $("skill").checked ? "" : "يلزم الإقرار بالموافقة على المشاركة."), $("skill"));
   if (first) first.focus();
   return ok;
 }
